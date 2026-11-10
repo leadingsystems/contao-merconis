@@ -11,7 +11,6 @@ interface GaranLabelRendererInterface
     public function render(
         string $brand,
         string $modelIdentifier,
-        string $durationText,
-        string $decimalSeparator
+        string $durationMonths
     ): string;
 }

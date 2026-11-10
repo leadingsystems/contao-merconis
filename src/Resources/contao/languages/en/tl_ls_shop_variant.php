@@ -38,9 +38,8 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopProductVariantMainImage']						
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopProductVariantMoreImages']						= array('Further images', 'Please select further images for this variant here.');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantDeliveryInfoSet']						= array('Settings on goods in stock/delivery time');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['overrideAvailabilitySettingsOfParentProduct']		=	array('Override availability and pre-order settings of the main product');
-$GLOBALS['TL_LANG']['tl_ls_shop_variant']['garanOverride']										=	array('Use variant-specific GARAN data', 'Overrides the parent product\'s details. Does not activate GARAN.');
-$GLOBALS['TL_LANG']['tl_ls_shop_variant']['enableGaran']										=	array('Enable GARAN');
-$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeDurationYears']								=	array('Guarantee duration in months', 'Enter whole months, from 30 to 360, in steps of 6. Output shows years with the shop language\'s decimal separator: 30 months become 2,5 or 2.5 years, 36 months become 3 years.');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['garanMode']											=	array('Manufacturer guarantee of the variant', 'Defines whether the variant inherits the product\'s details, shows no manufacturer guarantee or has its own details.');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeDurationMonths']								=	array('Guarantee duration in months', 'Enter whole months, from 30 to 360, in steps of 6. Output shows years with comma as decimal separator: 30 months become 2,5 years, 36 months become 3 years.');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeBrand']										=	['Brand/Trademark', 'The full value is stored. If too long, the brand name is truncated with \'...\' in the label display. The truncation length is configurable in the shop settings.'];
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeModelIdentifier']							=	['Model identifier', 'The full value is stored. If too long, the model identifier is truncated with \'...\' in the label display. The truncation length is configurable in the shop settings.'];
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['availableFrom']				                	=	array('Available from');
@@ -105,6 +104,12 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceQuantityDetectio
 	'separatedScalePriceKeywords' => array('Summarized by scale price keyword', 'Cart items with the same scale price keyword will be summarized. Apart from that, different cart items will be counted separately.')
 );
 
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['garanModeOptions'] = array(
+	'inherit' => 'Inherit from product',
+	'disabled' => 'No output',
+	'override' => 'Own details'
+);
+
 /*
  * Buttons
  */
@@ -124,9 +129,9 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contents_label02'] = 'Variant in
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contentsLanguageIndependent_label01'] = 'Keyword';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contentsLanguageIndependent_label02'] = 'Variant information';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeValidationMessages'] = array(
-	'garan_disabled_gll_required' => 'GARAN was not saved because the parent product\'s GLL is disabled.',
-	'garan_inherited_gll_required' => 'GARAN was not saved. The variant inherits GARAN from the parent product (no own override). GARAN is enabled there, but GLL is disabled. Please enable GLL or disable GARAN on the parent product.',
-	'garan_disabled_gll_variant_override' => 'GARAN was not saved because GLL is disabled and the following variants still use variant-specific GARAN data: %s.',
+	'garan_invalid_mode' => 'GARAN was not saved because "%s" is not a valid garanMode. Use "inherit", "disabled" or "override".',
+	'garan_override_gll_required' => 'GARAN was not saved because garanMode "override" requires GLL on the parent product.',
+	'garan_disabled_gll_variant_override' => 'GARAN was not saved because GLL is disabled and the following variants still use garanMode "override": %s.',
 	'garan_disabled_missing_brand' => 'GARAN was not saved because Brand/Trademark is missing.',
 	'garan_disabled_missing_model' => 'GARAN was not saved because Model identifier is missing.',
 	'garan_disabled_missing_duration' => 'GARAN was not saved because the guarantee duration is missing.',

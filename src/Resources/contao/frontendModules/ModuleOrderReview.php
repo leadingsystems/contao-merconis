@@ -36,8 +36,8 @@ class ModuleOrderReview extends Module {
 		// ###################################################
 		$this->Template->formConfirmOrder = $formConfirmOrder;
 		$objLegalGuaranteeMarkupProvider = System::getContainer()->get(LegalGuaranteeMarkupProvider::class);
-		$this->Template->gllCheckoutLinks = $objLegalGuaranteeMarkupProvider->renderCheckoutGllLinks();
-		$this->Template->garanCheckoutBlock = $objLegalGuaranteeMarkupProvider->renderCheckoutGaranBlock();
+		$this->Template->checkoutGllNotice = $objLegalGuaranteeMarkupProvider->checkoutGllNotice();
+		$this->Template->checkoutGaranBlock = $objLegalGuaranteeMarkupProvider->checkoutGaranBlock();
 
 		$this->Template->noVATBecauseOfEnteredIDs = ls_shop_generalHelper::checkVATID();
 

@@ -109,9 +109,13 @@ final class OfficialGuaranteeAssetLocatorTest extends TestCase
             $assetLocator->getGaranPdfTemplatePath()
         );
         self::assertSame($assetLocator->getGaranColourTemplatePath(), $assetLocator->getGaranPdfTemplatePath());
-        self::assertFileExists($assetLocator->getInterFontDirectory() . '/Inter-Regular.otf');
-        self::assertFileExists($assetLocator->getInterFontDirectory() . '/Inter-SemiBold.otf');
-        self::assertFileExists($assetLocator->getInterFontDirectory() . '/Inter-ExtraBold.otf');
+        self::assertFileExists($assetLocator->getInterFontDirectory() . '/Inter-Regular.woff2');
+        self::assertFileExists($assetLocator->getInterFontDirectory() . '/Inter-SemiBold.woff2');
+        self::assertFileExists($assetLocator->getInterFontDirectory() . '/Inter-ExtraBold.woff2');
+        self::assertFileExists($assetLocator->getInterFontDirectory() . '/Inter-Regular.ttf');
+        self::assertFileExists($assetLocator->getInterFontDirectory() . '/Inter-SemiBold.ttf');
+        self::assertFileExists($assetLocator->getInterFontDirectory() . '/Inter-ExtraBold.ttf');
+        self::assertFileExists($assetLocator->getInterFontDirectory() . '/LICENSE.txt');
     }
 
     public function testFontStylesheetPreparesInterWithoutSettingShopFont(): void
@@ -124,9 +128,16 @@ final class OfficialGuaranteeAssetLocatorTest extends TestCase
             $stylesheetPath
         );
         self::assertStringContainsString('@font-face', $stylesheetContents);
-        self::assertStringContainsString('Inter-Regular.otf', $stylesheetContents);
-        self::assertStringContainsString('Inter-SemiBold.otf', $stylesheetContents);
-        self::assertStringContainsString('Inter-ExtraBold.otf', $stylesheetContents);
+        self::assertStringContainsString('Inter-Regular.woff2', $stylesheetContents);
+        self::assertStringContainsString('Inter-SemiBold.woff2', $stylesheetContents);
+        self::assertStringContainsString('Inter-ExtraBold.woff2', $stylesheetContents);
+        self::assertStringContainsString('Inter-Regular.ttf', $stylesheetContents);
+        self::assertStringContainsString('Inter-SemiBold.ttf', $stylesheetContents);
+        self::assertStringContainsString('Inter-ExtraBold.ttf', $stylesheetContents);
+        self::assertStringContainsString('format("woff2")', $stylesheetContents);
+        self::assertStringContainsString('format("truetype")', $stylesheetContents);
+        self::assertStringNotContainsString('.otf', $stylesheetContents);
+        self::assertStringNotContainsString('format("opentype")', $stylesheetContents);
         self::assertStringNotContainsString('.merconis-legal-guarantee-label', $stylesheetContents);
         self::assertStringNotContainsString('max-width: 600px', $stylesheetContents);
         self::assertDoesNotMatchRegularExpression(

@@ -15,11 +15,6 @@ class dynamicAttachment_legalGuaranteeLabels_01
     private array $arrOrder = [];
 
     /**
-     * @var list<string>
-     */
-    private array $cleanupFilePaths = [];
-
-    /**
      * @param array<string, mixed> $arrOrder
      */
     public function __construct($arrOrder = [], $messageCounterNr = null, $arrFlexParameters = [])
@@ -37,21 +32,9 @@ class dynamicAttachment_legalGuaranteeLabels_01
                 ->get(OrderConfirmationAttachmentGenerator::class)
                 ->generateAttachments($this->arrOrder);
         } catch (\Throwable) {
-            $this->cleanupFilePaths = [];
-
             return [];
         }
 
-        $this->cleanupFilePaths = $generatedAttachments['cleanupRelativePaths'];
-
         return $generatedAttachments['relativePaths'];
-    }
-
-    /**
-     * @return list<string>
-     */
-    public function getCleanupFilePaths(): array
-    {
-        return $this->cleanupFilePaths;
     }
 }

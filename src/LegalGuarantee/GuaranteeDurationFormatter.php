@@ -6,21 +6,24 @@ namespace LeadingSystems\MerconisBundle\LegalGuarantee;
 
 final class GuaranteeDurationFormatter
 {
-    public static function formatYearsForDisplay(string $durationYears, string $outputDecimalSeparator): string
+    public static function formatMonthsForDisplay(string $durationMonths): string
     {
-        $normalizedDuration = trim($durationYears);
+        $normalizedDuration = trim($durationMonths);
 
         if ('' === $normalizedDuration) {
             return '';
         }
 
-        $normalizedDuration = preg_replace('/\.0$/', '', $normalizedDuration) ?? $normalizedDuration;
-        $normalizedDecimalSeparator = trim($outputDecimalSeparator);
-
-        if ('' === $normalizedDecimalSeparator) {
-            $normalizedDecimalSeparator = ',';
+        if (!preg_match('/^\d+$/', $normalizedDuration)) {
+            return $normalizedDuration;
         }
 
-        return str_replace('.', $normalizedDecimalSeparator, $normalizedDuration);
+        $months = (int) $normalizedDuration;
+
+        if (0 === $months % 12) {
+            return (string) intdiv($months, 12);
+        }
+
+        return number_format($months / 12, 1, ',', '');
     }
 }

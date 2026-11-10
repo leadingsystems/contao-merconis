@@ -37,6 +37,7 @@ services:
     arguments:
       $projectDir: '%kernel.project_dir%/vendor/leadingsystems/contao-merconis'
 
+  LeadingSystems\MerconisBundle\LegalGuarantee\GaranLabelGrouping: ~
   merconis.legal_guarantee.garan_label_renderer.v1_0:
     class: LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranLabelRenderer
     arguments:
@@ -63,8 +64,6 @@ services:
     arguments:
       $projectDir: '%kernel.project_dir%'
     public: true
-  LeadingSystems\MerconisBundle\LegalGuarantee\Order\OrderConfirmationMessageAugmenter:
-    public: true
   LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\ProductGuaranteeDisplayResolver: ~
   LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\LegalGuaranteeMarkupBuilder: ~
   LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\LegalGuaranteeMarkupProvider:
@@ -73,6 +72,9 @@ services:
     public: true
   LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\EnableGllSettingsMigrationManager:
     public: true
+    arguments:
+      $connection: '@doctrine.dbal.default_connection'
+  LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\LegalGuaranteeBackendCallbacks:
     arguments:
       $connection: '@doctrine.dbal.default_connection'
   LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\ProductGuaranteeConfigurationValidator: ~
@@ -116,6 +118,10 @@ services:
   LeadingSystems\MerconisBundle\Command\FastFilterIndexVerifyCommand:
     tags:
       - { name: 'console.command', command: 'merconis:fast-filter:verify-index' }
+
+  LeadingSystems\MerconisBundle\Command\LegalGuaranteeOrderAttachmentsCommand:
+    tags:
+      - { name: 'console.command', command: 'merconis:legal-guarantee:order-attachments' }
 
   LeadingSystems\MerconisBundle\EventListener\GetPageLayoutListener:
     tags:

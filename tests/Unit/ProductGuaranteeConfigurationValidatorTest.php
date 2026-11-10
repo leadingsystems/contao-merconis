@@ -16,13 +16,13 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
         $result = $validator->validateProduct([
             'enableGll' => '1',
             'enableGaran' => '1',
-            'guaranteeDurationYears' => '30',
+            'guaranteeDurationMonths' => '30',
             'guaranteeBrand' => ' ACME &amp; Co. ',
             'guaranteeModelIdentifier' => ' M-42 ',
         ]);
 
         self::assertSame('1', $result->getNormalizedData()['enableGaran']);
-        self::assertSame('2.5', $result->getNormalizedData()['guaranteeDurationYears']);
+        self::assertSame('30', $result->getNormalizedData()['guaranteeDurationMonths']);
         self::assertSame('ACME &amp; Co.', $result->getNormalizedData()['guaranteeBrand']);
         self::assertSame('M-42', $result->getNormalizedData()['guaranteeModelIdentifier']);
         self::assertSame([], $result->getMessages());
@@ -35,7 +35,7 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
         $result = $validator->validateProduct([
             'enableGll' => '1',
             'enableGaran' => '1',
-            'guaranteeDurationYears' => '36',
+            'guaranteeDurationMonths' => '36',
             'guaranteeBrand' => '',
             'guaranteeModelIdentifier' => 'Model',
         ]);
@@ -53,13 +53,13 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
 
         $result = $validator->validateProduct([
             'enableGaran' => '',
-            'guaranteeDurationYears' => '31',
+            'guaranteeDurationMonths' => '31',
             'guaranteeBrand' => 'ACME',
             'guaranteeModelIdentifier' => 'Model',
         ]);
 
         self::assertSame('', $result->getNormalizedData()['enableGaran']);
-        self::assertNull($result->getNormalizedData()['guaranteeDurationYears']);
+        self::assertNull($result->getNormalizedData()['guaranteeDurationMonths']);
         self::assertSame(
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_INVALID_DURATION,
             $result->getMessages()[0]['code']
@@ -74,7 +74,7 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
         $result = $validator->validateProduct([
             'enableGll' => '',
             'enableGaran' => '1',
-            'guaranteeDurationYears' => '36',
+            'guaranteeDurationMonths' => '36',
             'guaranteeBrand' => 'ACME',
             'guaranteeModelIdentifier' => 'Model',
         ]);
@@ -93,25 +93,22 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
             [
                 'enableGll' => '',
                 'enableGaran' => '',
-                'guaranteeDurationYears' => null,
+                'guaranteeDurationMonths' => null,
                 'guaranteeBrand' => '',
                 'guaranteeModelIdentifier' => '',
             ],
             [
                 [
                     'lsShopVariantCode' => 'VAR-001',
-                    'garanOverride' => '1',
-                    'enableGaran' => '1',
+                    'garanMode' => 'override',
                 ],
                 [
                     'lsShopVariantCode' => 'VAR-002',
-                    'garanOverride' => '1',
-                    'enableGaran' => '1',
+                    'garanMode' => 'override',
                 ],
                 [
                     'lsShopVariantCode' => 'VAR-IGNORED',
-                    'garanOverride' => '',
-                    'enableGaran' => '1',
+                    'garanMode' => 'disabled',
                 ],
             ]
         );
@@ -123,22 +120,21 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
         self::assertSame(['VAR-001, VAR-002'], $result->getMessages()[0]['parameters']);
     }
 
-    public function testVariantWithoutOverrideUsesParentEffectiveValuesButStillValidatesOwnDuration(): void
+    public function testVariantInheritUsesParentEffectiveValuesButStillValidatesOwnDuration(): void
     {
         $validator = new ProductGuaranteeConfigurationValidator();
 
         $result = $validator->validateVariant(
             [
-                'garanOverride' => '',
-                'enableGaran' => '1',
-                'guaranteeDurationYears' => '31',
+                'garanMode' => 'inherit',
+                'guaranteeDurationMonths' => '31',
                 'guaranteeBrand' => 'Ignored',
                 'guaranteeModelIdentifier' => 'Ignored',
             ],
             [
                 'enableGll' => '1',
                 'enableGaran' => '1',
-                'guaranteeDurationYears' => '4.5',
+                'guaranteeDurationMonths' => '54',
                 'guaranteeBrand' => 'Parent Brand',
                 'guaranteeModelIdentifier' => 'ParentM',
             ],
@@ -148,66 +144,68 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_INVALID_DURATION,
             $result->getMessages()[0]['code']
         );
-        self::assertNull($result->getNormalizedData()['guaranteeDurationYears']);
+        self::assertNull($result->getNormalizedData()['guaranteeDurationMonths']);
         self::assertSame('1', $result->getEffectiveData()['enableGaran']);
-        self::assertSame('4.5', $result->getEffectiveData()['guaranteeDurationYears']);
+        self::assertSame('54', $result->getEffectiveData()['guaranteeDurationMonths']);
         self::assertSame('Parent Brand', $result->getEffectiveData()['guaranteeBrand']);
         self::assertSame('ParentM', $result->getEffectiveData()['guaranteeModelIdentifier']);
     }
 
-    public function testVariantOverrideFallsBackToProductValuesForEmptyFields(): void
+    public function testVariantOverrideDoesNotFallBackToProductValuesForEmptyFields(): void
     {
         $validator = new ProductGuaranteeConfigurationValidator();
 
         $result = $validator->validateVariant(
             [
-                'garanOverride' => '1',
-                'enableGaran' => '1',
-                'guaranteeDurationYears' => '',
+                'garanMode' => 'override',
+                'guaranteeDurationMonths' => '',
                 'guaranteeBrand' => '',
                 'guaranteeModelIdentifier' => '',
             ],
             [
                 'enableGll' => '1',
                 'enableGaran' => '1',
-                'guaranteeDurationYears' => '5.0',
-                'guaranteeBrand' => 'Parent Brand',
-                'guaranteeModelIdentifier' => 'ParentM',
-            ],
-        );
-
-        self::assertSame([], $result->getMessages());
-        self::assertNull($result->getNormalizedData()['guaranteeDurationYears']);
-        self::assertSame('5', $result->getEffectiveData()['guaranteeDurationYears']);
-        self::assertSame('Parent Brand', $result->getEffectiveData()['guaranteeBrand']);
-        self::assertSame('ParentM', $result->getEffectiveData()['guaranteeModelIdentifier']);
-    }
-
-    public function testVariantWithoutOverrideRejectsEffectiveGaranWhenParentGllIsDisabled(): void
-    {
-        $validator = new ProductGuaranteeConfigurationValidator();
-
-        $result = $validator->validateVariant(
-            [
-                'garanOverride' => '',
-                'enableGaran' => '',
-                'guaranteeDurationYears' => '',
-                'guaranteeBrand' => '',
-                'guaranteeModelIdentifier' => '',
-            ],
-            [
-                'enableGll' => '',
-                'enableGaran' => '1',
-                'guaranteeDurationYears' => '5.0',
+                'guaranteeDurationMonths' => '60',
                 'guaranteeBrand' => 'Parent Brand',
                 'guaranteeModelIdentifier' => 'ParentM',
             ],
         );
 
         self::assertSame(
-            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_INHERITED_GLL_REQUIRED,
-            $result->getMessages()[0]['code']
+            [
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_BRAND,
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_MODEL,
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_DURATION,
+            ],
+            array_column($result->getMessages(), 'code')
         );
+        self::assertNull($result->getNormalizedData()['guaranteeDurationMonths']);
+        self::assertSame('', $result->getEffectiveData()['guaranteeDurationMonths']);
+        self::assertSame('', $result->getEffectiveData()['guaranteeBrand']);
+        self::assertSame('', $result->getEffectiveData()['guaranteeModelIdentifier']);
+    }
+
+    public function testVariantInheritDoesNotDuplicateParentGllValidation(): void
+    {
+        $validator = new ProductGuaranteeConfigurationValidator();
+
+        $result = $validator->validateVariant(
+            [
+                'garanMode' => 'inherit',
+                'guaranteeDurationMonths' => '',
+                'guaranteeBrand' => '',
+                'guaranteeModelIdentifier' => '',
+            ],
+            [
+                'enableGll' => '',
+                'enableGaran' => '1',
+                'guaranteeDurationMonths' => '60',
+                'guaranteeBrand' => 'Parent Brand',
+                'guaranteeModelIdentifier' => 'ParentM',
+            ],
+        );
+
+        self::assertSame([], $result->getMessages());
     }
 
     public function testVariantOverrideKeepsGaranEnabledWhenEffectiveBrandIsMissing(): void
@@ -216,22 +214,21 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
 
         $result = $validator->validateVariant(
             [
-                'garanOverride' => '1',
-                'enableGaran' => '1',
-                'guaranteeDurationYears' => '60',
+                'garanMode' => 'override',
+                'guaranteeDurationMonths' => '60',
                 'guaranteeBrand' => '',
                 'guaranteeModelIdentifier' => 'VarMod',
             ],
             [
                 'enableGll' => '1',
                 'enableGaran' => '1',
-                'guaranteeDurationYears' => '5.0',
+                'guaranteeDurationMonths' => '60',
                 'guaranteeBrand' => '',
                 'guaranteeModelIdentifier' => 'ParentM',
             ],
         );
 
-        self::assertSame('1', $result->getNormalizedData()['enableGaran']);
+        self::assertSame('override', $result->getNormalizedData()['garanMode']);
         self::assertSame(
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_BRAND,
             $result->getMessages()[0]['code']
@@ -244,25 +241,51 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
 
         $result = $validator->validateVariant(
             [
-                'garanOverride' => '1',
-                'enableGaran' => '1',
-                'guaranteeDurationYears' => '60',
+                'garanMode' => 'override',
+                'guaranteeDurationMonths' => '60',
                 'guaranteeBrand' => 'Variant Brand',
                 'guaranteeModelIdentifier' => 'VarMod',
             ],
             [
                 'enableGll' => '',
                 'enableGaran' => '1',
-                'guaranteeDurationYears' => '5.0',
+                'guaranteeDurationMonths' => '60',
                 'guaranteeBrand' => 'Parent Brand',
                 'guaranteeModelIdentifier' => 'ParentM',
             ],
         );
 
         self::assertSame(
-            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED,
+            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_OVERRIDE_GLL_REQUIRED,
             $result->getMessages()[0]['code']
         );
+    }
+
+    public function testVariantValidationRejectsInvalidGaranMode(): void
+    {
+        $validator = new ProductGuaranteeConfigurationValidator();
+
+        $result = $validator->validateVariant(
+            [
+                'garanMode' => 'bogus',
+                'guaranteeDurationMonths' => '',
+                'guaranteeBrand' => '',
+                'guaranteeModelIdentifier' => '',
+            ],
+            [
+                'enableGll' => '1',
+                'enableGaran' => '',
+                'guaranteeDurationMonths' => '',
+                'guaranteeBrand' => '',
+                'guaranteeModelIdentifier' => '',
+            ],
+        );
+
+        self::assertSame(
+            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_INVALID_MODE,
+            $result->getMessages()[0]['code']
+        );
+        self::assertSame('inherit', $result->getNormalizedData()['garanMode']);
     }
 
     public function testInitialGuaranteeBrandKeepsFullProducerName(): void
@@ -282,7 +305,7 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
         $result = $validator->validateProduct([
             'enableGll' => '1',
             'enableGaran' => '1',
-            'guaranteeDurationYears' => '36',
+            'guaranteeDurationMonths' => '36',
             'guaranteeBrand' => $brand,
             'guaranteeModelIdentifier' => $model,
         ]);
@@ -301,7 +324,7 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
         $result = $validator->validateProduct([
             'enableGll' => '1',
             'enableGaran' => '',
-            'guaranteeDurationYears' => '',
+            'guaranteeDurationMonths' => '',
             'guaranteeBrand' => $brand,
             'guaranteeModelIdentifier' => $model,
         ]);
@@ -317,16 +340,15 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
 
         $result = $validator->validateVariant(
             [
-                'garanOverride' => '',
-                'enableGaran' => '',
-                'guaranteeDurationYears' => '',
+                'garanMode' => 'inherit',
+                'guaranteeDurationMonths' => '',
                 'guaranteeBrand' => '',
                 'guaranteeModelIdentifier' => '',
             ],
             [
                 'enableGll' => '1',
                 'enableGaran' => '1',
-                'guaranteeDurationYears' => '36',
+                'guaranteeDurationMonths' => '36',
                 'guaranteeBrand' => ' Elternmarke &amp; Co. ',
                 'guaranteeModelIdentifier' => ' M&amp;S ',
             ],
@@ -345,27 +367,29 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
 
         $result = $validator->validateVariant(
             [
-                'garanOverride' => '1',
-                'enableGaran' => '',
-                'guaranteeDurationYears' => '',
+                'garanMode' => 'override',
+                'guaranteeDurationMonths' => '',
                 'guaranteeBrand' => $brand,
                 'guaranteeModelIdentifier' => $model,
             ],
             [
                 'enableGll' => '1',
                 'enableGaran' => '',
-                'guaranteeDurationYears' => '',
+                'guaranteeDurationMonths' => '',
                 'guaranteeBrand' => 'Parent Brand',
                 'guaranteeModelIdentifier' => 'ParentM',
             ],
         );
 
-        self::assertSame([], $result->getMessages());
+        self::assertSame(
+            [ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_DURATION],
+            array_column($result->getMessages(), 'code')
+        );
         self::assertSame($brand, $result->getEffectiveData()['guaranteeBrand']);
         self::assertSame($model, $result->getEffectiveData()['guaranteeModelIdentifier']);
     }
 
-    public function testVariantWithoutOverrideKeepsInheritedLongValuesWhenParentGaranIsDisabled(): void
+    public function testVariantInheritKeepsInheritedLongValuesWhenParentGaranIsDisabled(): void
     {
         $validator = new ProductGuaranteeConfigurationValidator();
         $brand = 'ÄÖÜ&<>ß' . str_repeat('A', 80);
@@ -373,16 +397,15 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
 
         $result = $validator->validateVariant(
             [
-                'garanOverride' => '',
-                'enableGaran' => '',
-                'guaranteeDurationYears' => '',
+                'garanMode' => 'inherit',
+                'guaranteeDurationMonths' => '',
                 'guaranteeBrand' => '',
                 'guaranteeModelIdentifier' => '',
             ],
             [
                 'enableGll' => '1',
                 'enableGaran' => '',
-                'guaranteeDurationYears' => '',
+                'guaranteeDurationMonths' => '',
                 'guaranteeBrand' => $brand,
                 'guaranteeModelIdentifier' => $model,
             ],

@@ -6,12 +6,13 @@ namespace LeadingSystems\MerconisBundle\LegalGuarantee\ProductData;
 
 final class ProductGuaranteeConfigurationValidator
 {
+    public const MESSAGE_GARAN_INVALID_MODE = 'garan_invalid_mode';
     public const MESSAGE_GARAN_DISABLED_MISSING_BRAND = 'garan_disabled_missing_brand';
     public const MESSAGE_GARAN_DISABLED_MISSING_MODEL = 'garan_disabled_missing_model';
     public const MESSAGE_GARAN_DISABLED_MISSING_DURATION = 'garan_disabled_missing_duration';
     public const MESSAGE_GARAN_DISABLED_INVALID_DURATION = 'garan_disabled_invalid_duration';
     public const MESSAGE_GARAN_DISABLED_GLL_REQUIRED = 'garan_disabled_gll_required';
-    public const MESSAGE_GARAN_INHERITED_GLL_REQUIRED = 'garan_inherited_gll_required';
+    public const MESSAGE_GARAN_OVERRIDE_GLL_REQUIRED = 'garan_override_gll_required';
     public const MESSAGE_GARAN_DISABLED_GLL_VARIANT_OVERRIDE = 'garan_disabled_gll_variant_override';
 
     public function __construct(
@@ -31,12 +32,12 @@ final class ProductGuaranteeConfigurationValidator
     {
         $normalizedData = $this->normalizeSharedFields($productData);
         $durationResult = $this->validationHelper->normalizeDurationInput(
-            $rawDurationInput ?? ($productData['guaranteeDurationYears'] ?? null)
+            $rawDurationInput ?? ($productData['guaranteeDurationMonths'] ?? null)
         );
-        $normalizedData['guaranteeDurationYears'] = $durationResult['storedValue'];
+        $normalizedData['guaranteeDurationMonths'] = $durationResult['storedValue'];
         $effectiveData = [
             'enableGaran' => $normalizedData['enableGaran'],
-            'guaranteeDurationYears' => $durationResult['effectiveValue'],
+            'guaranteeDurationMonths' => $durationResult['effectiveValue'],
             'guaranteeBrand' => $normalizedData['guaranteeBrand'],
             'guaranteeModelIdentifier' => $normalizedData['guaranteeModelIdentifier'],
         ];
@@ -66,12 +67,12 @@ final class ProductGuaranteeConfigurationValidator
      */
     public function validateVariant(array $variantData, array $productData, mixed $rawDurationInput = null): GuaranteeValidationResult
     {
-        $normalizedVariantData = $this->normalizeSharedFields($variantData);
+        $normalizedVariantData = $this->normalizeVariantData($variantData);
         $normalizedProductData = $this->normalizeSharedFields($productData);
         $durationResult = $this->validationHelper->normalizeDurationInput(
-            $rawDurationInput ?? ($variantData['guaranteeDurationYears'] ?? null)
+            $rawDurationInput ?? ($variantData['guaranteeDurationMonths'] ?? null)
         );
-        $normalizedVariantData['guaranteeDurationYears'] = $durationResult['storedValue'];
+        $normalizedVariantData['guaranteeDurationMonths'] = $durationResult['storedValue'];
         $effectiveData = $this->buildEffectiveVariantData(
             $normalizedVariantData,
             $normalizedProductData,
@@ -79,20 +80,21 @@ final class ProductGuaranteeConfigurationValidator
         );
         $messages = $durationResult['messages'];
 
+        $modeMessages = $this->validateVariantMode($variantData['garanMode'] ?? null);
+
+        if ([] !== $modeMessages) {
+            $messages = array_merge($messages, $modeMessages);
+        }
+
         if (
-            $this->isTruthy($effectiveData['enableGaran'] ?? null)
+            'override' === ($normalizedVariantData['garanMode'] ?? 'inherit')
             && !$this->isTruthy($normalizedProductData['enableGll'] ?? null)
         ) {
             $messages[] = [
-                'code' => $this->isTruthy($normalizedVariantData['garanOverride'] ?? null)
-                    && $this->isTruthy($normalizedVariantData['enableGaran'] ?? null)
-                    ? self::MESSAGE_GARAN_DISABLED_GLL_REQUIRED
-                    : self::MESSAGE_GARAN_INHERITED_GLL_REQUIRED,
+                'code' => self::MESSAGE_GARAN_OVERRIDE_GLL_REQUIRED,
                 'parameters' => [],
             ];
-        } elseif ($this->isTruthy($normalizedVariantData['garanOverride'] ?? null)
-            && $this->isTruthy($normalizedVariantData['enableGaran'] ?? null)
-        ) {
+        } elseif ('override' === ($normalizedVariantData['garanMode'] ?? 'inherit')) {
             $messages = array_merge(
                 $messages,
                 $this->validateGaranRequirements($effectiveData, $durationResult['messages'])
@@ -127,9 +129,21 @@ final class ProductGuaranteeConfigurationValidator
     {
         $data['enableGll'] = $this->normalizeCheckboxValue($data['enableGll'] ?? null);
         $data['enableGaran'] = $this->normalizeCheckboxValue($data['enableGaran'] ?? null);
-        $data['garanOverride'] = $this->normalizeCheckboxValue($data['garanOverride'] ?? null);
         $data['guaranteeBrand'] = $this->normalizeTextValue($data['guaranteeBrand'] ?? null);
         $data['guaranteeModelIdentifier'] = $this->normalizeTextValue($data['guaranteeModelIdentifier'] ?? null);
+
+        return $data;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     *
+     * @return array<string, mixed>
+     */
+    private function normalizeVariantData(array $data): array
+    {
+        $data = $this->normalizeSharedFields($data);
+        $data['garanMode'] = $this->normalizeVariantModeValue($data['garanMode'] ?? null);
 
         return $data;
     }
@@ -155,7 +169,7 @@ final class ProductGuaranteeConfigurationValidator
         $messages = $this->validateBrandAndModelPresenceRequirements($effectiveData);
 
         if (
-            '' === ($effectiveData['guaranteeDurationYears'] ?? '')
+            '' === ($effectiveData['guaranteeDurationMonths'] ?? '')
             && [] === $durationMessages
         ) {
             $messages[] = [
@@ -202,33 +216,36 @@ final class ProductGuaranteeConfigurationValidator
     private function buildEffectiveVariantData(
         array $variantData,
         array $productData,
-        string $normalizedVariantDuration,
+        string $normalizedVariantDurationMonths,
     ): array {
-        if (!$this->isTruthy($variantData['garanOverride'] ?? null)) {
-            return [
+        $variantMode = $variantData['garanMode'] ?? 'inherit';
+
+        return match ($variantMode) {
+            'disabled' => [
+                'enableGaran' => '',
+                'guaranteeDurationMonths' => '',
+                'guaranteeBrand' => '',
+                'guaranteeModelIdentifier' => '',
+            ],
+            'override' => [
+                'enableGaran' => '1',
+                'guaranteeDurationMonths' => $normalizedVariantDurationMonths,
+                'guaranteeBrand' => $this->normalizeTextValue($variantData['guaranteeBrand'] ?? null),
+                'guaranteeModelIdentifier' => $this->normalizeTextValue(
+                    $variantData['guaranteeModelIdentifier'] ?? null
+                ),
+            ],
+            default => [
                 'enableGaran' => $this->normalizeCheckboxValue($productData['enableGaran'] ?? null),
-                'guaranteeDurationYears' => $this->normalizeStoredDurationValue(
-                    $productData['guaranteeDurationYears'] ?? null
+                'guaranteeDurationMonths' => $this->normalizeStoredDurationValue(
+                    $productData['guaranteeDurationMonths'] ?? null
                 ),
                 'guaranteeBrand' => $this->normalizeTextValue($productData['guaranteeBrand'] ?? null),
                 'guaranteeModelIdentifier' => $this->normalizeTextValue(
                     $productData['guaranteeModelIdentifier'] ?? null
                 ),
-            ];
-        }
-
-        return [
-            'enableGaran' => $this->normalizeCheckboxValue($variantData['enableGaran'] ?? null),
-            'guaranteeDurationYears' => '' !== $normalizedVariantDuration
-                ? $normalizedVariantDuration
-                : $this->normalizeStoredDurationValue($productData['guaranteeDurationYears'] ?? null),
-            'guaranteeBrand' => '' !== ($variantData['guaranteeBrand'] ?? '')
-                ? $variantData['guaranteeBrand']
-                : $this->normalizeTextValue($productData['guaranteeBrand'] ?? null),
-            'guaranteeModelIdentifier' => '' !== ($variantData['guaranteeModelIdentifier'] ?? '')
-                ? $variantData['guaranteeModelIdentifier']
-                : $this->normalizeTextValue($productData['guaranteeModelIdentifier'] ?? null),
-        ];
+            ],
+        };
     }
 
     public function normalizeTextValue(mixed $value): string
@@ -238,15 +255,7 @@ final class ProductGuaranteeConfigurationValidator
 
     private function normalizeStoredDurationValue(mixed $rawValue): string
     {
-        $value = trim((string) $rawValue);
-
-        if ('' === $value) {
-            return '';
-        }
-
-        $normalizedValue = str_replace(',', '.', $value);
-
-        return preg_replace('/\.0$/', '', $normalizedValue) ?? $normalizedValue;
+        return trim((string) $rawValue);
     }
 
     /**
@@ -290,10 +299,7 @@ final class ProductGuaranteeConfigurationValidator
         $identifiers = array();
 
         foreach ($relatedVariants as $variantData) {
-            if (
-                !$this->isTruthy($variantData['garanOverride'] ?? null)
-                || !$this->isTruthy($variantData['enableGaran'] ?? null)
-            ) {
+            if ('override' !== $this->normalizeVariantModeValue($variantData['garanMode'] ?? null)) {
                 continue;
             }
 
@@ -315,5 +321,31 @@ final class ProductGuaranteeConfigurationValidator
         }
 
         return array_values(array_unique($identifiers));
+    }
+
+    /**
+     * @return list<array{code: string, parameters: array<int, string>}>
+     */
+    private function validateVariantMode(mixed $rawMode): array
+    {
+        $rawMode = trim((string) $rawMode);
+
+        if ('' === $rawMode || in_array($rawMode, ['inherit', 'disabled', 'override'], true)) {
+            return [];
+        }
+
+        return [[
+            'code' => self::MESSAGE_GARAN_INVALID_MODE,
+            'parameters' => [$rawMode],
+        ]];
+    }
+
+    private function normalizeVariantModeValue(mixed $value): string
+    {
+        $mode = trim((string) $value);
+
+        return in_array($mode, ['inherit', 'disabled', 'override'], true)
+            ? $mode
+            : 'inherit';
     }
 }

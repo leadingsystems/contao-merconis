@@ -54,7 +54,7 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductProducer']							= 	array('Manufacturer');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['enableGll']										=	array('Enable GLL', 'GLL applies to tangible goods and goods with digital elements. For pure digital content, SaaS and services, disable this switch.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['enableGaran']									=	array('Enable GARAN');
-	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeDurationYears']							=	array('Guarantee duration in months', 'Enter whole months, from 30 to 360, in steps of 6. Output shows years with the shop language\'s decimal separator: 30 months become 2,5 or 2.5 years, 36 months become 3 years.');
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeDurationMonths']							=	array('Guarantee duration in months', 'Enter whole months, from 30 to 360, in steps of 6. Output shows years with comma as decimal separator: 30 months become 2,5 years, 36 months become 3 years.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeBrand']									=	['Brand/Trademark', 'The full value is stored. If too long, the brand name is truncated with \'...\' in the label display. The truncation length is configurable in the shop settings.'];
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeModelIdentifier']						=	['Model identifier', 'The full value is stored. If too long, the model identifier is truncated with \'...\' in the label display. The truncation length is configurable in the shop settings.'];
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['keywords']										= 	array('Keywords');
@@ -135,7 +135,7 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['flex_contentsLanguageIndependent_label02'] = 'Product information';
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeValidationMessages'] = array(
 		'garan_disabled_gll_required' => 'GARAN was not saved because GLL is disabled.',
-		'garan_disabled_gll_variant_override' => 'GARAN was not saved because GLL is disabled and the following variants still use variant-specific GARAN data: %s.',
+		'garan_disabled_gll_variant_override' => 'GARAN was not saved because GLL is disabled and the following variants still use garanMode "override": %s.',
 		'garan_disabled_missing_brand' => 'GARAN was not saved because Brand/Trademark is missing.',
 		'garan_disabled_missing_model' => 'GARAN was not saved because Model identifier is missing.',
 		'garan_disabled_missing_duration' => 'GARAN was not saved because the guarantee duration is missing.',

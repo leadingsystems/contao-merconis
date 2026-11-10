@@ -38,9 +38,8 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopProductVariantMainImage']						
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopProductVariantMoreImages']						= array('Weitere Bilder', 'Wählen Sie hier weitere Bilder für diese Variante aus.');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantDeliveryInfoSet']						= array('Einstellungen zu Lagerbestand/Lieferzeit');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['overrideAvailabilitySettingsOfParentProduct']		=	array('Einstellungen des Hauptproduktes zu Verfügbarkeit und Vorbestellung überschreiben');
-$GLOBALS['TL_LANG']['tl_ls_shop_variant']['garanOverride']										=	array('Eigene GARAN-Daten der Variante verwenden', 'Überschreibt die Angaben des Elternprodukts. Aktiviert GARAN nicht.');
-$GLOBALS['TL_LANG']['tl_ls_shop_variant']['enableGaran']										=	array('GARAN aktivieren');
-$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeDurationYears']								=	array('Garantiedauer in Monaten', 'Eingabe in ganzen Monaten, von 30 bis 360, in Schritten von 6. Die Ausgabe zeigt Jahre mit dem Dezimaltrennzeichen der Shopsprache: 30 Monate ergeben 2,5 oder 2.5 Jahre, 36 Monate ergeben 3 Jahre.');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['garanMode']											=	array('Herstellergarantie der Variante', 'Legt fest, ob die Variante die Angaben des Produkts übernimmt, keine Herstellergarantie ausgibt oder eigene Angaben führt.');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeDurationMonths']								=	array('Garantiedauer in Monaten', 'Eingabe in ganzen Monaten, von 30 bis 360, in Schritten von 6. Die Ausgabe zeigt Jahre mit Komma als Dezimaltrennzeichen: 30 Monate ergeben 2,5 Jahre, 36 Monate ergeben 3 Jahre.');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeBrand']										=	['Brand/Trademark', 'Der volle Wert wird gespeichert. Bei Überlänge wird der Markenname in der Labeldarstellung mit \'...\' gekürzt. Die Kürzungslänge ist in den Grundeinstellungen konfigurierbar.'];
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeModelIdentifier']							=	['Model identifier', 'Der volle Wert wird gespeichert. Bei Überlänge wird die Modellkennung in der Labeldarstellung mit \'...\' gekürzt. Die Kürzungslänge ist in den Grundeinstellungen konfigurierbar.'];
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['availableFrom']				                	=	array('Verfügbar ab');
@@ -105,6 +104,12 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceQuantityDetectio
 	'separatedScalePriceKeywords' => array('Zusammengefasst nach Staffelpreis-Schlüsselwort', 'Warenkorbpositionen, die ein gemeinsames Staffelpreis-Schlüsselwort hinterlegt haben, werden zusammengefasst. Ansonsten findet eine separate Zählung einzelner Warenkorbpositionen statt.')
 );
 
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['garanModeOptions'] = array(
+	'inherit' => 'Vom Produkt übernehmen',
+	'disabled' => 'Keine Ausgabe',
+	'override' => 'Eigene Angaben'
+);
+
 /*
  * Buttons
  */
@@ -124,9 +129,9 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contents_label02'] = 'Produktinf
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contentsLanguageIndependent_label01'] = 'Schlüsselwort';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contentsLanguageIndependent_label02'] = 'Produktinformation';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeValidationMessages'] = array(
-	'garan_disabled_gll_required' => 'GARAN wurde nicht gespeichert, weil GLL des Elternprodukts deaktiviert ist.',
-	'garan_inherited_gll_required' => 'GARAN wurde nicht gespeichert. Die Variante übernimmt GARAN vom Elternprodukt (kein eigener Override). Dort ist GARAN aktiv, GLL aber deaktiviert. Bitte am Elternprodukt GLL aktivieren oder GARAN deaktivieren.',
-	'garan_disabled_gll_variant_override' => 'GARAN wurde nicht gespeichert, weil GLL deaktiviert ist und folgende Varianten weiterhin eigene GARAN-Daten verwenden: %s.',
+	'garan_invalid_mode' => 'GARAN wurde nicht gespeichert, weil "%s" kein zulässiger Wert für garanMode ist. Erlaubt sind inherit, disabled oder override.',
+	'garan_override_gll_required' => 'GARAN wurde nicht gespeichert, weil garanMode "override" GLL am Elternprodukt voraussetzt.',
+	'garan_disabled_gll_variant_override' => 'GARAN wurde nicht gespeichert, weil GLL deaktiviert ist und folgende Varianten weiterhin garanMode "override" verwenden: %s.',
 	'garan_disabled_missing_brand' => 'GARAN wurde nicht gespeichert, weil Brand/Trademark fehlt.',
 	'garan_disabled_missing_model' => 'GARAN wurde nicht gespeichert, weil Model identifier fehlt.',
 	'garan_disabled_missing_duration' => 'GARAN wurde nicht gespeichert, weil die Garantiedauer fehlt.',

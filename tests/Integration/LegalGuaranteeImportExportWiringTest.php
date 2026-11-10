@@ -20,13 +20,13 @@ final class LegalGuaranteeImportExportWiringTest extends TestCase
         );
 
         self::assertStringContainsString("'enableGll'", $preprocessorContents);
-        self::assertStringContainsString("'garanOverride'", $preprocessorContents);
-        self::assertStringContainsString("'guaranteeDurationYears'", $preprocessorContents);
+        self::assertStringContainsString("'garanMode'", $preprocessorContents);
+        self::assertStringContainsString("'guaranteeDurationMonths'", $preprocessorContents);
         self::assertStringContainsString('applyLegalGuaranteeProductData', $helperContents);
         self::assertStringContainsString('applyLegalGuaranteeVariantData', $helperContents);
         self::assertStringContainsString('formatWriteErrorMessage', $helperContents);
         self::assertStringContainsString('`enableGll` = ?', $helperContents);
-        self::assertStringContainsString('`garanOverride` = ?', $helperContents);
+        self::assertStringContainsString('`garanMode` = ?', $helperContents);
     }
 
     public function testImportAndExportWireGuaranteeProcessing(): void
@@ -41,12 +41,14 @@ final class LegalGuaranteeImportExportWiringTest extends TestCase
         self::assertStringContainsString('logLegalGuaranteeImportWarnings', $importContents);
         self::assertStringContainsString('hasBlockingWriteMessages', $importContents);
         self::assertStringContainsString('`enableGll` = ?', $importContents);
-        self::assertStringContainsString('`garanOverride` = ?', $importContents);
-        self::assertStringContainsString('garan_inherited_gll_required', $importContents);
-        self::assertStringContainsString('buildExportColumns($arr_productData)', $exportContents);
-        self::assertStringContainsString(
+        self::assertStringContainsString('`garanMode` = ?', $importContents);
+        self::assertStringContainsString('garan_override_gll_required', $importContents);
+        self::assertStringNotContainsString('buildExportColumns($arr_productData)', $exportContents);
+        self::assertStringNotContainsString(
             'buildExportColumns($arr_productData, $arr_variantData)',
             $exportContents
         );
+        self::assertStringContainsString('$arr_productData[$str_fieldName] ?? null', $exportContents);
+        self::assertStringContainsString('$arr_variantData[$str_fieldName] ?? null', $exportContents);
     }
 }

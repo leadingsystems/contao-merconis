@@ -14,65 +14,51 @@ final class GuaranteeDurationFormatterTest extends TestCase
      */
     public function testFormatYearsForDisplay(
         string $storedValue,
-        string $decimalSeparator,
         string $expectedDisplayValue
     ): void
     {
         self::assertSame(
             $expectedDisplayValue,
-            GuaranteeDurationFormatter::formatYearsForDisplay($storedValue, $decimalSeparator)
+            GuaranteeDurationFormatter::formatMonthsForDisplay($storedValue)
         );
     }
 
     /**
      * @return iterable<string, array{
      *   storedValue: string,
-     *   decimalSeparator: string,
      *   expectedDisplayValue: string
      * }>
      */
     public static function provideDurationFormats(): iterable
     {
         yield 'half years use comma' => [
-            'storedValue' => '2.5',
-            'decimalSeparator' => ',',
+            'storedValue' => '30',
             'expectedDisplayValue' => '2,5',
         ];
 
-        yield 'half years use dot' => [
-            'storedValue' => '2.5',
-            'decimalSeparator' => '.',
-            'expectedDisplayValue' => '2.5',
-        ];
-
         yield 'whole years drop trailing decimal' => [
-            'storedValue' => '3.0',
-            'decimalSeparator' => ',',
+            'storedValue' => '36',
             'expectedDisplayValue' => '3',
         ];
 
         yield 'two digit whole years drop trailing decimal' => [
-            'storedValue' => '30.0',
-            'decimalSeparator' => '.',
+            'storedValue' => '360',
             'expectedDisplayValue' => '30',
         ];
 
         yield 'already whole years remain unchanged' => [
-            'storedValue' => '10',
-            'decimalSeparator' => ',',
+            'storedValue' => '120',
             'expectedDisplayValue' => '10',
         ];
 
         yield 'empty values remain empty' => [
             'storedValue' => '',
-            'decimalSeparator' => '.',
             'expectedDisplayValue' => '',
         ];
 
-        yield 'empty separator falls back to comma' => [
+        yield 'invalid values are passed through' => [
             'storedValue' => '2.5',
-            'decimalSeparator' => '',
-            'expectedDisplayValue' => '2,5',
+            'expectedDisplayValue' => '2.5',
         ];
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\Tests\Unit;
 
+use LeadingSystems\MerconisBundle\LegalGuarantee\GaranLabelGrouping;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\LegalGuaranteeMarkupBuilder;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\LegalGuaranteeMarkupProvider;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\ProductGuaranteeDisplayResolver;
@@ -13,6 +14,7 @@ use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeLanguageResolver;
 use Merconis\Core\ls_shop_cartX;
 use Merconis\Core\ls_shop_product;
+use Merconis\Core\ls_shop_variant;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionMethod;
@@ -32,7 +34,6 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
             'garanTitlePattern' => 'Herstellergarantie von %s für %s mit %s Jahren',
         ];
         $GLOBALS['TL_CSS'] = [];
-        $GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] = ',';
     }
 
     public function testRenderCurrentLanguageGllNoticeUsesResolvedLanguageAndAccessibilityTitle(): void
@@ -76,24 +77,24 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
         $method = new ReflectionMethod(LegalGuaranteeMarkupProvider::class, 'buildGaranTitle');
         $method->setAccessible(true);
 
-        $formattedHalfYear = $method->invoke($this->createProvider(), 'ACME', 'MX-42', '2.5', ',');
-        $formattedWholeYears = $method->invoke($this->createProvider(), 'ACME', 'MX-42', '30.0', ',');
+        $formattedHalfYear = $method->invoke($this->createProvider(), 'ACME', 'MX-42', '30');
+        $formattedWholeYears = $method->invoke($this->createProvider(), 'ACME', 'MX-42', '360');
 
         self::assertSame('Herstellergarantie von ACME für MX-42 mit 2,5 Jahren', $formattedHalfYear);
         self::assertSame('Herstellergarantie von ACME für MX-42 mit 30 Jahren', $formattedWholeYears);
     }
 
-    public function testBuildGaranTitleUsesConfiguredDotSeparator(): void
+    public function testBuildGaranTitleAlwaysUsesCommaAsDecimalSeparator(): void
     {
         $method = new ReflectionMethod(LegalGuaranteeMarkupProvider::class, 'buildGaranTitle');
         $method->setAccessible(true);
 
-        $formattedHalfYear = $method->invoke($this->createProvider(), 'ACME', 'MX-42', '2.5', '.');
+        $formattedHalfYear = $method->invoke($this->createProvider(), 'ACME', 'MX-42', '30');
 
-        self::assertSame('Herstellergarantie von ACME für MX-42 mit 2.5 Jahren', $formattedHalfYear);
+        self::assertSame('Herstellergarantie von ACME für MX-42 mit 2,5 Jahren', $formattedHalfYear);
     }
 
-    public function testRenderCheckoutGllLinksReturnsEmptyStringWithoutEligibleCartItems(): void
+    public function testCheckoutGllNoticeReturnsEmptyStringWithoutEligibleCartItems(): void
     {
         $GLOBALS['objPage'] = (object) ['language' => 'de_DE'];
         $this->setCartItems([
@@ -103,13 +104,13 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
             ]),
         ]);
 
-        $markup = $this->createProvider()->renderCheckoutGllLinks();
+        $markup = $this->createProvider()->checkoutGllNotice();
 
         self::assertSame('', $markup);
         self::assertSame([], $GLOBALS['TL_CSS']);
     }
 
-    public function testRenderCheckoutGllLinksRendersLabelMarkupForFirstEligibleCartItem(): void
+    public function testCheckoutGllNoticeRendersLabelMarkupForFirstEligibleCartItem(): void
     {
         $GLOBALS['objPage'] = (object) ['language' => 'de_DE'];
         $this->setCartItems([
@@ -123,7 +124,7 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
             ]),
         ]);
 
-        $markup = $this->createProvider()->renderCheckoutGllLinks();
+        $markup = $this->createProvider()->checkoutGllNotice();
 
         self::assertStringContainsString('merconis-legal-guarantee-label', $markup);
         self::assertStringContainsString('lang="de"', $markup);
@@ -136,13 +137,69 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
         );
     }
 
+    public function testCheckoutGaranBlockGroupsVariantsOfSameProductWithSharedValues(): void
+    {
+        $GLOBALS['objPage'] = (object) ['language' => 'de_DE'];
+        $this->setCartItems([
+            $this->createProduct(
+                [
+                    'enableGll' => '1',
+                    'enableGaran' => '1',
+                    'guaranteeBrand' => 'ACME',
+                    'guaranteeModelIdentifier' => 'X100',
+                    'guaranteeDurationMonths' => '36',
+                ],
+                10,
+                'Kissen',
+                $this->createVariant(101, 'Rot')
+            ),
+            $this->createProduct(
+                [
+                    'enableGll' => '1',
+                    'enableGaran' => '1',
+                    'guaranteeBrand' => 'ACME',
+                    'guaranteeModelIdentifier' => 'X100',
+                    'guaranteeDurationMonths' => '36',
+                ],
+                10,
+                'Kissen',
+                $this->createVariant(102, 'Blau')
+            ),
+            $this->createProduct(
+                [
+                    'enableGll' => '1',
+                    'enableGaran' => '1',
+                    'guaranteeBrand' => 'ACME',
+                    'guaranteeModelIdentifier' => 'X100',
+                    'guaranteeDurationMonths' => '36',
+                ],
+                20,
+                'Decke'
+            ),
+        ]);
+
+        $markup = $this->createProvider()->checkoutGaranBlock();
+
+        self::assertStringContainsString('Herstellergarantie für folgende Artikel:', $markup);
+        self::assertSame(2, substr_count($markup, 'class="merconis-legal-guarantee-checkout-item"'));
+        self::assertSame(2, substr_count($markup, '<svg '));
+        self::assertSame(2, substr_count($markup, 'merconis-legal-guarantee-link'));
+        self::assertStringContainsString('Kissen (Rot)<br>Kissen (Blau)', $markup);
+        self::assertStringContainsString('Decke', $markup);
+        self::assertNotFalse(strpos($markup, 'Kissen (Rot)<br>Kissen (Blau)'));
+        self::assertGreaterThan(
+            strpos($markup, 'Kissen (Rot)<br>Kissen (Blau)'),
+            strpos($markup, 'Decke')
+        );
+    }
+
     public function testRenderProductGaranLabelUsesRendererMatchingCurrentVersion(): void
     {
         $product = $this->createProduct([
             'enableGaran' => '1',
             'guaranteeBrand' => 'ACME',
             'guaranteeModelIdentifier' => 'MX-42',
-            'guaranteeDurationYears' => '2.5',
+            'guaranteeDurationMonths' => '30',
         ]);
 
         $markup = $this->createProvider(
@@ -157,8 +214,7 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
                     public function render(
                         string $brand,
                         string $modelIdentifier,
-                        string $durationText,
-                        string $decimalSeparator
+                        string $durationText
                     ): string {
                         return '<svg xmlns="http://www.w3.org/2000/svg"><text>wrong-version</text></svg>';
                     }
@@ -172,22 +228,20 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
                     public function render(
                         string $brand,
                         string $modelIdentifier,
-                        string $durationText,
-                        string $decimalSeparator
+                        string $durationText
                     ): string {
                         return sprintf(
-                            '<svg xmlns="http://www.w3.org/2000/svg"><text>%s|%s|%s|%s</text></svg>',
+                            '<svg xmlns="http://www.w3.org/2000/svg"><text>%s|%s|%s</text></svg>',
                             $brand,
                             $modelIdentifier,
-                            $durationText,
-                            $decimalSeparator
+                            $durationText
                         );
                     }
                 },
             ]
         )->renderProductGaranLabel($product);
 
-        self::assertStringContainsString('ACME|MX-42|2.5|,', $markup);
+        self::assertStringContainsString('ACME|MX-42|30', $markup);
         self::assertStringNotContainsString('wrong-version', $markup);
     }
 
@@ -204,6 +258,7 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
         return new LegalGuaranteeMarkupProvider(
             $assetLocator,
             new ProductGuaranteeDisplayResolver(),
+            new GaranLabelGrouping(),
             new LegalGuaranteeMarkupBuilder(),
             $garanLabelRenderers ?? [new GaranLabelRenderer($assetLocator, OfficialGuaranteeAssetLocator::GARAN_VERSION)],
         );
@@ -212,14 +267,38 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
     /**
      * @param array<string, mixed> $mainData
      */
-    private function createProduct(array $mainData): ls_shop_product
+    private function createProduct(
+        array $mainData,
+        int $productId = 1,
+        string $title = 'Product',
+        ?ls_shop_variant $selectedVariant = null
+    ): ls_shop_product
     {
         $productReflection = new ReflectionClass(ls_shop_product::class);
         /** @var ls_shop_product $product */
         $product = $productReflection->newInstanceWithoutConstructor();
-        $product->mainData = $mainData;
+        $product->ls_ID = $productId;
+        $product->mainData = $mainData + ['title' => $title];
+        $product->currentLanguageData = ['title' => $title];
+
+        if (null !== $selectedVariant) {
+            $product->ls_currentVariantID = $selectedVariant->ls_ID;
+            $product->ls_variants = [$selectedVariant->ls_ID => $selectedVariant];
+        }
 
         return $product;
+    }
+
+    private function createVariant(int $variantId, string $title): ls_shop_variant
+    {
+        $variantReflection = new ReflectionClass(ls_shop_variant::class);
+        /** @var ls_shop_variant $variant */
+        $variant = $variantReflection->newInstanceWithoutConstructor();
+        $variant->ls_ID = $variantId;
+        $variant->mainData = ['title' => $title];
+        $variant->currentLanguageData = ['title' => $title];
+
+        return $variant;
     }
 
     /**

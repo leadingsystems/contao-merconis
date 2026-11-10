@@ -30,7 +30,7 @@ final class GaranLabelRenderer implements GaranLabelRendererInterface
         return $this->version;
     }
 
-    public function render(string $brand, string $modelIdentifier, string $durationText, string $decimalSeparator): string
+    public function render(string $brand, string $modelIdentifier, string $durationMonths): string
     {
         $brand = $this->truncateLabelText(
             $this->requireNonEmptyValue($brand, 'brand')
@@ -38,7 +38,7 @@ final class GaranLabelRenderer implements GaranLabelRendererInterface
         $modelIdentifier = $this->truncateLabelText(
             $this->requireNonEmptyValue($modelIdentifier, 'model')
         );
-        $durationText = $this->requireNonEmptyValue($durationText, 'duration');
+        $durationMonths = $this->requireNonEmptyValue($durationMonths, 'duration');
         $templatePath = $this->assetLocator->getGaranColourTemplatePath($this->version);
         $templateContents = file_get_contents($templatePath);
 
@@ -68,9 +68,9 @@ final class GaranLabelRenderer implements GaranLabelRendererInterface
             $document,
             $xpath,
             'duration',
-            GuaranteeDurationFormatter::formatYearsForDisplay($durationText, $decimalSeparator)
+            GuaranteeDurationFormatter::formatMonthsForDisplay($durationMonths)
         );
-        $this->configureDurationFontSize($xpath, $durationText);
+        $this->configureDurationFontSize($xpath, $durationMonths);
 
         $renderedSvg = $document->saveXML($document->documentElement);
 
@@ -123,7 +123,7 @@ final class GaranLabelRenderer implements GaranLabelRendererInterface
         return mb_substr($value, 0, $truncationLength) . '...';
     }
 
-    private function configureDurationFontSize(DOMXPath $xpath, string $durationText): void
+    private function configureDurationFontSize(DOMXPath $xpath, string $durationMonths): void
     {
         $durationElement = $xpath->query('//svg:text[@data-field="duration"]')?->item(0);
 
@@ -133,18 +133,21 @@ final class GaranLabelRenderer implements GaranLabelRendererInterface
 
         $durationElement->setAttribute(
             'font-size',
-            $this->isDecimalDuration($durationText)
+            $this->isDecimalDuration($durationMonths)
                 ? self::DECIMAL_DURATION_FONT_SIZE
                 : self::ORIGINAL_DURATION_FONT_SIZE
         );
     }
 
-    private function isDecimalDuration(string $durationText): bool
+    private function isDecimalDuration(string $durationMonths): bool
     {
-        $normalisedDuration = trim($durationText);
-        $durationYears = (float) $normalisedDuration;
+        $normalisedDuration = trim($durationMonths);
 
-        return abs($durationYears - round($durationYears)) > 0.00001;
+        if (!preg_match('/^\d+$/', $normalisedDuration)) {
+            return false;
+        }
+
+        return ((int) $normalisedDuration) % 12 !== 0;
     }
 
     private function getTruncationLength(): int

@@ -39,8 +39,8 @@ final class OrderLabelSnapshotBuilder
             'garanModelIdentifier' => $displayData['showGaran'] && null !== $garanData
                 ? $garanData['modelIdentifier']
                 : '',
-            'garanDurationYears' => $displayData['showGaran'] && null !== $garanData
-                ? $garanData['durationYears']
+            'garanDurationMonths' => $displayData['showGaran'] && null !== $garanData
+                ? $garanData['durationMonths']
                 : '',
         ];
     }

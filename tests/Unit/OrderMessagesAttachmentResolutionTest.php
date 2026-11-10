@@ -19,6 +19,7 @@ final class OrderMessagesAttachmentResolutionTest extends TestCase
             [
                 'files/merconisfiles/dynamicAttachmentFiles/generatedFiles/garantielabels/test.pdf',
                 '/tmp/merconis-project',
+                'public',
             ]
         );
 
@@ -28,42 +29,72 @@ final class OrderMessagesAttachmentResolutionTest extends TestCase
         );
     }
 
-    public function testResolveAttachmentAbsolutePathPrefersPublicBundlePathWhenAvailable(): void
+    public function testResolveAttachmentAbsolutePathUsesConfiguredWebDirForBundlePaths(): void
     {
-        $projectDir = $this->createTempProjectDir();
-        $expectedPath = $projectDir . '/public/bundles/leadingsystemsmerconis/legal-guarantee/gll/v1.0/legal-guarantee-notice-de.pdf';
-        mkdir(dirname($expectedPath), 0777, true);
-        file_put_contents($expectedPath, 'pdf');
-
         $resolvedPath = $this->invokeProtectedMethod(
             $this->createOrderMessagesInstance(),
             'resolveAttachmentAbsolutePath',
             [
-                'bundles/leadingsystemsmerconis/legal-guarantee/gll/v1.0/legal-guarantee-notice-de.pdf',
-                $projectDir,
+                'bundles/otherbundle/legal-guarantee/gll/v1.0/legal-guarantee-notice-de.pdf',
+                '/tmp/merconis-project',
+                'web',
             ]
         );
 
-        self::assertSame($expectedPath, $resolvedPath);
+        self::assertSame(
+            '/tmp/merconis-project/web/bundles/otherbundle/legal-guarantee/gll/v1.0/legal-guarantee-notice-de.pdf',
+            $resolvedPath
+        );
     }
 
-    public function testResolveAttachmentAbsolutePathFallsBackToVendorBundleSource(): void
+    public function testResolveAttachmentAbsolutePathRejectsAbsolutePaths(): void
     {
-        $projectDir = $this->createTempProjectDir();
-        $expectedPath = $projectDir . '/vendor/leadingsystems/contao-merconis/src/Resources/public/legal-guarantee/gll/v1.0/legal-guarantee-notice-en.pdf';
-        mkdir(dirname($expectedPath), 0777, true);
-        file_put_contents($expectedPath, 'pdf');
-
         $resolvedPath = $this->invokeProtectedMethod(
             $this->createOrderMessagesInstance(),
             'resolveAttachmentAbsolutePath',
             [
-                'bundles/leadingsystemsmerconis/legal-guarantee/gll/v1.0/legal-guarantee-notice-en.pdf',
-                $projectDir,
+                '/tmp/forbidden.pdf',
+                '/tmp/merconis-project',
+                'public',
             ]
         );
 
-        self::assertSame($expectedPath, $resolvedPath);
+        self::assertNull($resolvedPath);
+    }
+
+    public function testResolveExistingDynamicAttachmentPathsKeepsOnlyExistingPathsFromMultipleParseResults(): void
+    {
+        $temporaryProjectDirectory = sys_get_temp_dir() . '/merconis-order-messages-' . bin2hex(random_bytes(8));
+        $existingRelativePath = 'files/merconisfiles/dynamicAttachmentFiles/generatedFiles/garantielabels/existing.pdf';
+        $missingRelativePath = 'files/merconisfiles/dynamicAttachmentFiles/generatedFiles/garantielabels/missing.pdf';
+        $existingAbsolutePath = $temporaryProjectDirectory . '/' . $existingRelativePath;
+
+        mkdir(dirname($existingAbsolutePath), 0777, true);
+        file_put_contents($existingAbsolutePath, 'test');
+
+        try {
+            $resolvedPaths = $this->invokeProtectedMethod(
+                $this->createOrderMessagesInstance(),
+                'resolveExistingDynamicAttachmentPaths',
+                [
+                    [$existingRelativePath, $missingRelativePath],
+                    $temporaryProjectDirectory,
+                    'public',
+                ]
+            );
+
+            self::assertSame(
+                [$existingRelativePath => $existingAbsolutePath],
+                $resolvedPaths
+            );
+        } finally {
+            unlink($existingAbsolutePath);
+            rmdir(dirname($existingAbsolutePath));
+            rmdir(dirname(dirname($existingAbsolutePath)));
+            rmdir(dirname(dirname(dirname($existingAbsolutePath))));
+            rmdir(dirname(dirname(dirname(dirname($existingAbsolutePath)))));
+            rmdir(dirname(dirname(dirname(dirname(dirname($existingAbsolutePath))))));
+        }
     }
 
     private function createOrderMessagesInstance(): ls_shop_orderMessages
@@ -84,11 +115,4 @@ final class OrderMessagesAttachmentResolutionTest extends TestCase
         return $reflectionMethod->invokeArgs($instance, $arguments);
     }
 
-    private function createTempProjectDir(): string
-    {
-        $tempDir = sys_get_temp_dir() . '/merconis-order-messages-' . uniqid('', true);
-        mkdir($tempDir, 0777, true);
-
-        return $tempDir;
-    }
 }

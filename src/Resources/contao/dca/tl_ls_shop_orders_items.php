@@ -139,8 +139,8 @@ $GLOBALS['TL_DCA'][basename(__FILE__, '.php')] = array(
             'sql'                     => "varchar(255) NOT NULL default ''"
         ),
 
-        'garanDurationYears' => array (
-            'sql'                     => "varchar(32) NOT NULL default ''"
+        'garanDurationMonths' => array (
+            'sql'                     => "int(10) unsigned NULL"
         ),
 
         'extendedInfo' => array (

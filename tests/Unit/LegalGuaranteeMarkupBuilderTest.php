@@ -74,6 +74,26 @@ SVG;
         );
     }
 
+    public function testBuildCheckoutGaranBlockRendersGroupedProductNamesAboveLabel(): void
+    {
+        $builder = new LegalGuaranteeMarkupBuilder();
+
+        $markup = $builder->buildCheckoutGaranBlock([
+            [
+                'productNames' => ['Kissen (Rot)', 'Kissen (Blau)'],
+                'labelMarkup' => '<div class="merconis-legal-guarantee-label"><svg></svg></div><p class="merconis-legal-guarantee-link"><a href="https://example.invalid">EU</a></p>',
+            ],
+        ], [
+            'garanBlockHeadline' => 'Headline',
+            'garanEuLinkText' => 'EU Link',
+        ]);
+
+        self::assertStringContainsString('Headline', $markup);
+        self::assertStringContainsString('Kissen (Rot)<br>Kissen (Blau)', $markup);
+        self::assertStringContainsString('<svg>', $markup);
+        self::assertStringContainsString('<a href="https://example.invalid">EU</a>', $markup);
+    }
+
     public function testBuildLabelMarkupRendersSingleEuAnchorWithSvgAttributes(): void
     {
         $builder = new LegalGuaranteeMarkupBuilder();

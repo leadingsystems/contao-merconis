@@ -46,11 +46,11 @@ echo $this->strTemplate ?>">
         include(__DIR__.'/template_cart--big_include_cart.html5');
         include(__DIR__.'/template_cart--big_include_calculation.html5');
 
-        if ($this->gllCheckoutLinks || $this->garanCheckoutBlock) {
+        if ($this->checkoutGllNotice || $this->checkoutGaranBlock) {
             ?>
             <div class="merconis-legal-guarantee-checkout-output">
-                <?php echo $this->gllCheckoutLinks; ?>
-                <?php echo $this->garanCheckoutBlock; ?>
+                <?php echo $this->checkoutGllNotice; ?>
+                <?php echo $this->checkoutGaranBlock; ?>
             </div>
             <?php
         }

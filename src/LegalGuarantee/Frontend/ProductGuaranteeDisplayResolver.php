@@ -15,7 +15,7 @@ final class ProductGuaranteeDisplayResolver
      * @return array{
      *   showGll: bool,
      *   showGaran: bool,
-     *   garan: array{brand: string, modelIdentifier: string, durationYears: string}|null
+     *   garan: array{brand: string, modelIdentifier: string, durationMonths: string}|null
      * }
      */
     public function resolve(iterable $productData, ?iterable $variantData = null): array
@@ -28,7 +28,7 @@ final class ProductGuaranteeDisplayResolver
         $showGaran = $this->isTruthy($effectiveGaranData['enableGaran'] ?? null)
             && '' !== $effectiveGaranData['brand']
             && '' !== $effectiveGaranData['modelIdentifier']
-            && '' !== $effectiveGaranData['durationYears'];
+            && '' !== $effectiveGaranData['durationMonths'];
 
         return [
             'showGll' => $showGll,
@@ -37,7 +37,7 @@ final class ProductGuaranteeDisplayResolver
                 ? [
                     'brand' => $effectiveGaranData['brand'],
                     'modelIdentifier' => $effectiveGaranData['modelIdentifier'],
-                    'durationYears' => $effectiveGaranData['durationYears'],
+                    'durationMonths' => $effectiveGaranData['durationMonths'],
                 ]
                 : null,
         ];
@@ -51,7 +51,7 @@ final class ProductGuaranteeDisplayResolver
      *   enableGaran: string,
      *   brand: string,
      *   modelIdentifier: string,
-     *   durationYears: string
+     *   durationMonths: string
      * }
      */
     private function resolveEffectiveGaranData(array $productData, ?array $variantData): array
@@ -59,31 +59,46 @@ final class ProductGuaranteeDisplayResolver
         $productEnableGaran = $this->normalizeCheckboxValue($productData['enableGaran'] ?? null);
         $productBrand = $this->normalizeTextValue($productData['guaranteeBrand'] ?? null);
         $productModelIdentifier = $this->normalizeTextValue($productData['guaranteeModelIdentifier'] ?? null);
-        $productDurationYears = $this->normalizeDurationValue($productData['guaranteeDurationYears'] ?? null);
+        $productDurationMonths = $this->normalizeDurationValue($productData['guaranteeDurationMonths'] ?? null);
 
-        if (null === $variantData || !$this->isTruthy($variantData['garanOverride'] ?? null)) {
+        if (null === $variantData) {
             return [
                 'enableGaran' => $productEnableGaran,
                 'brand' => $productBrand,
                 'modelIdentifier' => $productModelIdentifier,
-                'durationYears' => $productDurationYears,
+                'durationMonths' => $productDurationMonths,
             ];
         }
 
-        $variantEnableGaran = $this->normalizeCheckboxValue($variantData['enableGaran'] ?? null);
+        $variantMode = $this->normalizeModeValue($variantData['garanMode'] ?? null);
+
+        if ('inherit' === $variantMode) {
+            return [
+                'enableGaran' => $productEnableGaran,
+                'brand' => $productBrand,
+                'modelIdentifier' => $productModelIdentifier,
+                'durationMonths' => $productDurationMonths,
+            ];
+        }
+
+        if ('disabled' === $variantMode) {
+            return [
+                'enableGaran' => '',
+                'brand' => '',
+                'modelIdentifier' => '',
+                'durationMonths' => '',
+            ];
+        }
+
         $variantBrand = $this->normalizeTextValue($variantData['guaranteeBrand'] ?? null);
         $variantModelIdentifier = $this->normalizeTextValue($variantData['guaranteeModelIdentifier'] ?? null);
-        $variantDurationYears = $this->normalizeDurationValue($variantData['guaranteeDurationYears'] ?? null);
+        $variantDurationMonths = $this->normalizeDurationValue($variantData['guaranteeDurationMonths'] ?? null);
 
         return [
-            'enableGaran' => $variantEnableGaran,
-            'brand' => '' !== $variantBrand ? $variantBrand : $productBrand,
-            'modelIdentifier' => '' !== $variantModelIdentifier
-                ? $variantModelIdentifier
-                : $productModelIdentifier,
-            'durationYears' => '' !== $variantDurationYears
-                ? $variantDurationYears
-                : $productDurationYears,
+            'enableGaran' => '1',
+            'brand' => $variantBrand,
+            'modelIdentifier' => $variantModelIdentifier,
+            'durationMonths' => $variantDurationMonths,
         ];
     }
 
@@ -118,12 +133,21 @@ final class ProductGuaranteeDisplayResolver
             return '';
         }
 
-        return str_replace(',', '.', $normalizedValue);
+        return $normalizedValue;
     }
 
     private function normalizeTextValue(mixed $value): string
     {
         return trim((string) $value);
+    }
+
+    private function normalizeModeValue(mixed $value): string
+    {
+        $mode = trim((string) $value);
+
+        return in_array($mode, ['inherit', 'disabled', 'override'], true)
+            ? $mode
+            : 'inherit';
     }
 
     private function isTruthy(mixed $value): bool

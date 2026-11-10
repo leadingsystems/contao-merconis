@@ -780,7 +780,7 @@ class ls_shop_productManagementApiHelper {
 		->prepare("
 			SELECT		`enableGll`,
 						`enableGaran`,
-						`guaranteeDurationYears`,
+						`guaranteeDurationMonths`,
 						`guaranteeBrand`,
 						`guaranteeModelIdentifier`,
 						`lsShopProductProducer` as `producer`
@@ -807,8 +807,7 @@ class ls_shop_productManagementApiHelper {
 			SELECT		`id`,
 						`lsShopVariantCode`,
 						`title`,
-						`garanOverride`,
-						`enableGaran`
+						`garanMode`
 			FROM		`tl_ls_shop_variant`
 			WHERE		`pid` = ?
 		")
@@ -900,7 +899,7 @@ class ls_shop_productManagementApiHelper {
 							`lsShopProductProducer` = ?,
 							`enableGll` = ?,
 							`enableGaran` = ?,
-							`guaranteeDurationYears` = ?,
+							`guaranteeDurationMonths` = ?,
 							`guaranteeBrand` = ?,
 							`guaranteeModelIdentifier` = ?,
 							`configurator` = ?,
@@ -946,7 +945,7 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['producer'], // String, maxlength 255
 				$arr_preprocessedDataRow['enableGll'], // 1 or ''
 				$arr_preprocessedDataRow['enableGaran'], // 1 or ''
-				$arr_preprocessedDataRow['guaranteeDurationYears'], // decimal, empty = null
+				$arr_preprocessedDataRow['guaranteeDurationMonths'], // decimal, empty = null
 				$arr_preprocessedDataRow['guaranteeBrand'], // String
 				$arr_preprocessedDataRow['guaranteeModelIdentifier'], // String
 				$arr_preprocessedDataRow['configurator'] ? $arr_preprocessedDataRow['configurator'] : 0, // int, empty = 0
@@ -1062,7 +1061,7 @@ class ls_shop_productManagementApiHelper {
 							`lsShopProductProducer` = ?,
 							`enableGll` = ?,
 							`enableGaran` = ?,
-							`guaranteeDurationYears` = ?,
+							`guaranteeDurationMonths` = ?,
 							`guaranteeBrand` = ?,
 							`guaranteeModelIdentifier` = ?,
 							`configurator` = ?,
@@ -1108,7 +1107,7 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['producer'], // String, maxlength 255
 				$arr_preprocessedDataRow['enableGll'], // 1 or ''
 				$arr_preprocessedDataRow['enableGaran'], // 1 or ''
-				$arr_preprocessedDataRow['guaranteeDurationYears'], // decimal, empty = null
+				$arr_preprocessedDataRow['guaranteeDurationMonths'], // decimal, empty = null
 				$arr_preprocessedDataRow['guaranteeBrand'], // String
 				$arr_preprocessedDataRow['guaranteeModelIdentifier'], // String
 				$arr_preprocessedDataRow['configurator'] ? $arr_preprocessedDataRow['configurator'] : 0, // int, empty = 0
@@ -1258,9 +1257,8 @@ class ls_shop_productManagementApiHelper {
 								`lsShopProductVariantMoreImages` = ?,
 								`lsShopVariantDeliveryInfoSet` = ?,
 								`configurator` = ?,
-								`garanOverride` = ?,
-								`enableGaran` = ?,
-								`guaranteeDurationYears` = ?,
+								`garanMode` = ?,
+								`guaranteeDurationMonths` = ?,
 								`guaranteeBrand` = ?,
 								`guaranteeModelIdentifier` = ?,
 								`flex_contents` = ?,
@@ -1298,9 +1296,8 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['moreImages'], // blob, translated, check unclear
 				$arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] ? $arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
 				$arr_preprocessedDataRow['configurator'] ? $arr_preprocessedDataRow['configurator'] : 0, // int, empty = 0
-				$arr_preprocessedDataRow['garanOverride'], // 1 or ''
-				$arr_preprocessedDataRow['enableGaran'], // 1 or ''
-				$arr_preprocessedDataRow['guaranteeDurationYears'], // decimal, empty = null
+				$arr_preprocessedDataRow['garanMode'], // inherit, disabled or override
+				$arr_preprocessedDataRow['guaranteeDurationMonths'], // decimal, empty = null
 				$arr_preprocessedDataRow['guaranteeBrand'], // String
 				$arr_preprocessedDataRow['guaranteeModelIdentifier'], // String
 				$arr_preprocessedDataRow['flex_contents'], // blob, translated, check unclear
@@ -1404,9 +1401,8 @@ class ls_shop_productManagementApiHelper {
 							`lsShopProductVariantMoreImages` = ?,
 							`lsShopVariantDeliveryInfoSet` = ?,
 							`configurator` = ?,
-							`garanOverride` = ?,
-							`enableGaran` = ?,
-							`guaranteeDurationYears` = ?,
+							`garanMode` = ?,
+							`guaranteeDurationMonths` = ?,
 							`guaranteeBrand` = ?,
 							`guaranteeModelIdentifier` = ?,
 							`flex_contents` = ?,
@@ -1445,9 +1441,8 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['moreImages'], // blob, translated, check unclear
 				$arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] ? $arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
 				$arr_preprocessedDataRow['configurator'] ? $arr_preprocessedDataRow['configurator'] : 0, // int, empty = 0
-				$arr_preprocessedDataRow['garanOverride'], // 1 or ''
-				$arr_preprocessedDataRow['enableGaran'], // 1 or ''
-				$arr_preprocessedDataRow['guaranteeDurationYears'], // decimal, empty = null
+				$arr_preprocessedDataRow['garanMode'], // inherit, disabled or override
+				$arr_preprocessedDataRow['guaranteeDurationMonths'], // decimal, empty = null
 				$arr_preprocessedDataRow['guaranteeBrand'], // String
 				$arr_preprocessedDataRow['guaranteeModelIdentifier'], // String
 				$arr_preprocessedDataRow['flex_contents'], // blob, translated, check unclear

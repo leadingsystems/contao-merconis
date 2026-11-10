@@ -519,8 +519,8 @@ class ls_shop_importController
 	 * oder das Aktualisieren eines Eintrags in der Datenbank bedeuten kann.
 	 */
 	protected function processProductData($row) {
-		$str_rawGuaranteeDurationInput = array_key_exists('guaranteeDurationYears', $row)
-			? $row['guaranteeDurationYears']
+		$str_rawGuaranteeDurationInput = array_key_exists('guaranteeDurationMonths', $row)
+			? $row['guaranteeDurationMonths']
 			: null;
 
 		if (isset($GLOBALS['MERCONIS_HOOKS']['import_beforeProcessingProductData']) && is_array($GLOBALS['MERCONIS_HOOKS']['import_beforeProcessingProductData'])) {
@@ -705,7 +705,7 @@ class ls_shop_importController
 							`lsShopProductProducer` = ?,
 							`enableGll` = ?,
 							`enableGaran` = ?,
-							`guaranteeDurationYears` = ?,
+							`guaranteeDurationMonths` = ?,
 							`guaranteeBrand` = ?,
 							`guaranteeModelIdentifier` = ?,
 							`configurator` = ?,
@@ -755,7 +755,7 @@ class ls_shop_importController
 				$row['producer'], // String, maxlength 255
 				$row['enableGll'], // 1 or ''
 				$row['enableGaran'], // 1 or ''
-				$row['guaranteeDurationYears'], // decimal, empty = null
+				$row['guaranteeDurationMonths'], // decimal, empty = null
 				$row['guaranteeBrand'], // String
 				$row['guaranteeModelIdentifier'], // String
 				$row['configurator'] ? $row['configurator'] : 0, // int, empty = 0
@@ -874,7 +874,7 @@ class ls_shop_importController
 							`lsShopProductProducer` = ?,
 							`enableGll` = ?,
 							`enableGaran` = ?,
-							`guaranteeDurationYears` = ?,
+							`guaranteeDurationMonths` = ?,
 							`guaranteeBrand` = ?,
 							`guaranteeModelIdentifier` = ?,
 							`configurator` = ?,
@@ -924,7 +924,7 @@ class ls_shop_importController
 				$row['producer'], // String, maxlength 255
 				$row['enableGll'], // 1 or ''
 				$row['enableGaran'], // 1 or ''
-				$row['guaranteeDurationYears'], // decimal, empty = null
+				$row['guaranteeDurationMonths'], // decimal, empty = null
 				$row['guaranteeBrand'], // String
 				$row['guaranteeModelIdentifier'], // String
 				$row['configurator'] ? $row['configurator'] : 0, // int, empty = 0
@@ -1007,8 +1007,8 @@ class ls_shop_importController
 	}
 
 	protected function processVariantData($row) {
-		$str_rawGuaranteeDurationInput = array_key_exists('guaranteeDurationYears', $row)
-			? $row['guaranteeDurationYears']
+		$str_rawGuaranteeDurationInput = array_key_exists('guaranteeDurationMonths', $row)
+			? $row['guaranteeDurationMonths']
 			: null;
 
         if (empty($row['weight'])) {
@@ -1212,9 +1212,8 @@ class ls_shop_importController
 							`deliveryInfoSetToUseInPreorderPhase` = ?,
 							`configurator` = ?,
 							`customizerLogicFile` = ?,
-							`garanOverride` = ?,
-							`enableGaran` = ?,
-							`guaranteeDurationYears` = ?,
+							`garanMode` = ?,
+							`guaranteeDurationMonths` = ?,
 							`guaranteeBrand` = ?,
 							`guaranteeModelIdentifier` = ?,
 							`flex_contents` = ?,
@@ -1257,9 +1256,8 @@ class ls_shop_importController
 				$row['settingsForStockAndDeliveryTimeInPreorderPhase'] ? $row['settingsForStockAndDeliveryTimeInPreorderPhase'] : 0, // int, empty = 0
 				$row['configurator'] ? $row['configurator'] : 0, // int, empty = 0
                 $row['customizer'] ?: null, // binary file reference, empty = null
-				$row['garanOverride'], // 1 or ''
-				$row['enableGaran'], // 1 or ''
-				$row['guaranteeDurationYears'], // decimal, empty = null
+				$row['garanMode'], // inherit, disabled or override
+				$row['guaranteeDurationMonths'], // decimal, empty = null
 				$row['guaranteeBrand'], // String
 				$row['guaranteeModelIdentifier'], // String
 				$row['flex_contents'], // blob, translated, check unclear
@@ -1350,9 +1348,8 @@ class ls_shop_importController
 							`deliveryInfoSetToUseInPreorderPhase` = ?,
 							`configurator` = ?,
 							`customizerLogicFile` = ?,
-							`garanOverride` = ?,
-							`enableGaran` = ?,
-							`guaranteeDurationYears` = ?,
+							`garanMode` = ?,
+							`guaranteeDurationMonths` = ?,
 							`guaranteeBrand` = ?,
 							`guaranteeModelIdentifier` = ?,
 							`flex_contents` = ?,
@@ -1396,9 +1393,8 @@ class ls_shop_importController
 				$row['settingsForStockAndDeliveryTimeInPreorderPhase'] ? $row['settingsForStockAndDeliveryTimeInPreorderPhase'] : 0, // int, empty = 0
 				$row['configurator'] ? $row['configurator'] : 0, // int, empty = 0
                 $row['customizer'] ?: null, // binary file reference, empty = null
-				$row['garanOverride'], // 1 or ''
-				$row['enableGaran'], // 1 or ''
-				$row['guaranteeDurationYears'], // decimal, empty = null
+				$row['garanMode'], // inherit, disabled or override
+				$row['guaranteeDurationMonths'], // decimal, empty = null
 				$row['guaranteeBrand'], // String
 				$row['guaranteeModelIdentifier'], // String
 				$row['flex_contents'], // blob, translated, check unclear
@@ -2269,12 +2265,18 @@ class ls_shop_importController
 			case 'garan_disabled_gll_required':
 				$str_detail = 'GARAN was not saved because GLL is disabled.';
 				break;
-			case 'garan_inherited_gll_required':
-				$str_detail = 'GARAN was not saved. The variant inherits GARAN from the parent product, where GARAN is enabled but GLL is disabled.';
+			case 'garan_invalid_mode':
+				$str_detail = sprintf(
+					'GARAN was not saved because "%s" is not a valid garanMode. Use "inherit", "disabled" or "override".',
+					$arr_parameters[0] ?? ''
+				);
+				break;
+			case 'garan_override_gll_required':
+				$str_detail = 'GARAN was not saved because garanMode "override" requires GLL on the parent product.';
 				break;
 			case 'garan_disabled_gll_variant_override':
 				$str_detail = sprintf(
-					'GARAN was not saved because GLL is disabled and the following variants still use variant-specific GARAN data: %s.',
+					'GARAN was not saved because GLL is disabled and the following variants still use garanMode "override": %s.',
 					$arr_parameters[0] ?? ''
 				);
 				break;

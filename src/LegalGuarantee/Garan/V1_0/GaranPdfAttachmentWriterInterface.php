@@ -7,7 +7,14 @@ namespace LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0;
 interface GaranPdfAttachmentWriterInterface
 {
     /**
-     * @return array{relativePath: string, cleanupAfterSend: bool}
+     * @param list<array{
+     *   svgMarkup: string,
+     *   productNames: list<string>,
+     *   euLinkText: string,
+     *   euLinkUrl: string
+     * }> $pages
+     *
+     * @return array{relativePath: string}
      */
-    public function write(string $svgMarkup, string $preferredBaseName): array;
+    public function write(array $pages, string $preferredBaseName): array;
 }

@@ -91,18 +91,13 @@ class ls_shop_productManagementApiPreprocessor
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
-				'garanOverride' => array(
-					'preprocessor' => 'preprocess_pseudoBoolean',
+				'garanMode' => array(
+					'preprocessor' => 'preprocess_garanMode',
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
-				'enableGaran' => array(
-					'preprocessor' => 'preprocess_pseudoBoolean',
-					'description' => '',
-					'fieldType' => 'input_output'
-				),
-				'guaranteeDurationYears' => array(
-					'preprocessor' => 'preprocess_guaranteeDurationYears',
+				'guaranteeDurationMonths' => array(
+					'preprocessor' => 'preprocess_guaranteeDurationMonths',
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
@@ -972,7 +967,7 @@ class ls_shop_productManagementApiPreprocessor
 		return $str_output;
 	}
 
-	protected static function preprocess_guaranteeDurationYears($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+	protected static function preprocess_guaranteeDurationMonths($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
 		if (
 			!in_array($arr_row['type'], array('product', 'variant'))
 		) {
@@ -980,6 +975,24 @@ class ls_shop_productManagementApiPreprocessor
 		}
 
 		return trim((string) $var_input);
+	}
+
+	protected static function preprocess_garanMode($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+		if ($arr_row['type'] !== 'variant') {
+			return '';
+		}
+
+		$str_output = trim((string) $var_input);
+
+		if ($str_output === '') {
+			return 'inherit';
+		}
+
+		if (!in_array($str_output, array('inherit', 'disabled', 'override'), true)) {
+			throw new \Exception('wrong garanMode given (allowed values: \'inherit\', \'disabled\', \'override\')');
+		}
+
+		return $str_output;
 	}
 
 	/**

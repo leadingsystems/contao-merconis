@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 final class ProductGuaranteeConfigurationApplierTest extends TestCase
 {
-    public function testApplyToProductRowPrefillsBrandAndConvertsMonthsToYears(): void
+    public function testApplyToProductRowPrefillsBrandAndKeepsMonths(): void
     {
         $applier = new ProductGuaranteeConfigurationApplier();
         $producer = "ACME & Co. 'Premium' " . str_repeat('X', 60);
@@ -19,38 +19,37 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
             'producer' => $producer,
             'enableGll' => '1',
             'enableGaran' => '1',
-            'guaranteeDurationYears' => '30',
+            'guaranteeDurationMonths' => '30',
             'guaranteeBrand' => '',
             'guaranteeModelIdentifier' => 'Model42',
         ]);
 
         self::assertSame("ACME & Co. 'Premium' " . str_repeat('X', 60), $result['row']['guaranteeBrand']);
-        self::assertSame('2.5', $result['row']['guaranteeDurationYears']);
+        self::assertSame('30', $result['row']['guaranteeDurationMonths']);
         self::assertSame([], $result['messages']);
     }
 
-    public function testApplyToVariantRowKeepsEnableGaranWhenBrandIsMissing(): void
+    public function testApplyToVariantRowKeepsOverrideModeWhenBrandIsMissing(): void
     {
         $applier = new ProductGuaranteeConfigurationApplier();
 
         $result = $applier->applyToVariantRow(
             [
-                'garanOverride' => '1',
-                'enableGaran' => '1',
-                'guaranteeDurationYears' => '60',
+                'garanMode' => 'override',
+                'guaranteeDurationMonths' => '60',
                 'guaranteeBrand' => '',
                 'guaranteeModelIdentifier' => 'VarMod',
             ],
             [
                 'enableGll' => '1',
                 'enableGaran' => '1',
-                'guaranteeDurationYears' => '4.5',
+                'guaranteeDurationMonths' => '54',
                 'guaranteeBrand' => '',
                 'guaranteeModelIdentifier' => 'ParentM',
             ],
         );
 
-        self::assertSame('1', $result['row']['enableGaran']);
+        self::assertSame('override', $result['row']['garanMode']);
         self::assertSame('guaranteeBrand', $result['messages'][0]['field']);
         self::assertSame(
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_BRAND,
@@ -65,7 +64,7 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
         $productColumns = $applier->buildExportColumns([
             'enableGll' => '1',
             'enableGaran' => '1',
-            'guaranteeDurationYears' => '5,0',
+            'guaranteeDurationMonths' => '60',
             'guaranteeBrand' => ' Product & Brand ',
             'guaranteeModelIdentifier' => ' Product "Model" ',
         ]);
@@ -74,14 +73,13 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
             [
                 'enableGll' => '1',
                 'enableGaran' => '1',
-                'guaranteeDurationYears' => '5.0',
+                'guaranteeDurationMonths' => '60',
                 'guaranteeBrand' => 'Parent Brand',
                 'guaranteeModelIdentifier' => 'ParentM',
             ],
             [
-                'garanOverride' => '0',
-                'enableGaran' => '1',
-                'guaranteeDurationYears' => '3,5',
+                'garanMode' => 'disabled',
+                'guaranteeDurationMonths' => '42',
                 'guaranteeBrand' => ' Variant & Brand ',
                 'guaranteeModelIdentifier' => ' Variant "Model" ',
             ],
@@ -90,9 +88,8 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
         self::assertSame(
             [
                 'enableGll' => '1',
-                'garanOverride' => '',
                 'enableGaran' => '1',
-                'guaranteeDurationYears' => '60',
+                'guaranteeDurationMonths' => '60',
                 'guaranteeBrand' => 'Product & Brand',
                 'guaranteeModelIdentifier' => 'Product "Model"',
             ],
@@ -101,9 +98,8 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
         self::assertSame(
             [
                 'enableGll' => '',
-                'garanOverride' => '',
-                'enableGaran' => '1',
-                'guaranteeDurationYears' => '42',
+                'garanMode' => 'disabled',
+                'guaranteeDurationMonths' => '42',
                 'guaranteeBrand' => 'Variant & Brand',
                 'guaranteeModelIdentifier' => 'Variant "Model"',
             ],
@@ -118,14 +114,14 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
         $result = $applier->applyToProductRow([
             'producer' => 'ACME Corporation',
             'enableGaran' => '',
-            'guaranteeDurationYears' => '31',
+            'guaranteeDurationMonths' => '31',
             'guaranteeBrand' => 'ACME',
             'guaranteeModelIdentifier' => 'Model42',
         ]);
 
         self::assertTrue($applier->hasBlockingWriteMessages($result['messages']));
         self::assertSame(
-            'field "guaranteeDurationYears": GARAN was not saved because "31" is not an allowed guarantee duration. Use whole months from 30 to 360 in steps of 6.',
+            'field "guaranteeDurationMonths": GARAN was not saved because "31" is not an allowed guarantee duration. Use whole months from 30 to 360 in steps of 6.',
             $applier->formatWriteErrorMessage($result['messages'])
         );
     }
@@ -139,7 +135,7 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
                 'producer' => 'ACME Corporation',
                 'enableGll' => '1',
                 'enableGaran' => '1',
-                'guaranteeDurationYears' => '18.0',
+                'guaranteeDurationMonths' => '216',
                 'guaranteeBrand' => 'ACME',
                 'guaranteeModelIdentifier' => 'Model42',
             ],
@@ -150,9 +146,9 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
         );
 
         self::assertTrue($applier->hasBlockingWriteMessages($result['messages']));
-        self::assertNull($result['row']['guaranteeDurationYears']);
+        self::assertNull($result['row']['guaranteeDurationMonths']);
         self::assertSame(
-            'field "guaranteeDurationYears": GARAN was not saved because "24" is not an allowed guarantee duration. Use whole months from 30 to 360 in steps of 6.',
+            'field "guaranteeDurationMonths": GARAN was not saved because "24" is not an allowed guarantee duration. Use whole months from 30 to 360 in steps of 6.',
             $applier->formatWriteErrorMessage($result['messages'])
         );
     }
@@ -165,7 +161,7 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
             'producer' => 'ACME Corporation',
             'enableGll' => '',
             'enableGaran' => '1',
-            'guaranteeDurationYears' => '36',
+            'guaranteeDurationMonths' => '36',
             'guaranteeBrand' => 'ACME',
             'guaranteeModelIdentifier' => 'Model42',
         ]);
@@ -178,35 +174,34 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
         );
     }
 
-    public function testWriteMessagesExposeInheritedGllDependencyOnEnableGaran(): void
+    public function testWriteMessagesExposeOverrideGllDependencyOnGaranMode(): void
     {
         $applier = new ProductGuaranteeConfigurationApplier();
 
         $result = $applier->applyToVariantRow(
             [
-                'garanOverride' => '',
-                'enableGaran' => '',
-                'guaranteeDurationYears' => '',
-                'guaranteeBrand' => '',
-                'guaranteeModelIdentifier' => '',
+                'garanMode' => 'override',
+                'guaranteeDurationMonths' => '60',
+                'guaranteeBrand' => 'Variant Brand',
+                'guaranteeModelIdentifier' => 'VariantM',
             ],
             [
                 'enableGll' => '',
                 'enableGaran' => '1',
-                'guaranteeDurationYears' => '5.0',
+                'guaranteeDurationMonths' => '60',
                 'guaranteeBrand' => 'Parent Brand',
                 'guaranteeModelIdentifier' => 'ParentM',
             ],
         );
 
         self::assertTrue($applier->hasBlockingWriteMessages($result['messages']));
-        self::assertSame('enableGaran', $result['messages'][0]['field']);
+        self::assertSame('garanMode', $result['messages'][0]['field']);
         self::assertSame(
-            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_INHERITED_GLL_REQUIRED,
+            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_OVERRIDE_GLL_REQUIRED,
             $result['messages'][0]['code']
         );
         self::assertSame(
-            'field "enableGaran": GARAN was not saved. The variant inherits GARAN from the parent product, where GARAN is enabled but GLL is disabled.',
+            'field "garanMode": GARAN was not saved because garanMode "override" requires GLL on the parent product.',
             $applier->formatWriteErrorMessage($result['messages'])
         );
     }
@@ -217,16 +212,15 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
 
         $result = $applier->applyToVariantRow(
             [
-                'garanOverride' => '1',
-                'enableGaran' => '1',
-                'guaranteeDurationYears' => '18.0',
+                'garanMode' => 'override',
+                'guaranteeDurationMonths' => '216',
                 'guaranteeBrand' => 'Variant Brand',
                 'guaranteeModelIdentifier' => 'VarMod',
             ],
             [
                 'enableGll' => '1',
                 'enableGaran' => '1',
-                'guaranteeDurationYears' => '15.5',
+                'guaranteeDurationMonths' => '186',
                 'guaranteeBrand' => 'Parent Brand',
                 'guaranteeModelIdentifier' => 'ParentM',
             ],
@@ -234,9 +228,9 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
         );
 
         self::assertTrue($applier->hasBlockingWriteMessages($result['messages']));
-        self::assertNull($result['row']['guaranteeDurationYears']);
+        self::assertNull($result['row']['guaranteeDurationMonths']);
         self::assertSame(
-            'field "guaranteeDurationYears": GARAN was not saved because "24" is not an allowed guarantee duration. Use whole months from 30 to 360 in steps of 6.',
+            'field "guaranteeDurationMonths": GARAN was not saved because "24" is not an allowed guarantee duration. Use whole months from 30 to 360 in steps of 6.',
             $applier->formatWriteErrorMessage($result['messages'])
         );
     }
@@ -250,7 +244,7 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
                 'producer' => 'ACME Corporation',
                 'enableGll' => '',
                 'enableGaran' => '',
-                'guaranteeDurationYears' => null,
+                'guaranteeDurationMonths' => null,
                 'guaranteeBrand' => '',
                 'guaranteeModelIdentifier' => '',
             ],
@@ -259,8 +253,7 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
             [
                 [
                     'lsShopVariantCode' => 'VAR-001',
-                    'garanOverride' => '1',
-                    'enableGaran' => '1',
+                    'garanMode' => 'override',
                 ],
             ]
         );
@@ -268,7 +261,7 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
         self::assertTrue($applier->hasBlockingWriteMessages($result['messages']));
         self::assertSame('enableGll', $result['messages'][0]['field']);
         self::assertSame(
-            'field "enableGll": GARAN was not saved because GLL is disabled and the following variants still use variant-specific GARAN data: VAR-001.',
+            'field "enableGll": GARAN was not saved because GLL is disabled and the following variants still use garanMode "override": VAR-001.',
             $applier->formatWriteErrorMessage($result['messages'])
         );
     }
@@ -283,7 +276,7 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
             'producer' => 'ACME Corporation',
             'enableGll' => '1',
             'enableGaran' => '',
-            'guaranteeDurationYears' => '',
+            'guaranteeDurationMonths' => '',
             'guaranteeBrand' => $brand,
             'guaranteeModelIdentifier' => $model,
         ]);
@@ -301,23 +294,51 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
 
         $result = $applier->applyToVariantRow(
             [
-                'garanOverride' => '',
-                'enableGaran' => '',
-                'guaranteeDurationYears' => '',
+                'garanMode' => 'inherit',
+                'guaranteeDurationMonths' => '',
                 'guaranteeBrand' => '',
                 'guaranteeModelIdentifier' => '',
             ],
             [
                 'enableGll' => '1',
                 'enableGaran' => '',
-                'guaranteeDurationYears' => '',
+                'guaranteeDurationMonths' => '',
                 'guaranteeBrand' => $brand,
                 'guaranteeModelIdentifier' => $model,
             ],
         );
 
         self::assertFalse($applier->hasBlockingWriteMessages($result['messages']));
+        self::assertSame('inherit', $result['row']['garanMode']);
         self::assertSame('', $result['row']['guaranteeBrand']);
         self::assertSame('', $result['row']['guaranteeModelIdentifier']);
+    }
+
+    public function testWriteMessagesExposeInvalidGaranMode(): void
+    {
+        $applier = new ProductGuaranteeConfigurationApplier();
+
+        $result = $applier->applyToVariantRow(
+            [
+                'garanMode' => 'bogus',
+                'guaranteeDurationMonths' => '',
+                'guaranteeBrand' => '',
+                'guaranteeModelIdentifier' => '',
+            ],
+            [
+                'enableGll' => '1',
+                'enableGaran' => '',
+                'guaranteeDurationMonths' => '',
+                'guaranteeBrand' => '',
+                'guaranteeModelIdentifier' => '',
+            ],
+        );
+
+        self::assertTrue($applier->hasBlockingWriteMessages($result['messages']));
+        self::assertSame('garanMode', $result['messages'][0]['field']);
+        self::assertSame(
+            'field "garanMode": GARAN was not saved because "bogus" is not a valid garanMode. Use "inherit", "disabled" or "override".',
+            $applier->formatWriteErrorMessage($result['messages'])
+        );
     }
 }

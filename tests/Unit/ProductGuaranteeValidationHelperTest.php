@@ -13,21 +13,21 @@ final class ProductGuaranteeValidationHelperTest extends TestCase
 {
     protected function tearDown(): void
     {
-        Input::setPost('enableGaran_42', null);
+        Input::setPost('garanMode_42', null);
         Input::setPost('guaranteeBrand_42', null);
         Input::resetCache();
 
         parent::tearDown();
     }
 
-    public function testNormalizeDurationInputConvertsValidMonthsToStoredYears(): void
+    public function testNormalizeDurationInputKeepsValidMonthsAsStoredValue(): void
     {
         $helper = new ProductGuaranteeValidationHelper();
 
         $result = $helper->normalizeDurationInput('30');
 
-        self::assertSame('2.5', $result['effectiveValue']);
-        self::assertSame('2.5', $result['storedValue']);
+        self::assertSame('30', $result['effectiveValue']);
+        self::assertSame('30', $result['storedValue']);
         self::assertSame([], $result['messages']);
     }
 
@@ -46,12 +46,12 @@ final class ProductGuaranteeValidationHelperTest extends TestCase
         self::assertSame(['31'], $result['messages'][0]['parameters']);
     }
 
-    public function testConvertStoredYearsToMonthsInputRoundsInvalidStoredFractionsConsistently(): void
+    public function testNormalizeDurationStoredValueReturnsValidatedMonthString(): void
     {
         $helper = new ProductGuaranteeValidationHelper();
 
-        self::assertSame('40', $helper->convertStoredYearsToMonthsInput('3.333'));
-        self::assertSame('42', $helper->convertStoredYearsToMonthsInput('3,5'));
+        self::assertSame('30', $helper->normalizeDurationStoredValue('30'));
+        self::assertNull($helper->normalizeDurationStoredValue('31'));
     }
 
     public function testFieldMappingUsesOneCanonicalAssignment(): void
@@ -65,9 +65,15 @@ final class ProductGuaranteeValidationHelperTest extends TestCase
             )
         );
         self::assertSame(
-            'enableGaran',
+            'garanMode',
             $helper->getFieldNameForMessageCode(
-                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_INHERITED_GLL_REQUIRED
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_INVALID_MODE
+            )
+        );
+        self::assertSame(
+            'garanMode',
+            $helper->getFieldNameForMessageCode(
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_OVERRIDE_GLL_REQUIRED
             )
         );
         self::assertSame(
@@ -89,13 +95,13 @@ final class ProductGuaranteeValidationHelperTest extends TestCase
             )
         );
         self::assertSame(
-            'guaranteeDurationYears',
+            'guaranteeDurationMonths',
             $helper->getFieldNameForMessageCode(
                 ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_DURATION
             )
         );
         self::assertSame(
-            'guaranteeDurationYears',
+            'guaranteeDurationMonths',
             $helper->getFieldNameForMessageCode(
                 ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_INVALID_DURATION
             )
@@ -130,7 +136,7 @@ final class ProductGuaranteeValidationHelperTest extends TestCase
             array_column(
                 $helper->getGlobalMessages(
                     $messages,
-                    ['guaranteeDurationYears', 'guaranteeBrand', 'guaranteeModelIdentifier']
+                    ['guaranteeDurationMonths', 'guaranteeBrand', 'guaranteeModelIdentifier']
                 ),
                 'code'
             )
@@ -144,17 +150,17 @@ final class ProductGuaranteeValidationHelperTest extends TestCase
         $fieldsToPersist = $helper->buildChangedFieldValues(
             [
                 'enableGaran' => '1',
-                'guaranteeDurationYears' => '3',
+                'guaranteeDurationMonths' => '3',
                 'guaranteeBrand' => 'Stored brand',
                 'guaranteeModelIdentifier' => 'Stored model',
             ],
             [
                 'enableGaran' => '',
-                'guaranteeDurationYears' => '3',
+                'guaranteeDurationMonths' => '3',
                 'guaranteeBrand' => 'Changed brand',
                 'guaranteeModelIdentifier' => 'Stored model',
             ],
-            ['enableGaran', 'guaranteeDurationYears']
+            ['enableGaran', 'guaranteeDurationMonths']
         );
 
         self::assertSame(
@@ -187,7 +193,7 @@ final class ProductGuaranteeValidationHelperTest extends TestCase
     {
         $helper = new ProductGuaranteeValidationHelper();
 
-        self::assertTrue($helper->isGuaranteeSubpaletteField('guaranteeDurationYears'));
+        self::assertTrue($helper->isGuaranteeSubpaletteField('guaranteeDurationMonths'));
         self::assertTrue($helper->isGuaranteeSubpaletteField('guaranteeBrand'));
         self::assertTrue($helper->isGuaranteeSubpaletteField('guaranteeModelIdentifier'));
         self::assertFalse($helper->isGuaranteeSubpaletteField('enableGaran'));
@@ -202,7 +208,7 @@ final class ProductGuaranteeValidationHelperTest extends TestCase
             $helper->getVisibleProductFieldNames([
                 'enableGll' => '1',
                 'enableGaran' => '',
-                'guaranteeDurationYears' => '36',
+                'guaranteeDurationMonths' => '36',
                 'guaranteeBrand' => 'Brand',
                 'guaranteeModelIdentifier' => 'Model',
             ])
@@ -211,14 +217,14 @@ final class ProductGuaranteeValidationHelperTest extends TestCase
             [
                 'enableGll',
                 'enableGaran',
-                'guaranteeDurationYears',
+                'guaranteeDurationMonths',
                 'guaranteeBrand',
                 'guaranteeModelIdentifier',
             ],
             $helper->getVisibleProductFieldNames([
                 'enableGll' => '1',
                 'enableGaran' => '1',
-                'guaranteeDurationYears' => '36',
+                'guaranteeDurationMonths' => '36',
                 'guaranteeBrand' => 'Brand',
                 'guaranteeModelIdentifier' => 'Model',
             ])
@@ -230,27 +236,24 @@ final class ProductGuaranteeValidationHelperTest extends TestCase
         $helper = new ProductGuaranteeValidationHelper();
 
         self::assertSame(
-            ['garanOverride', 'enableGaran'],
+            ['garanMode'],
             $helper->getVisibleVariantFieldNames([
-                'garanOverride' => '',
-                'enableGaran' => '1',
-                'guaranteeDurationYears' => '36',
+                'garanMode' => 'inherit',
+                'guaranteeDurationMonths' => '36',
                 'guaranteeBrand' => 'Brand',
                 'guaranteeModelIdentifier' => 'Model',
             ])
         );
         self::assertSame(
             [
-                'garanOverride',
-                'enableGaran',
-                'guaranteeDurationYears',
+                'garanMode',
+                'guaranteeDurationMonths',
                 'guaranteeBrand',
                 'guaranteeModelIdentifier',
             ],
             $helper->getVisibleVariantFieldNames([
-                'garanOverride' => '1',
-                'enableGaran' => '1',
-                'guaranteeDurationYears' => '36',
+                'garanMode' => 'override',
+                'guaranteeDurationMonths' => '36',
                 'guaranteeBrand' => 'Brand',
                 'guaranteeModelIdentifier' => 'Model',
             ])
@@ -265,13 +268,13 @@ final class ProductGuaranteeValidationHelperTest extends TestCase
             [
                 'enableGll' => '1',
                 'enableGaran' => '',
-                'guaranteeDurationYears' => '',
+                'guaranteeDurationMonths' => '',
                 'guaranteeBrand' => '',
                 'guaranteeModelIdentifier' => '',
             ],
             [
                 'enableGaran' => '1',
-                'guaranteeDurationYears' => '36',
+                'guaranteeDurationMonths' => '36',
                 'guaranteeBrand' => 'Brand',
                 'guaranteeModelIdentifier' => 'Model',
             ],
@@ -279,7 +282,7 @@ final class ProductGuaranteeValidationHelperTest extends TestCase
         );
 
         self::assertSame('1', $validationData['enableGaran']);
-        self::assertSame('', $validationData['guaranteeDurationYears']);
+        self::assertSame('', $validationData['guaranteeDurationMonths']);
         self::assertSame('', $validationData['guaranteeBrand']);
         self::assertSame('', $validationData['guaranteeModelIdentifier']);
     }
@@ -288,16 +291,16 @@ final class ProductGuaranteeValidationHelperTest extends TestCase
     {
         $helper = new ProductGuaranteeValidationHelper();
 
-        Input::setPost('enableGaran_42', '1');
+        Input::setPost('garanMode_42', 'override');
         Input::setPost('guaranteeBrand_42', 'Brand');
 
         self::assertSame(
             [
-                'enableGaran' => '1',
+                'garanMode' => 'override',
                 'guaranteeBrand' => 'Brand',
             ],
             $helper->readPostedFieldValues(
-                ['enableGaran', 'guaranteeBrand', 'guaranteeModelIdentifier'],
+                ['garanMode', 'guaranteeBrand', 'guaranteeModelIdentifier'],
                 '_42'
             )
         );

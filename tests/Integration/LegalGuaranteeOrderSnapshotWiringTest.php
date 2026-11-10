@@ -61,8 +61,8 @@ final class LegalGuaranteeOrderSnapshotWiringTest extends TestCase
             $tableConfig['fields']['garanModelIdentifier']['sql']
         );
         self::assertSame(
-            "varchar(32) NOT NULL default ''",
-            $tableConfig['fields']['garanDurationYears']['sql']
+            "int(10) unsigned NULL",
+            $tableConfig['fields']['garanDurationMonths']['sql']
         );
     }
 
@@ -75,7 +75,7 @@ final class LegalGuaranteeOrderSnapshotWiringTest extends TestCase
         self::assertStringContainsString('`garanVersion` = ?', $checkoutContents);
         self::assertStringContainsString('`garanBrand` = ?', $checkoutContents);
         self::assertStringContainsString('`garanModelIdentifier` = ?', $checkoutContents);
-        self::assertStringContainsString('`garanDurationYears` = ?', $checkoutContents);
+        self::assertStringContainsString('`garanDurationMonths` = ?', $checkoutContents);
         self::assertStringContainsString("'gllVersion' => ''", $checkoutContents);
         self::assertStringContainsString("'gllLanguage' => ''", $checkoutContents);
     }
@@ -157,7 +157,7 @@ final class LegalGuaranteeOrderSnapshotWiringTest extends TestCase
             $servicesContents
         );
         self::assertStringContainsString(
-            "$version: 'v1.0'",
+            '$version: \'v1.0\'',
             $servicesContents
         );
         self::assertSame(

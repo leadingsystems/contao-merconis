@@ -92,8 +92,7 @@ final class LegalGuaranteeMarkupBuilder
 
     /**
      * @param list<array{
-     *   productTitle: string,
-     *   variantTitle: string,
+     *   productNames: list<string>,
      *   labelMarkup: string
      * }> $items
      * @param array<string, string> $translations
@@ -110,12 +109,7 @@ final class LegalGuaranteeMarkupBuilder
         foreach ($items as $item) {
             $html .= '<div class="merconis-legal-guarantee-checkout-item">';
             $html .= '<p class="merconis-legal-guarantee-checkout-item-title">';
-            $html .= $this->escape($item['productTitle']);
-
-            if ('' !== $item['variantTitle']) {
-                $html .= '<br><span class="variant-title">' . $this->escape($item['variantTitle']) . '</span>';
-            }
-
+            $html .= implode('<br>', array_map([$this, 'escape'], $item['productNames']));
             $html .= '</p>';
             $html .= $item['labelMarkup'];
             $html .= '</div>';

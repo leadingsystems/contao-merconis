@@ -7,6 +7,8 @@ namespace LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0;
 use DOMDocument;
 use DOMElement;
 use Mpdf\Mpdf;
+use Mpdf\Config\ConfigVariables;
+use Mpdf\Config\FontVariables;
 use Mpdf\Output\Destination;
 use RuntimeException;
 
@@ -15,17 +17,21 @@ final class MpdfGaranPdfAttachmentWriter implements GaranPdfAttachmentWriterInte
     private const RELATIVE_OUTPUT_DIRECTORY = 'files/merconisfiles/dynamicAttachmentFiles/generatedFiles/garantielabels';
     private const RELATIVE_MPDF_TEMP_DIRECTORY = 'var/tmp/merconis/mpdf';
     private const PDF_PAGE_MARGIN_MM = 15;
-    private const PDF_LABEL_WIDTH_MM = 180;
+    private const PDF_LABEL_WIDTH_MM = 118;
+    private const PRODUCT_NAME_MARGIN_BOTTOM_MM = 6;
+    private const SVG_MARGIN_BOTTOM_MM = 6;
+    private const MACHINE_READABLE_TEXT_COLOR = '#ffffff';
 
     public function __construct(
         private readonly string $projectDir,
     ) {
     }
 
-    public function write(string $svgMarkup, string $preferredBaseName): array
+    public function write(array $pages, string $preferredBaseName): array
     {
         $outputDirectory = $this->projectDir . '/' . self::RELATIVE_OUTPUT_DIRECTORY;
         $mpdfTempDirectory = $this->projectDir . '/' . self::RELATIVE_MPDF_TEMP_DIRECTORY;
+        $fontDirectory = $this->projectDir . '/vendor/leadingsystems/contao-merconis/src/Resources/public/legal-guarantee/fonts/inter';
 
         if (!is_dir($outputDirectory) && !mkdir($outputDirectory, 0775, true) && !is_dir($outputDirectory)) {
             throw new RuntimeException(sprintf('Could not create GARAN output directory: %s', $outputDirectory));
@@ -35,31 +41,56 @@ final class MpdfGaranPdfAttachmentWriter implements GaranPdfAttachmentWriterInte
             throw new RuntimeException(sprintf('Could not create mPDF temp directory: %s', $mpdfTempDirectory));
         }
 
-        [$preparedSvgMarkup, $labelHeightMm] = $this->prepareSvgForPdf($svgMarkup);
-        $relativeFilePath = self::RELATIVE_OUTPUT_DIRECTORY . '/' . $this->createFileName($preferredBaseName, $svgMarkup);
+        if ([] === $pages) {
+            throw new RuntimeException('GARAN PDF pages must not be empty.');
+        }
+
+        $this->requireFontFile($fontDirectory . '/Inter-Regular.ttf');
+        $this->requireFontFile($fontDirectory . '/Inter-ExtraBold.ttf');
+
+        $renderedPages = $this->preparePages($pages);
+        $relativeFilePath = self::RELATIVE_OUTPUT_DIRECTORY . '/' . $this->createFileName(
+            $preferredBaseName,
+            json_encode($renderedPages, JSON_THROW_ON_ERROR)
+        );
         $absoluteFilePath = $this->projectDir . '/' . $relativeFilePath;
+
+        $configVariables = new ConfigVariables();
+        $fontVariables = new FontVariables();
 
         $mpdf = new Mpdf([
             'mode' => 'utf-8',
             'tempDir' => $mpdfTempDirectory,
-            'default_font' => 'dejavusans',
-            'format' => 'A4',
+            'format' => 'A5',
+            'fontDir' => array_merge($configVariables->getDefaults()['fontDir'], [$fontDirectory]),
+            'fontdata' => array_merge($fontVariables->getDefaults()['fontdata'], [
+                'inter-regular' => [
+                    'R' => 'Inter-Regular.ttf',
+                ],
+                'inter-extrabold' => [
+                    'R' => 'Inter-ExtraBold.ttf',
+                ],
+            ]),
+            'default_font' => 'inter-regular',
+            'autoScriptToLang' => false,
+            'autoLangToFont' => false,
+            'useSubstitutions' => false,
         ]);
         $mpdf->SetMargins(self::PDF_PAGE_MARGIN_MM, self::PDF_PAGE_MARGIN_MM, self::PDF_PAGE_MARGIN_MM);
         $mpdf->SetAutoPageBreak(false, self::PDF_PAGE_MARGIN_MM);
-        $mpdf->WriteFixedPosHTML(
-            $this->buildHtml($preparedSvgMarkup, $labelHeightMm),
-            self::PDF_PAGE_MARGIN_MM,
-            self::PDF_PAGE_MARGIN_MM,
-            self::PDF_LABEL_WIDTH_MM,
-            $labelHeightMm,
-            'visible'
-        );
+
+        foreach ($renderedPages as $pageIndex => $renderedPage) {
+            if ($pageIndex > 0) {
+                $mpdf->AddPage();
+            }
+
+            $mpdf->WriteHTML($renderedPage['html']);
+        }
+
         $mpdf->Output($absoluteFilePath, Destination::FILE);
 
         return [
             'relativePath' => $relativeFilePath,
-            'cleanupAfterSend' => false,
         ];
     }
 
@@ -71,9 +102,35 @@ final class MpdfGaranPdfAttachmentWriter implements GaranPdfAttachmentWriterInte
         return sprintf('%s-%s.pdf', $baseName, $suffix);
     }
 
-    private function buildHtml(string $svgMarkup, float $labelHeightMm): string
+    /**
+     * @param list<array{
+     *   svgMarkup: string,
+     *   productNames: list<string>,
+     *   euLinkText: string,
+     *   euLinkUrl: string
+     * }> $pages
+     *
+     * @return list<array{html: string, svgMarkup: string}>
+     */
+    private function preparePages(array $pages): array
     {
-        return $svgMarkup;
+        $renderedPages = [];
+
+        foreach ($pages as $page) {
+            [$preparedSvgMarkup] = $this->prepareSvgForPdf($page['svgMarkup']);
+
+            $renderedPages[] = [
+                'html' => $this->buildHtml(
+                    $preparedSvgMarkup,
+                    $page['productNames'],
+                    $page['euLinkText'],
+                    $page['euLinkUrl']
+                ),
+                'svgMarkup' => $preparedSvgMarkup,
+            ];
+        }
+
+        return $renderedPages;
     }
 
     /**
@@ -100,9 +157,13 @@ final class MpdfGaranPdfAttachmentWriter implements GaranPdfAttachmentWriterInte
         [$viewBoxWidth, $viewBoxHeight] = $this->extractViewBoxDimensions($svgElement);
         $labelHeightMm = self::PDF_LABEL_WIDTH_MM * ($viewBoxHeight / $viewBoxWidth);
 
+        if (!$svgElement->hasAttribute('xmlns')) {
+            $svgElement->setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+        }
+
         $svgElement->setAttribute('width', $this->formatMillimetres(self::PDF_LABEL_WIDTH_MM));
         $svgElement->setAttribute('height', $this->formatMillimetres($labelHeightMm));
-        $svgElement->setAttribute('preserveAspectRatio', 'xMinYMin meet');
+        $svgElement->setAttribute('preserveAspectRatio', 'xMidYMin meet');
 
         $renderedSvg = $document->saveXML($svgElement);
 
@@ -143,5 +204,84 @@ final class MpdfGaranPdfAttachmentWriter implements GaranPdfAttachmentWriterInte
     private function formatMillimetres(float $value): string
     {
         return rtrim(rtrim(sprintf('%.3F', $value), '0'), '.') . 'mm';
+    }
+
+    /**
+     * @param list<string> $productNames
+     */
+    private function buildHtml(
+        string $svgMarkup,
+        array $productNames,
+        string $euLinkText,
+        string $euLinkUrl
+    ): string {
+        $machineReadableText = $this->buildMachineReadableText($svgMarkup);
+        $productNamesHtml = implode('', array_map(
+            static fn (string $productName): string => sprintf(
+                '<div style="margin:0 0 1.5mm 0;">%s</div>',
+                htmlspecialchars($productName, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
+            ),
+            $productNames
+        ));
+
+        return sprintf(
+            '<div style="font-family:inter-regular;font-size:10.5pt;line-height:1.35;">'
+            . '<div style="margin:0 0 %s 0;">%s</div>'
+            . '<div style="width:%s;margin:0 auto %s auto;">%s</div>'
+            . '<div style="margin:0;"><a href="%s">%s</a></div>'
+            . '<div style="font-size:0.1pt;line-height:0;color:%s;">%s</div>'
+            . '</div>',
+            $this->formatMillimetres(self::PRODUCT_NAME_MARGIN_BOTTOM_MM),
+            $productNamesHtml,
+            $this->formatMillimetres(self::PDF_LABEL_WIDTH_MM),
+            $this->formatMillimetres(self::SVG_MARGIN_BOTTOM_MM),
+            $svgMarkup,
+            htmlspecialchars($euLinkUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+            htmlspecialchars($euLinkText, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+            self::MACHINE_READABLE_TEXT_COLOR,
+            htmlspecialchars($machineReadableText, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
+        );
+    }
+
+    private function buildMachineReadableText(string $svgMarkup): string
+    {
+        $document = new DOMDocument('1.0', 'UTF-8');
+        $previousUseInternalErrors = libxml_use_internal_errors(true);
+        $loaded = $document->loadXML($svgMarkup);
+        libxml_clear_errors();
+        libxml_use_internal_errors($previousUseInternalErrors);
+
+        if (!$loaded) {
+            return '';
+        }
+
+        $values = [];
+
+        foreach (['brand', 'model', 'duration'] as $fieldName) {
+            $textNodes = $document->getElementsByTagName('text');
+
+            foreach ($textNodes as $textNode) {
+                if (!$textNode instanceof DOMElement || $textNode->getAttribute('data-field') !== $fieldName) {
+                    continue;
+                }
+
+                $textValue = trim($textNode->textContent ?? '');
+
+                if ($textValue !== '') {
+                    $values[] = $textValue;
+                }
+
+                break;
+            }
+        }
+
+        return implode(' ', $values);
+    }
+
+    private function requireFontFile(string $path): void
+    {
+        if (!is_file($path)) {
+            throw new RuntimeException(sprintf('Required GARAN PDF font file is missing: %s', $path));
+        }
     }
 }

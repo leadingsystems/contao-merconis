@@ -12,7 +12,7 @@ final class ProductGuaranteeValidationHelper
     private const PRODUCT_REQUEST_FIELD_NAMES = [
         'enableGll',
         'enableGaran',
-        'guaranteeDurationYears',
+        'guaranteeDurationMonths',
         'guaranteeBrand',
         'guaranteeModelIdentifier',
         'lsShopProductProducer',
@@ -24,20 +24,18 @@ final class ProductGuaranteeValidationHelper
     ];
 
     private const VARIANT_REQUEST_FIELD_NAMES = [
-        'garanOverride',
-        'enableGaran',
-        'guaranteeDurationYears',
+        'garanMode',
+        'guaranteeDurationMonths',
         'guaranteeBrand',
         'guaranteeModelIdentifier',
     ];
 
     private const VARIANT_VISIBLE_FIELD_NAMES = [
-        'garanOverride',
-        'enableGaran',
+        'garanMode',
     ];
 
     private const GUARANTEE_SUBPALETTE_FIELD_NAMES = [
-        'guaranteeDurationYears',
+        'guaranteeDurationMonths',
         'guaranteeBrand',
         'guaranteeModelIdentifier',
     ];
@@ -85,30 +83,11 @@ final class ProductGuaranteeValidationHelper
             ];
         }
 
-        $storedYears = $this->formatStoredYearsFromMonths($months);
-
         return [
-            'effectiveValue' => $storedYears,
-            'storedValue' => $storedYears,
+            'effectiveValue' => (string) $months,
+            'storedValue' => (string) $months,
             'messages' => [],
         ];
-    }
-
-    public function convertStoredYearsToMonthsInput(mixed $rawValue): string
-    {
-        $value = trim((string) $rawValue);
-
-        if ('' === $value) {
-            return '';
-        }
-
-        $normalizedValue = str_replace(',', '.', $value);
-
-        if (!is_numeric($normalizedValue)) {
-            return $value;
-        }
-
-        return (string) ((int) round(((float) $normalizedValue) * 12));
     }
 
     public function normalizeDurationStoredValue(mixed $rawValue): ?string
@@ -121,13 +100,14 @@ final class ProductGuaranteeValidationHelper
     public function getFieldNameForMessageCode(string $messageCode): ?string
     {
         return match ($messageCode) {
-            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED,
-            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_INHERITED_GLL_REQUIRED => 'enableGaran',
+            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED => 'enableGaran',
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_VARIANT_OVERRIDE => 'enableGll',
+            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_INVALID_MODE,
+            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_OVERRIDE_GLL_REQUIRED => 'garanMode',
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_BRAND => 'guaranteeBrand',
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_MODEL => 'guaranteeModelIdentifier',
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_DURATION,
-            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_INVALID_DURATION => 'guaranteeDurationYears',
+            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_INVALID_DURATION => 'guaranteeDurationMonths',
             default => null,
         };
     }
@@ -182,7 +162,8 @@ final class ProductGuaranteeValidationHelper
         return $this->getVisibleGuaranteeFieldNames(
             $postedValues,
             self::VARIANT_VISIBLE_FIELD_NAMES,
-            'garanOverride'
+            'garanMode',
+            'override'
         );
     }
 
@@ -243,9 +224,6 @@ final class ProductGuaranteeValidationHelper
         mixed $currentFieldValue = null
     ): array {
         $validationData = $currentData;
-        $validationData['guaranteeDurationYears'] = $this->convertStoredYearsToMonthsInput(
-            $currentData['guaranteeDurationYears'] ?? null
-        );
         $validationData = $this->mergePostedFieldValues(
             $validationData,
             $postedValues,
@@ -433,9 +411,10 @@ final class ProductGuaranteeValidationHelper
     private function getVisibleGuaranteeFieldNames(
         array $postedValues,
         array $alwaysVisibleFieldNames,
-        string $selectorFieldName
+        string $selectorFieldName,
+        string $selectorValue = '1'
     ): array {
-        if (!$this->isTruthy($postedValues[$selectorFieldName] ?? null)) {
+        if ((string) ($postedValues[$selectorFieldName] ?? '') !== $selectorValue) {
             return $alwaysVisibleFieldNames;
         }
 
@@ -443,14 +422,5 @@ final class ProductGuaranteeValidationHelper
             $alwaysVisibleFieldNames,
             self::GUARANTEE_SUBPALETTE_FIELD_NAMES
         );
-    }
-
-    private function formatStoredYearsFromMonths(int $months): string
-    {
-        if (0 === $months % 12) {
-            return (string) intdiv($months, 12);
-        }
-
-        return number_format($months / 12, 1, '.', '');
     }
 }

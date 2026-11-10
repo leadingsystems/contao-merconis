@@ -28,8 +28,7 @@ final class GaranLabelRendererTest extends TestCase
         $renderedSvg = $renderer->render(
             'ACME & Co <Premium>',
             'Model > 42',
-            '2.5',
-            ','
+            '30'
         );
 
         $document = new DOMDocument('1.0', 'UTF-8');
@@ -90,8 +89,7 @@ final class GaranLabelRendererTest extends TestCase
         $renderedSvg = $renderer->render(
             'ABCDEFGHIJ',
             '1234567890',
-            '2.5',
-            ','
+            '30'
         );
 
         $document = new DOMDocument('1.0', 'UTF-8');
@@ -108,7 +106,7 @@ final class GaranLabelRendererTest extends TestCase
     {
         $renderer = new GaranLabelRenderer($this->createAssetLocator(), 'v1.0');
 
-        $renderedSvg = $renderer->render('ACME', 'X100', '20.5', ',');
+        $renderedSvg = $renderer->render('ACME', 'X100', '246');
 
         $document = new DOMDocument('1.0', 'UTF-8');
         $document->loadXML($renderedSvg);
@@ -145,7 +143,7 @@ final class GaranLabelRendererTest extends TestCase
             'v1.0'
         );
 
-        $renderedSvg = $renderer->render('ACME', 'X100', '20.5', ',');
+        $renderedSvg = $renderer->render('ACME', 'X100', '246');
 
         $document = new DOMDocument('1.0', 'UTF-8');
         $document->loadXML($renderedSvg);
@@ -163,7 +161,7 @@ final class GaranLabelRendererTest extends TestCase
     {
         $renderer = new GaranLabelRenderer($this->createAssetLocator(), 'v1.0');
 
-        $renderedSvg = $renderer->render('Kurz', 'Modell', '2.5', ',');
+        $renderedSvg = $renderer->render('Kurz', 'Modell', '30');
 
         self::assertStringContainsString('>Kurz<', $renderedSvg);
         self::assertStringContainsString('>Modell<', $renderedSvg);
@@ -181,7 +179,7 @@ final class GaranLabelRendererTest extends TestCase
     ): void {
         $renderer = new GaranLabelRenderer($this->createAssetLocator(), 'v1.0');
 
-        $renderedSvg = $renderer->render('Brand', 'Model', $durationText, ',');
+        $renderedSvg = $renderer->render('Brand', 'Model', $durationText);
 
         $document = new DOMDocument('1.0', 'UTF-8');
         $document->loadXML($renderedSvg);
@@ -211,7 +209,7 @@ final class GaranLabelRendererTest extends TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Required GARAN field is empty: ' . $expectedField);
 
-        $renderer->render($brand, $modelIdentifier, $durationText, ',');
+        $renderer->render($brand, $modelIdentifier, $durationText);
     }
 
     public function testRenderUsesTemplateDirectoryOfRegisteredVersion(): void
@@ -226,7 +224,7 @@ final class GaranLabelRendererTest extends TestCase
             'v1.1'
         );
 
-        $renderedSvg = $renderer->render('ACME', 'MX-42', '2.5', ',');
+        $renderedSvg = $renderer->render('ACME', 'MX-42', '30');
 
         self::assertStringContainsString('viewBox="9 9 9 9"', $renderedSvg);
     }
@@ -274,8 +272,8 @@ final class GaranLabelRendererTest extends TestCase
      */
     public static function provideEmptyRequiredValues(): iterable
     {
-        yield 'brand' => ['', 'Model', '2.5', 'brand'];
-        yield 'model' => ['Brand', '', '2.5', 'model'];
+        yield 'brand' => ['', 'Model', '30', 'brand'];
+        yield 'model' => ['Brand', '', '30', 'model'];
         yield 'duration' => ['Brand', 'Model', '', 'duration'];
     }
 
@@ -284,11 +282,11 @@ final class GaranLabelRendererTest extends TestCase
      */
     public static function provideDurationFontSizes(): iterable
     {
-        yield 'minimum decimal' => ['2.5', '2,5', '50.5px'];
-        yield 'worst-case decimal' => ['20.5', '20,5', '50.5px'];
-        yield 'maximum decimal' => ['29.5', '29,5', '50.5px'];
-        yield 'minimum integer' => ['3', '3', '80px'];
-        yield 'maximum integer' => ['30', '30', '80px'];
+        yield 'minimum decimal' => ['30', '2,5', '50.5px'];
+        yield 'worst-case decimal' => ['246', '20,5', '50.5px'];
+        yield 'maximum decimal' => ['354', '29,5', '50.5px'];
+        yield 'minimum integer' => ['36', '3', '80px'];
+        yield 'maximum integer' => ['360', '30', '80px'];
     }
 
     private function getFirstTspanAttribute(DOMElement $textElement, string $attributeName): string

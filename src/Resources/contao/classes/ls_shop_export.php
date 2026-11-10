@@ -10,7 +10,6 @@ use Contao\Input;
 use Contao\PageModel;
 use Contao\StringUtil;
 use Contao\System;
-use LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\ProductGuaranteeConfigurationApplier;
 
 use function LeadingSystems\Helpers\createMultidimensionalArray;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
@@ -653,8 +652,6 @@ class ls_shop_export
 	}
 
 	protected function combineProductAndVariantData($arr_productAndVariantData) {
-		$obj_guaranteeApplier = new ProductGuaranteeConfigurationApplier();
-
 		/*
 		 * Determine all field names required for a combined output of product and variant data
 		 * and also create simplified field names because the names of the actual database table rows
@@ -708,13 +705,9 @@ class ls_shop_export
 			$arr_row = array();
 
 			foreach (array_keys($arr_allFieldNamesSimplified) as $str_fieldNameSimplified) {
-				$arr_row[$str_fieldNameSimplified] = $arr_productData[$arr_allFieldNames[$arr_allFieldNamesSimplified[$str_fieldNameSimplified]]];
+				$str_fieldName = $arr_allFieldNames[$arr_allFieldNamesSimplified[$str_fieldNameSimplified]];
+				$arr_row[$str_fieldNameSimplified] = $arr_productData[$str_fieldName] ?? null;
 			}
-
-			$arr_row = array_merge(
-				$arr_row,
-				$obj_guaranteeApplier->buildExportColumns($arr_productData)
-			);
 
 			$arr_combinedData[] = $arr_row;
 
@@ -723,13 +716,9 @@ class ls_shop_export
 					$arr_row = array();
 
 					foreach (array_keys($arr_allFieldNamesSimplified) as $str_fieldNameSimplified) {
-						$arr_row[$str_fieldNameSimplified] = $arr_variantData[$arr_allFieldNames[$arr_allFieldNamesSimplified[$str_fieldNameSimplified]]];
+						$str_fieldName = $arr_allFieldNames[$arr_allFieldNamesSimplified[$str_fieldNameSimplified]];
+						$arr_row[$str_fieldNameSimplified] = $arr_variantData[$str_fieldName] ?? null;
 					}
-
-					$arr_row = array_merge(
-						$arr_row,
-						$obj_guaranteeApplier->buildExportColumns($arr_productData, $arr_variantData)
-					);
 
 					$arr_combinedData[] = $arr_row;
 				}

@@ -93,7 +93,7 @@ final class OrderLabelSnapshotRendererTest extends TestCase
                             '%s|%s|%s',
                             $itemSnapshot['garanBrand'],
                             $itemSnapshot['garanModelIdentifier'],
-                            $itemSnapshot['garanDurationYears']
+                            $itemSnapshot['garanDurationMonths']
                         );
                     }
                 },
@@ -104,20 +104,20 @@ final class OrderLabelSnapshotRendererTest extends TestCase
             'garanVersion' => 'v1.0',
             'garanBrand' => 'Initial Brand',
             'garanModelIdentifier' => 'Initial Model',
-            'garanDurationYears' => '2.0',
+            'garanDurationMonths' => '24',
         ];
 
         $renderedBeforeChange = $renderer->renderGaranLabel($itemSnapshot);
 
         $itemSnapshot['garanBrand'] = 'Changed Brand';
         $itemSnapshot['garanModelIdentifier'] = 'Changed Model';
-        $itemSnapshot['garanDurationYears'] = '9.0';
+        $itemSnapshot['garanDurationMonths'] = '108';
 
-        self::assertSame('Initial Brand|Initial Model|2.0', $renderedBeforeChange);
-        self::assertSame('Changed Brand|Changed Model|9.0', $renderer->renderGaranLabel($itemSnapshot));
+        self::assertSame('Initial Brand|Initial Model|24', $renderedBeforeChange);
+        self::assertSame('Changed Brand|Changed Model|108', $renderer->renderGaranLabel($itemSnapshot));
     }
 
-    public function testRenderGaranLabelUsesOrderDecimalSeparatorForPdfReconstruction(): void
+    public function testRenderGaranLabelUsesFixedCommaFormattingForPdfReconstruction(): void
     {
         $assetLocator = $this->createAssetLocator();
         $renderer = new OrderLabelSnapshotRenderer(
@@ -140,18 +140,15 @@ final class OrderLabelSnapshotRendererTest extends TestCase
             ]
         );
 
-        $renderedLabel = $renderer->renderGaranLabel(
-            [
-                'garanVersion' => 'v1.0',
-                'garanBrand' => 'Brand',
-                'garanModelIdentifier' => 'Model',
-                'garanDurationYears' => '2.5',
-            ],
-            '.'
-        );
+        $renderedLabel = $renderer->renderGaranLabel([
+            'garanVersion' => 'v1.0',
+            'garanBrand' => 'Brand',
+            'garanModelIdentifier' => 'Model',
+            'garanDurationMonths' => '30',
+        ]);
 
-        self::assertStringContainsString('>2.5<', $renderedLabel);
-        self::assertStringNotContainsString('>2,5<', $renderedLabel);
+        self::assertStringContainsString('>2,5<', $renderedLabel);
+        self::assertStringNotContainsString('>2.5<', $renderedLabel);
         self::assertStringNotContainsString('fake-v1.1', $renderedLabel);
     }
 
@@ -178,13 +175,13 @@ final class OrderLabelSnapshotRendererTest extends TestCase
             'garanVersion' => 'v1.0',
             'garanBrand' => 'Brand',
             'garanModelIdentifier' => 'Model',
-            'garanDurationYears' => '2.5',
+            'garanDurationMonths' => '30',
         ]);
         $renderedV11 = $renderer->renderGaranLabel([
             'garanVersion' => 'v1.1',
             'garanBrand' => 'Brand',
             'garanModelIdentifier' => 'Model',
-            'garanDurationYears' => '2.5',
+            'garanDurationMonths' => '30',
         ]);
 
         self::assertStringNotContainsString('data-version="v1.1"', $renderedV10);

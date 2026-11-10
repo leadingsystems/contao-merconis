@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LeadingSystems\MerconisBundle\LegalGuarantee\Frontend;
 
 use Contao\System;
+use LeadingSystems\MerconisBundle\LegalGuarantee\GaranLabelGrouping;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\GaranLabelRendererInterface;
 use LeadingSystems\MerconisBundle\LegalGuarantee\GuaranteeDurationFormatter;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
@@ -26,6 +27,7 @@ final class LegalGuaranteeMarkupProvider
     public function __construct(
         private readonly OfficialGuaranteeAssetLocator $assetLocator,
         private readonly ProductGuaranteeDisplayResolver $displayResolver,
+        private readonly GaranLabelGrouping $garanLabelGrouping,
         private readonly LegalGuaranteeMarkupBuilder $markupBuilder,
         iterable $garanLabelRenderers,
     ) {
@@ -76,12 +78,10 @@ final class LegalGuaranteeMarkupProvider
         $this->ensureStylesheetRegistered();
 
         $garanData = $displayData['garan'];
-        $durationDecimalSeparator = $this->resolveDurationDecimalSeparator();
         $renderedSvg = $this->getCurrentGaranLabelRenderer()->render(
             $garanData['brand'],
             $garanData['modelIdentifier'],
-            $garanData['durationYears'],
-            $durationDecimalSeparator
+            $garanData['durationMonths']
         );
         $translations = $this->getTranslations();
 
@@ -90,15 +90,14 @@ final class LegalGuaranteeMarkupProvider
             $this->buildGaranTitle(
                 $garanData['brand'],
                 $garanData['modelIdentifier'],
-                $garanData['durationYears'],
-                $durationDecimalSeparator
+                $garanData['durationMonths']
             ),
             $this->assetLocator->resolveGaranEuUrl(),
             $translations['garanEuLinkText']
         );
     }
 
-    public function renderCheckoutGllLinks(): string
+    public function checkoutGllNotice(): string
     {
         foreach (ls_shop_cartX::getInstance()->itemsExtended as $item) {
             /** @var array{objProduct: ls_shop_product} $item */
@@ -112,9 +111,9 @@ final class LegalGuaranteeMarkupProvider
         return '';
     }
 
-    public function renderCheckoutGaranBlock(): string
+    public function checkoutGaranBlock(): string
     {
-        $items = [];
+        $entries = [];
 
         foreach (ls_shop_cartX::getInstance()->itemsExtended as $item) {
             /** @var array{objProduct: ls_shop_product} $item */
@@ -128,14 +127,48 @@ final class LegalGuaranteeMarkupProvider
                 continue;
             }
 
-            $items[] = [
-                'productTitle' => (string) $product->_title,
-                'variantTitle' => $this->getSelectedVariantTitle($product),
-                'labelMarkup' => $this->renderProductGaranLabel($product),
+            $garanData = $displayData['garan'];
+            $entries[] = [
+                'productId' => (string) $product->ls_ID,
+                'garanVersion' => OfficialGuaranteeAssetLocator::GARAN_VERSION,
+                'brand' => $garanData['brand'],
+                'modelIdentifier' => $garanData['modelIdentifier'],
+                'durationMonths' => $garanData['durationMonths'],
+                'productName' => $this->buildCheckoutProductName($product),
             ];
         }
 
-        return $this->markupBuilder->buildCheckoutGaranBlock($items, $this->getTranslations());
+        $groups = $this->garanLabelGrouping->groupEntries($entries);
+
+        if ([] === $groups) {
+            return '';
+        }
+
+        $this->ensureStylesheetRegistered();
+        $translations = $this->getTranslations();
+        $items = [];
+
+        foreach ($groups as $group) {
+            $items[] = [
+                'productNames' => $group['productNames'],
+                'labelMarkup' => $this->markupBuilder->buildLabelMarkup(
+                    $this->getCurrentGaranLabelRenderer()->render(
+                        $group['brand'],
+                        $group['modelIdentifier'],
+                        $group['durationMonths']
+                    ),
+                    $this->buildGaranTitle(
+                        $group['brand'],
+                        $group['modelIdentifier'],
+                        $group['durationMonths']
+                    ),
+                    $this->assetLocator->resolveGaranEuUrl(),
+                    $translations['garanEuLinkText']
+                ),
+            ];
+        }
+
+        return $this->markupBuilder->buildCheckoutGaranBlock($items, $translations);
     }
 
     /**
@@ -165,6 +198,18 @@ final class LegalGuaranteeMarkupProvider
         return $selectedVariant->_hasOriginalTitle ? (string) $selectedVariant->_title : '';
     }
 
+    private function buildCheckoutProductName(ls_shop_product $product): string
+    {
+        $productTitle = trim((string) $product->_title);
+        $variantTitle = trim($this->getSelectedVariantTitle($product));
+
+        if ('' === $variantTitle) {
+            return $productTitle;
+        }
+
+        return sprintf('%s (%s)', $productTitle, $variantTitle);
+    }
+
     /**
      * @return array{
      *   gllTitle: string,
@@ -190,11 +235,10 @@ final class LegalGuaranteeMarkupProvider
     private function buildGaranTitle(
         string $brand,
         string $modelIdentifier,
-        string $durationYears,
-        string $decimalSeparator
+        string $durationMonths
     ): string
     {
-        $formattedDuration = GuaranteeDurationFormatter::formatYearsForDisplay($durationYears, $decimalSeparator);
+        $formattedDuration = GuaranteeDurationFormatter::formatMonthsForDisplay($durationMonths);
         $translations = $this->getTranslations();
 
         return sprintf(
@@ -214,13 +258,6 @@ final class LegalGuaranteeMarkupProvider
         }
 
         return 'en';
-    }
-
-    private function resolveDurationDecimalSeparator(): string
-    {
-        $decimalSeparator = trim((string) ($GLOBALS['merconis_globals']['ls_shop_decimalsSeparator'] ?? ''));
-
-        return '' !== $decimalSeparator ? $decimalSeparator : ',';
     }
 
     private function getCurrentGaranLabelRenderer(): GaranLabelRendererInterface

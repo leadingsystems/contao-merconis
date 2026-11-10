@@ -40,14 +40,13 @@ final class OrderLabelSnapshotBuilderTest extends TestCase
                 'enableGaran' => '1',
                 'guaranteeBrand' => 'Produkt & Marke',
                 'guaranteeModelIdentifier' => 'Produktmodell "A"',
-                'guaranteeDurationYears' => '2,0',
+                'guaranteeDurationMonths' => '36',
             ],
             [
-                'garanOverride' => '1',
-                'enableGaran' => '1',
+                'garanMode' => 'override',
                 'guaranteeBrand' => 'Variantenmarke <S>',
-                'guaranteeModelIdentifier' => '',
-                'guaranteeDurationYears' => '3,5',
+                'guaranteeModelIdentifier' => 'Variantenmodell',
+                'guaranteeDurationMonths' => '42',
             ]
         );
 
@@ -57,15 +56,15 @@ final class OrderLabelSnapshotBuilderTest extends TestCase
                 'garanVersion',
                 'garanBrand',
                 'garanModelIdentifier',
-                'garanDurationYears',
+                'garanDurationMonths',
             ],
             array_keys($snapshot)
         );
         self::assertSame('1', $snapshot[OrderLabelSnapshotBuilder::REQUIRES_GLL_ORDER_SNAPSHOT_KEY]);
         self::assertSame(OfficialGuaranteeAssetLocator::GARAN_VERSION, $snapshot['garanVersion']);
         self::assertSame('Variantenmarke <S>', $snapshot['garanBrand']);
-        self::assertSame('Produktmodell "A"', $snapshot['garanModelIdentifier']);
-        self::assertSame('3.5', $snapshot['garanDurationYears']);
+        self::assertSame('Variantenmodell', $snapshot['garanModelIdentifier']);
+        self::assertSame('42', $snapshot['garanDurationMonths']);
     }
 
     public function testBuildItemSnapshotLeavesEmptyGaranFieldsWhenConfigurationIsIncomplete(): void
@@ -77,13 +76,13 @@ final class OrderLabelSnapshotBuilderTest extends TestCase
             'enableGaran' => '1',
             'guaranteeBrand' => '',
             'guaranteeModelIdentifier' => 'Modell',
-            'guaranteeDurationYears' => '2',
+            'guaranteeDurationMonths' => '24',
         ]);
 
         self::assertSame('', $snapshot['garanVersion']);
         self::assertSame('', $snapshot['garanBrand']);
         self::assertSame('', $snapshot['garanModelIdentifier']);
-        self::assertSame('', $snapshot['garanDurationYears']);
+        self::assertSame('', $snapshot['garanDurationMonths']);
     }
 
     private function createBuilder(): OrderLabelSnapshotBuilder

@@ -40,7 +40,7 @@ final class ProductGuaranteeConfigurationApplier
         $result = $this->validator->validateProduct($row, $relatedVariants, $rawDurationInput);
 
         foreach (
-            array('enableGll', 'enableGaran', 'guaranteeDurationYears', 'guaranteeBrand', 'guaranteeModelIdentifier')
+            array('enableGll', 'enableGaran', 'guaranteeDurationMonths', 'guaranteeBrand', 'guaranteeModelIdentifier')
             as $fieldName
         ) {
             $row[$fieldName] = $result->getNormalizedData()[$fieldName] ?? null;
@@ -66,7 +66,7 @@ final class ProductGuaranteeConfigurationApplier
         $result = $this->validator->validateVariant($variantRow, $productData, $rawDurationInput);
 
         foreach (
-            array('garanOverride', 'enableGaran', 'guaranteeDurationYears', 'guaranteeBrand', 'guaranteeModelIdentifier')
+            array('garanMode', 'guaranteeDurationMonths', 'guaranteeBrand', 'guaranteeModelIdentifier')
             as $fieldName
         ) {
             $variantRow[$fieldName] = $result->getNormalizedData()[$fieldName] ?? null;
@@ -89,9 +89,8 @@ final class ProductGuaranteeConfigurationApplier
         if ($variantData === null) {
             return array(
                 'enableGll' => $this->normalizeCheckboxValue($productData['enableGll'] ?? null),
-                'garanOverride' => '',
                 'enableGaran' => $this->normalizeCheckboxValue($productData['enableGaran'] ?? null),
-                'guaranteeDurationYears' => $this->normalizeExportDurationMonths($productData['guaranteeDurationYears'] ?? null),
+                'guaranteeDurationMonths' => $this->normalizeExportDurationMonths($productData['guaranteeDurationMonths'] ?? null),
                 'guaranteeBrand' => $this->validator->normalizeTextValue($productData['guaranteeBrand'] ?? null),
                 'guaranteeModelIdentifier' => $this->validator->normalizeTextValue(
                     $productData['guaranteeModelIdentifier'] ?? null
@@ -101,9 +100,8 @@ final class ProductGuaranteeConfigurationApplier
 
         return array(
             'enableGll' => '',
-            'garanOverride' => $this->normalizeCheckboxValue($variantData['garanOverride'] ?? null),
-            'enableGaran' => $this->normalizeCheckboxValue($variantData['enableGaran'] ?? null),
-            'guaranteeDurationYears' => $this->normalizeExportDurationMonths($variantData['guaranteeDurationYears'] ?? null),
+            'garanMode' => $this->normalizeVariantModeValue($variantData['garanMode'] ?? null),
+            'guaranteeDurationMonths' => $this->normalizeExportDurationMonths($variantData['guaranteeDurationMonths'] ?? null),
             'guaranteeBrand' => $this->validator->normalizeTextValue($variantData['guaranteeBrand'] ?? null),
             'guaranteeModelIdentifier' => $this->validator->normalizeTextValue(
                 $variantData['guaranteeModelIdentifier'] ?? null
@@ -173,9 +171,13 @@ final class ProductGuaranteeConfigurationApplier
 
         return match ($message['code'] ?? '') {
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED => 'GARAN was not saved because GLL is disabled.',
-            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_INHERITED_GLL_REQUIRED => 'GARAN was not saved. The variant inherits GARAN from the parent product, where GARAN is enabled but GLL is disabled.',
+            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_INVALID_MODE => sprintf(
+                'GARAN was not saved because "%s" is not a valid garanMode. Use "inherit", "disabled" or "override".',
+                $parameters[0] ?? ''
+            ),
+            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_OVERRIDE_GLL_REQUIRED => 'GARAN was not saved because garanMode "override" requires GLL on the parent product.',
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_VARIANT_OVERRIDE => sprintf(
-                'GARAN was not saved because GLL is disabled and the following variants still use variant-specific GARAN data: %s.',
+                'GARAN was not saved because GLL is disabled and the following variants still use garanMode "override": %s.',
                 $parameters[0] ?? ''
             ),
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_BRAND => 'GARAN was not saved because "Brand/Trademark" is missing.',
@@ -191,6 +193,15 @@ final class ProductGuaranteeConfigurationApplier
 
     private function normalizeExportDurationMonths(mixed $value): string
     {
-        return $this->validationHelper->convertStoredYearsToMonthsInput($value);
+        return trim((string) $value);
+    }
+
+    private function normalizeVariantModeValue(mixed $value): string
+    {
+        $mode = trim((string) $value);
+
+        return in_array($mode, ['inherit', 'disabled', 'override'], true)
+            ? $mode
+            : 'inherit';
     }
 }

@@ -26,13 +26,13 @@ final class LegalGuaranteeHiddenSubpaletteRequestTest extends TestCase
         $currentProductData = [
             'enableGll' => '1',
             'enableGaran' => '1',
-            'guaranteeDurationYears' => '3',
+            'guaranteeDurationMonths' => '30',
             'guaranteeBrand' => 'Stored brand',
             'guaranteeModelIdentifier' => 'Stored mdl',
         ];
         $postedValues = [
             'enableGaran' => '',
-            'guaranteeDurationYears' => '15',
+            'guaranteeDurationMonths' => '15',
             'guaranteeBrand' => 'Changed brand',
             'guaranteeModelIdentifier' => '',
         ];
@@ -57,31 +57,29 @@ final class LegalGuaranteeHiddenSubpaletteRequestTest extends TestCase
             [],
             $this->validationHelper->getGlobalMessages($requestResult->getMessages(), $visibleFieldNames)
         );
-        self::assertSame('3', $persistenceResult->getNormalizedData()['guaranteeDurationYears']);
+        self::assertSame('30', $persistenceResult->getNormalizedData()['guaranteeDurationMonths']);
         self::assertSame('Stored brand', $persistenceResult->getNormalizedData()['guaranteeBrand']);
         self::assertSame('Stored mdl', $persistenceResult->getNormalizedData()['guaranteeModelIdentifier']);
     }
 
-    public function testVariantKeepsStoredGuaranteeValuesWhenOverrideIsTurnedOffBeforeSave(): void
+    public function testVariantKeepsStoredGuaranteeValuesWhenModeLeavesOverrideBeforeSave(): void
     {
         $currentVariantData = [
-            'garanOverride' => '1',
-            'enableGaran' => '1',
-            'guaranteeDurationYears' => '3',
+            'garanMode' => 'override',
+            'guaranteeDurationMonths' => '30',
             'guaranteeBrand' => 'Stored brand',
             'guaranteeModelIdentifier' => 'Stored mdl',
         ];
         $currentProductData = [
             'enableGll' => '1',
             'enableGaran' => '1',
-            'guaranteeDurationYears' => '3',
+            'guaranteeDurationMonths' => '30',
             'guaranteeBrand' => 'Product brand',
             'guaranteeModelIdentifier' => 'Product mdl',
         ];
         $postedValues = [
-            'garanOverride' => '',
-            'enableGaran' => '1',
-            'guaranteeDurationYears' => '15',
+            'garanMode' => 'inherit',
+            'guaranteeDurationMonths' => '15',
             'guaranteeBrand' => 'Changed brand',
             'guaranteeModelIdentifier' => '',
         ];
@@ -108,7 +106,7 @@ final class LegalGuaranteeHiddenSubpaletteRequestTest extends TestCase
             [],
             $this->validationHelper->getGlobalMessages($requestResult->getMessages(), $visibleFieldNames)
         );
-        self::assertSame('3', $persistenceResult->getNormalizedData()['guaranteeDurationYears']);
+        self::assertSame('30', $persistenceResult->getNormalizedData()['guaranteeDurationMonths']);
         self::assertSame('Stored brand', $persistenceResult->getNormalizedData()['guaranteeBrand']);
         self::assertSame('Stored mdl', $persistenceResult->getNormalizedData()['guaranteeModelIdentifier']);
     }
@@ -118,7 +116,7 @@ final class LegalGuaranteeHiddenSubpaletteRequestTest extends TestCase
         $currentProductData = [
             'enableGll' => '1',
             'enableGaran' => '',
-            'guaranteeDurationYears' => '',
+            'guaranteeDurationMonths' => '',
             'guaranteeBrand' => '',
             'guaranteeModelIdentifier' => '',
         ];
@@ -128,13 +126,13 @@ final class LegalGuaranteeHiddenSubpaletteRequestTest extends TestCase
                 $currentProductData,
                 [
                     'enableGaran' => '1',
-                    'guaranteeDurationYears' => '',
+                    'guaranteeDurationMonths' => '',
                     'guaranteeBrand' => '',
                     'guaranteeModelIdentifier' => '',
                 ],
                 [
                     'enableGaran',
-                    'guaranteeDurationYears',
+                    'guaranteeDurationMonths',
                     'guaranteeBrand',
                     'guaranteeModelIdentifier',
                 ]
@@ -145,7 +143,7 @@ final class LegalGuaranteeHiddenSubpaletteRequestTest extends TestCase
                 $currentProductData,
                 [
                     'enableGaran' => '',
-                    'guaranteeDurationYears' => '',
+                    'guaranteeDurationMonths' => '',
                     'guaranteeBrand' => '',
                     'guaranteeModelIdentifier' => '',
                 ],
@@ -163,10 +161,68 @@ final class LegalGuaranteeHiddenSubpaletteRequestTest extends TestCase
         self::assertSame(
             [ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_DURATION],
             array_column(
-                $this->validationHelper->getMessagesForField($enabledResult->getMessages(), 'guaranteeDurationYears'),
+                $this->validationHelper->getMessagesForField($enabledResult->getMessages(), 'guaranteeDurationMonths'),
                 'code'
             )
         );
         self::assertSame([], $disabledResult->getMessages());
+    }
+
+    public function testVariantRequiresGuaranteeFieldsOnlyWhenModeIsOverride(): void
+    {
+        $currentVariantData = [
+            'garanMode' => 'inherit',
+            'guaranteeDurationMonths' => '',
+            'guaranteeBrand' => '',
+            'guaranteeModelIdentifier' => '',
+        ];
+        $currentProductData = [
+            'enableGll' => '1',
+            'enableGaran' => '',
+            'guaranteeDurationMonths' => '',
+            'guaranteeBrand' => '',
+            'guaranteeModelIdentifier' => '',
+        ];
+
+        $overrideResult = $this->validator->validateVariant(
+            $this->validationHelper->buildValidationInputData(
+                $currentVariantData,
+                [
+                    'garanMode' => 'override',
+                    'guaranteeDurationMonths' => '',
+                    'guaranteeBrand' => '',
+                    'guaranteeModelIdentifier' => '',
+                ],
+                [
+                    'garanMode',
+                    'guaranteeDurationMonths',
+                    'guaranteeBrand',
+                    'guaranteeModelIdentifier',
+                ]
+            ),
+            $currentProductData
+        );
+        $inheritResult = $this->validator->validateVariant(
+            $this->validationHelper->buildValidationInputData(
+                $currentVariantData,
+                [
+                    'garanMode' => 'inherit',
+                    'guaranteeDurationMonths' => '',
+                    'guaranteeBrand' => '',
+                    'guaranteeModelIdentifier' => '',
+                ],
+                ['garanMode']
+            ),
+            $currentProductData
+        );
+
+        self::assertSame(
+            [ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_BRAND],
+            array_column(
+                $this->validationHelper->getMessagesForField($overrideResult->getMessages(), 'guaranteeBrand'),
+                'code'
+            )
+        );
+        self::assertSame([], $inheritResult->getMessages());
     }
 }

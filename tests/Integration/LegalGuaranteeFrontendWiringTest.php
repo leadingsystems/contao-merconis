@@ -73,9 +73,15 @@ final class LegalGuaranteeFrontendWiringTest extends TestCase
             self::SRC_BASE_PATH . 'InsertTag/AsInsertTag/ShopEuLgn.php'
         );
 
-        self::assertStringContainsString('renderCheckoutGllLinks', $moduleContents);
-        self::assertStringContainsString('renderCheckoutGaranBlock', $moduleContents);
+        self::assertStringContainsString('checkoutGllNotice', $moduleContents);
+        self::assertStringContainsString('checkoutGaranBlock', $moduleContents);
+        self::assertStringNotContainsString('renderCheckoutGllLinks', $moduleContents);
+        self::assertStringNotContainsString('renderCheckoutGaranBlock', $moduleContents);
         self::assertStringContainsString('merconis-legal-guarantee-checkout-output', $templateContents);
+        self::assertStringContainsString('checkoutGllNotice', $templateContents);
+        self::assertStringContainsString('checkoutGaranBlock', $templateContents);
+        self::assertStringNotContainsString('gllCheckoutLinks', $templateContents);
+        self::assertStringNotContainsString('garanCheckoutBlock', $templateContents);
         self::assertStringContainsString("#[AsInsertTag('shop_eu_lgn')]", $insertTagContents);
     }
 

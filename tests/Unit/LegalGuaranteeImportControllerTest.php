@@ -60,7 +60,7 @@ final class LegalGuaranteeImportControllerTest extends TestCase
 
         yield 'invalid duration' => [
             'garan_disabled_invalid_duration',
-            'guaranteeDurationYears',
+            'guaranteeDurationMonths',
             ['24'],
             'GARAN was not saved because "24" is not an allowed guarantee duration. Use whole months from 30 to 360 in steps of 6.',
         ];

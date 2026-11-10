@@ -1126,7 +1126,7 @@ class ls_shop_checkout {
 							`garanVersion` = ?,
 							`garanBrand` = ?,
 							`garanModelIdentifier` = ?,
-							`garanDurationYears` = ?,
+							`garanDurationMonths` = ?,
 							`extendedInfo` = ?
 			")
                 ->execute(
@@ -1162,7 +1162,7 @@ class ls_shop_checkout {
                     isset($arrItem['garanVersion']) ? $arrItem['garanVersion'] : '',
                     isset($arrItem['garanBrand']) ? $arrItem['garanBrand'] : '',
                     isset($arrItem['garanModelIdentifier']) ? $arrItem['garanModelIdentifier'] : '',
-                    isset($arrItem['garanDurationYears']) ? $arrItem['garanDurationYears'] : '',
+                    isset($arrItem['garanDurationMonths']) ? $arrItem['garanDurationMonths'] : '',
                     serialize($arrItem['extendedInfo'])
                 );
         }

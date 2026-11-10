@@ -19,17 +19,17 @@ final class ProductGuaranteeDisplayResolverTest extends TestCase
             'enableGaran' => '1',
             'guaranteeBrand' => '  ACME &amp; Co.  ',
             'guaranteeModelIdentifier' => '  Model &#34;42&#34;  ',
-            'guaranteeDurationYears' => '4.5',
+            'guaranteeDurationMonths' => '54',
         ]);
 
         self::assertTrue($result['showGll']);
         self::assertTrue($result['showGaran']);
         self::assertSame('ACME &amp; Co.', $result['garan']['brand']);
         self::assertSame('Model &#34;42&#34;', $result['garan']['modelIdentifier']);
-        self::assertSame('4.5', $result['garan']['durationYears']);
+        self::assertSame('54', $result['garan']['durationMonths']);
     }
 
-    public function testResolveUsesVariantOverrideAndProductFallbackValues(): void
+    public function testResolveUsesVariantOverrideWithoutFieldFallback(): void
     {
         $resolver = new ProductGuaranteeDisplayResolver();
 
@@ -39,21 +39,70 @@ final class ProductGuaranteeDisplayResolverTest extends TestCase
                 'enableGaran' => '1',
                 'guaranteeBrand' => 'Parent Brand',
                 'guaranteeModelIdentifier' => 'Parent Model',
-                'guaranteeDurationYears' => '4.5',
+                'guaranteeDurationMonths' => '54',
             ],
             [
-                'garanOverride' => '1',
-                'enableGaran' => '1',
-                'guaranteeBrand' => '',
+                'garanMode' => 'override',
+                'guaranteeBrand' => 'Variant Brand',
                 'guaranteeModelIdentifier' => 'Variant Model',
-                'guaranteeDurationYears' => '',
+                'guaranteeDurationMonths' => '60',
+            ],
+        );
+
+        self::assertTrue($result['showGaran']);
+        self::assertSame('Variant Brand', $result['garan']['brand']);
+        self::assertSame('Variant Model', $result['garan']['modelIdentifier']);
+        self::assertSame('60', $result['garan']['durationMonths']);
+    }
+
+    public function testResolveUsesInheritedProductValuesForInheritMode(): void
+    {
+        $resolver = new ProductGuaranteeDisplayResolver();
+
+        $result = $resolver->resolve(
+            [
+                'enableGll' => '1',
+                'enableGaran' => '1',
+                'guaranteeBrand' => 'Parent Brand',
+                'guaranteeModelIdentifier' => 'Parent Model',
+                'guaranteeDurationMonths' => '54',
+            ],
+            [
+                'garanMode' => 'inherit',
+                'guaranteeBrand' => 'Ignored Variant Brand',
+                'guaranteeModelIdentifier' => 'Ignored Variant Model',
+                'guaranteeDurationMonths' => '60',
             ],
         );
 
         self::assertTrue($result['showGaran']);
         self::assertSame('Parent Brand', $result['garan']['brand']);
-        self::assertSame('Variant Model', $result['garan']['modelIdentifier']);
-        self::assertSame('4.5', $result['garan']['durationYears']);
+        self::assertSame('Parent Model', $result['garan']['modelIdentifier']);
+        self::assertSame('54', $result['garan']['durationMonths']);
+    }
+
+    public function testResolveSuppressesGaranForDisabledMode(): void
+    {
+        $resolver = new ProductGuaranteeDisplayResolver();
+
+        $result = $resolver->resolve(
+            [
+                'enableGll' => '1',
+                'enableGaran' => '1',
+                'guaranteeBrand' => 'Parent Brand',
+                'guaranteeModelIdentifier' => 'Parent Model',
+                'guaranteeDurationMonths' => '54',
+            ],
+            [
+                'garanMode' => 'disabled',
+                'guaranteeBrand' => 'Variant Brand',
+                'guaranteeModelIdentifier' => 'Variant Model',
+                'guaranteeDurationMonths' => '60',
+            ],
+        );
+
+        self::assertFalse($result['showGaran']);
+        self::assertNull($result['garan']);
     }
 
     public function testResolveSuppressesIncompleteGaranOutput(): void
@@ -65,7 +114,7 @@ final class ProductGuaranteeDisplayResolverTest extends TestCase
             'enableGaran' => '1',
             'guaranteeBrand' => '',
             'guaranteeModelIdentifier' => 'Model 42',
-            'guaranteeDurationYears' => '4.5',
+            'guaranteeDurationMonths' => '54',
         ]);
 
         self::assertFalse($result['showGll']);
@@ -83,14 +132,13 @@ final class ProductGuaranteeDisplayResolverTest extends TestCase
                 'enableGaran' => '1',
                 'guaranteeBrand' => 'Parent Brand',
                 'guaranteeModelIdentifier' => 'Parent Model',
-                'guaranteeDurationYears' => '3',
+                'guaranteeDurationMonths' => '3',
             ]),
             new ArrayIterator([
-                'garanOverride' => '1',
-                'enableGaran' => '1',
+                'garanMode' => 'override',
                 'guaranteeBrand' => 'Variant Brand',
                 'guaranteeModelIdentifier' => 'Variant Model',
-                'guaranteeDurationYears' => '5',
+                'guaranteeDurationMonths' => '60',
             ])
         );
 
@@ -98,6 +146,6 @@ final class ProductGuaranteeDisplayResolverTest extends TestCase
         self::assertTrue($result['showGaran']);
         self::assertSame('Variant Brand', $result['garan']['brand']);
         self::assertSame('Variant Model', $result['garan']['modelIdentifier']);
-        self::assertSame('5', $result['garan']['durationYears']);
+        self::assertSame('60', $result['garan']['durationMonths']);
     }
 }
