@@ -1326,7 +1326,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 					'loadVariantGuaranteeBrand'
 				)
 			),
-			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'mandatory' => true),
+			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'mandatory' => true, 'alwaysSave' => true),
 			'search'		=> true,
             'sql'                     => "varchar(255) NOT NULL default ''"
 		),
