@@ -75,6 +75,7 @@ services:
     arguments:
       $connection: '@doctrine.dbal.default_connection'
   LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\LegalGuaranteeBackendCallbacks:
+    public: true
     arguments:
       $connection: '@doctrine.dbal.default_connection'
   LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\ProductGuaranteeConfigurationValidator: ~
