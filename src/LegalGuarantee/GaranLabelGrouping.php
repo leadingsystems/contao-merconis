@@ -98,12 +98,12 @@ final class GaranLabelGrouping
      */
     private function buildGroupKey(array $entry): string
     {
-        return implode('|', [
+        return json_encode([
             $entry['productId'],
             $entry['garanVersion'],
             $entry['brand'],
             $entry['modelIdentifier'],
             $entry['durationMonths'],
-        ]);
+        ], JSON_THROW_ON_ERROR);
     }
 }

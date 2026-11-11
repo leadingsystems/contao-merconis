@@ -166,4 +166,36 @@ final class GaranLabelGroupingTest extends TestCase
         self::assertSame('v1.0', $groups[0]['garanVersion']);
         self::assertSame('v1.1', $groups[1]['garanVersion']);
     }
+
+    public function testGroupEntriesDoesNotCollideWhenBrandOrModelContainsPipe(): void
+    {
+        $grouping = new GaranLabelGrouping();
+
+        $groups = $grouping->groupEntries([
+            [
+                'productId' => '10',
+                'garanVersion' => 'v1.0',
+                'brand' => 'A|B',
+                'modelIdentifier' => 'C',
+                'durationMonths' => '36',
+                'productName' => 'Produkt Eins',
+            ],
+            [
+                'productId' => '10',
+                'garanVersion' => 'v1.0',
+                'brand' => 'A',
+                'modelIdentifier' => 'B|C',
+                'durationMonths' => '36',
+                'productName' => 'Produkt Zwei',
+            ],
+        ]);
+
+        self::assertCount(2, $groups);
+        self::assertSame('A|B', $groups[0]['brand']);
+        self::assertSame('C', $groups[0]['modelIdentifier']);
+        self::assertSame(['Produkt Eins'], $groups[0]['productNames']);
+        self::assertSame('A', $groups[1]['brand']);
+        self::assertSame('B|C', $groups[1]['modelIdentifier']);
+        self::assertSame(['Produkt Zwei'], $groups[1]['productNames']);
+    }
 }
