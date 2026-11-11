@@ -2276,7 +2276,7 @@ class ls_shop_importController
 				break;
 			case 'garan_disabled_gll_variant_override':
 				$str_detail = sprintf(
-					'GARAN was not saved because GLL is disabled and the following variants still use garanMode "override": %s.',
+					'GLL was not disabled because the following variants use garanMode "override": %s.',
 					$arr_parameters[0] ?? ''
 				);
 				break;

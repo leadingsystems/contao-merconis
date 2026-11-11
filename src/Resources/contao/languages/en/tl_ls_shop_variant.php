@@ -131,7 +131,7 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contentsLanguageIndependent_labe
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeValidationMessages'] = array(
 	'garan_invalid_mode' => 'GARAN was not saved because "%s" is not a valid garanMode. Use "inherit", "disabled" or "override".',
 	'garan_override_gll_required' => 'GARAN was not saved because garanMode "override" requires GLL on the parent product.',
-	'garan_disabled_gll_variant_override' => 'GARAN was not saved because GLL is disabled and the following variants still use garanMode "override": %s.',
+	'garan_disabled_gll_variant_override' => 'GLL was not disabled because the following variants use garanMode "override": %s.',
 	'garan_disabled_missing_brand' => 'GARAN was not saved because Brand/Trademark is missing.',
 	'garan_disabled_missing_model' => 'GARAN was not saved because Model identifier is missing.',
 	'garan_disabled_missing_duration' => 'GARAN was not saved because the guarantee duration is missing.',

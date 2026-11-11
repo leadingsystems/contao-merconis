@@ -261,7 +261,7 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
         self::assertTrue($applier->hasBlockingWriteMessages($result['messages']));
         self::assertSame('enableGll', $result['messages'][0]['field']);
         self::assertSame(
-            'field "enableGll": GARAN was not saved because GLL is disabled and the following variants still use garanMode "override": VAR-001.',
+            'field "enableGll": GLL was not disabled because the following variants use garanMode "override": VAR-001.',
             $applier->formatWriteErrorMessage($result['messages'])
         );
     }

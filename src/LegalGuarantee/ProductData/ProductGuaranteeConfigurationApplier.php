@@ -177,7 +177,7 @@ final class ProductGuaranteeConfigurationApplier
             ),
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_OVERRIDE_GLL_REQUIRED => 'GARAN was not saved because garanMode "override" requires GLL on the parent product.',
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_VARIANT_OVERRIDE => sprintf(
-                'GARAN was not saved because GLL is disabled and the following variants still use garanMode "override": %s.',
+                'GLL was not disabled because the following variants use garanMode "override": %s.',
                 $parameters[0] ?? ''
             ),
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_BRAND => 'GARAN was not saved because "Brand/Trademark" is missing.',

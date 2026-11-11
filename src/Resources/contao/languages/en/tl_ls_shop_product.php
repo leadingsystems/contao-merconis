@@ -135,7 +135,7 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['flex_contentsLanguageIndependent_label02'] = 'Product information';
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeValidationMessages'] = array(
 		'garan_disabled_gll_required' => 'GARAN was not saved because GLL is disabled.',
-		'garan_disabled_gll_variant_override' => 'GARAN was not saved because GLL is disabled and the following variants still use garanMode "override": %s.',
+		'garan_disabled_gll_variant_override' => 'GLL was not disabled because the following variants use garanMode "override": %s.',
 		'garan_disabled_missing_brand' => 'GARAN was not saved because Brand/Trademark is missing.',
 		'garan_disabled_missing_model' => 'GARAN was not saved because Model identifier is missing.',
 		'garan_disabled_missing_duration' => 'GARAN was not saved because the guarantee duration is missing.',
