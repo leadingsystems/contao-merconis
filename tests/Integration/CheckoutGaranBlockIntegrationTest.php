@@ -15,6 +15,7 @@ use Merconis\Core\ls_shop_cartX;
 use Merconis\Core\ls_shop_product;
 use Merconis\Core\ls_shop_variant;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use ReflectionClass;
 use ReflectionProperty;
 
@@ -48,7 +49,7 @@ final class CheckoutGaranBlockIntegrationTest extends TestCase
                 ],
                 10,
                 'Kissen',
-                $this->createVariant(101, 'Rot')
+                $this->createVariant(101, 'Rot', 'ART-101')
             ),
             $this->createProduct(
                 [
@@ -60,7 +61,7 @@ final class CheckoutGaranBlockIntegrationTest extends TestCase
                 ],
                 10,
                 'Kissen',
-                $this->createVariant(102, 'Blau')
+                $this->createVariant(102, 'Blau', 'ART-102')
             ),
             $this->createProduct(
                 [
@@ -71,7 +72,9 @@ final class CheckoutGaranBlockIntegrationTest extends TestCase
                     'guaranteeDurationMonths' => '36',
                 ],
                 20,
-                'Decke'
+                'Decke',
+                null,
+                'ART-200'
             ),
         ]);
 
@@ -85,17 +88,39 @@ final class CheckoutGaranBlockIntegrationTest extends TestCase
             'https://europa.eu/youreurope/commercial-guarantee-durability/',
             $markup
         );
-        self::assertStringContainsString('Kissen (Rot)<br>Kissen (Blau)', $markup);
-        self::assertStringContainsString('Decke', $markup);
+        self::assertStringContainsString('Kissen (Rot) - ART-101<br>Kissen (Blau) - ART-102', $markup);
+        self::assertStringContainsString('Decke - ART-200', $markup);
         self::assertGreaterThan(
-            strpos($markup, 'Kissen (Rot)<br>Kissen (Blau)'),
-            strpos($markup, 'Decke')
+            strpos($markup, 'Kissen (Rot) - ART-101<br>Kissen (Blau) - ART-102'),
+            strpos($markup, 'Decke - ART-200')
         );
         self::assertSame(2, substr_count($markup, 'Herstellergarantie von ACME für X100 mit 3 Jahren'));
 
         preg_match_all('/id="([^"]+)"/', $markup, $matches);
         self::assertNotEmpty($matches[1]);
         self::assertSameSize($matches[1], array_unique($matches[1]));
+    }
+
+    public function testCheckoutGaranBlockOmitsArticleSuffixWhenArticleNumberIsMissing(): void
+    {
+        $this->setCartItems([
+            $this->createProduct(
+                [
+                    'enableGll' => '1',
+                    'enableGaran' => '1',
+                    'guaranteeBrand' => 'ACME',
+                    'guaranteeModelIdentifier' => 'X100',
+                    'guaranteeDurationMonths' => '36',
+                ],
+                10,
+                'Kissen'
+            ),
+        ]);
+
+        $markup = $this->createProvider()->checkoutGaranBlock();
+
+        self::assertStringContainsString('Kissen', $markup);
+        self::assertStringNotContainsString('Kissen - ', $markup);
     }
 
     private function createProvider(): LegalGuaranteeMarkupProvider
@@ -110,6 +135,7 @@ final class CheckoutGaranBlockIntegrationTest extends TestCase
             new ProductGuaranteeDisplayResolver(),
             new GaranLabelGrouping(),
             new LegalGuaranteeMarkupBuilder(),
+            new NullLogger(),
             [new GaranLabelRenderer($assetLocator, OfficialGuaranteeAssetLocator::GARAN_VERSION)],
         );
     }
@@ -118,13 +144,17 @@ final class CheckoutGaranBlockIntegrationTest extends TestCase
         array $mainData,
         int $productId,
         string $title,
-        ?ls_shop_variant $selectedVariant = null
+        ?ls_shop_variant $selectedVariant = null,
+        string $code = ''
     ): ls_shop_product {
         $productReflection = new ReflectionClass(ls_shop_product::class);
         /** @var ls_shop_product $product */
         $product = $productReflection->newInstanceWithoutConstructor();
         $product->ls_ID = $productId;
-        $product->mainData = $mainData + ['title' => $title];
+        $product->mainData = $mainData + [
+            'lsShopProductCode' => $code,
+            'title' => $title,
+        ];
         $product->currentLanguageData = ['title' => $title];
 
         if (null !== $selectedVariant) {
@@ -135,13 +165,16 @@ final class CheckoutGaranBlockIntegrationTest extends TestCase
         return $product;
     }
 
-    private function createVariant(int $variantId, string $title): ls_shop_variant
+    private function createVariant(int $variantId, string $title, string $code = ''): ls_shop_variant
     {
         $variantReflection = new ReflectionClass(ls_shop_variant::class);
         /** @var ls_shop_variant $variant */
         $variant = $variantReflection->newInstanceWithoutConstructor();
         $variant->ls_ID = $variantId;
-        $variant->mainData = ['title' => $title];
+        $variant->mainData = [
+            'lsShopVariantCode' => $code,
+            'title' => $title,
+        ];
         $variant->currentLanguageData = ['title' => $title];
 
         return $variant;

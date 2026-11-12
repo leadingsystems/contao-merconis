@@ -79,37 +79,6 @@ final class ProductGuaranteeConfigurationApplier
     }
 
     /**
-     * @param array<string, mixed> $productData
-     * @param array<string, mixed>|null $variantData
-     *
-     * @return array<string, mixed>
-     */
-    public function buildExportColumns(array $productData, ?array $variantData = null): array
-    {
-        if ($variantData === null) {
-            return array(
-                'enableGll' => $this->normalizeCheckboxValue($productData['enableGll'] ?? null),
-                'enableGaran' => $this->normalizeCheckboxValue($productData['enableGaran'] ?? null),
-                'guaranteeDurationMonths' => $this->normalizeExportDurationMonths($productData['guaranteeDurationMonths'] ?? null),
-                'guaranteeBrand' => $this->validator->normalizeTextValue($productData['guaranteeBrand'] ?? null),
-                'guaranteeModelIdentifier' => $this->validator->normalizeTextValue(
-                    $productData['guaranteeModelIdentifier'] ?? null
-                ),
-            );
-        }
-
-        return array(
-            'enableGll' => '',
-            'garanMode' => $this->normalizeVariantModeValue($variantData['garanMode'] ?? null),
-            'guaranteeDurationMonths' => $this->normalizeExportDurationMonths($variantData['guaranteeDurationMonths'] ?? null),
-            'guaranteeBrand' => $this->validator->normalizeTextValue($variantData['guaranteeBrand'] ?? null),
-            'guaranteeModelIdentifier' => $this->validator->normalizeTextValue(
-                $variantData['guaranteeModelIdentifier'] ?? null
-            ),
-        );
-    }
-
-    /**
      * @param list<array{code: string, field: string, parameters: array<int, string>}> $messages
      */
     public function hasBlockingWriteMessages(array $messages): bool
@@ -155,11 +124,6 @@ final class ProductGuaranteeConfigurationApplier
         return $decoratedMessages;
     }
 
-    private function normalizeCheckboxValue(mixed $value): string
-    {
-        return in_array($value, array(null, '', 0, '0', false), true) ? '' : '1';
-    }
-
     /**
      * @param array{code?: string, parameters?: array<int, string>} $message
      */
@@ -189,19 +153,5 @@ final class ProductGuaranteeConfigurationApplier
             ),
             default => 'GARAN data is invalid.',
         };
-    }
-
-    private function normalizeExportDurationMonths(mixed $value): string
-    {
-        return trim((string) $value);
-    }
-
-    private function normalizeVariantModeValue(mixed $value): string
-    {
-        $mode = trim((string) $value);
-
-        return in_array($mode, ['inherit', 'disabled', 'override'], true)
-            ? $mode
-            : 'inherit';
     }
 }

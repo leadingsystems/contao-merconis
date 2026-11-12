@@ -53,6 +53,22 @@ final class OrderLabelSnapshotRenderer
      */
     public function resolveGllPdfPath(array $orderSnapshot): ?string
     {
+        $resolvedLanguage = $this->resolveGllPdfLanguage($orderSnapshot);
+
+        if (null === $resolvedLanguage) {
+            return null;
+        }
+
+        $version = trim((string) ($orderSnapshot['gllVersion'] ?? ''));
+
+        return $this->assetLocator->getGllPdfPathByLanguage($resolvedLanguage, $version);
+    }
+
+    /**
+     * @param array<string, mixed> $orderSnapshot
+     */
+    public function resolveGllPdfLanguage(array $orderSnapshot): ?string
+    {
         $version = trim((string) ($orderSnapshot['gllVersion'] ?? ''));
         $language = trim((string) ($orderSnapshot['gllLanguage'] ?? ''));
 
@@ -60,7 +76,7 @@ final class OrderLabelSnapshotRenderer
             return null;
         }
 
-        return $this->assetLocator->getGllPdfPathByLanguage($language, $version);
+        return $this->assetLocator->resolveGllPdfLanguage($language, $version);
     }
 
     /**

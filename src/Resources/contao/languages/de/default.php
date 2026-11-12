@@ -260,6 +260,7 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['gllTitle'] = 'Gesetzlic
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['gllEuLinkText'] = 'EU-Information zur gesetzlichen Gewährleistung';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['garanBlockHeadline'] = 'Herstellergarantie für folgende Artikel:';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['garanEuLinkText'] = 'EU-Information zur Herstellergarantie';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['garanLabelUnavailableNotice'] = 'Die Kennzeichnung der Herstellergarantie für diese Artikel konnte aus technischen Gründen nicht erzeugt werden. Bitte wenden Sie sich an den Händler.';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['garanTitlePattern'] = 'Herstellergarantie von %s für %s mit %s Jahren';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['label'] = 'Kommentar zur Position';

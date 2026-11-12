@@ -57,56 +57,6 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
         );
     }
 
-    public function testBuildExportColumnsUsesOwnValuesForRoundtrip(): void
-    {
-        $applier = new ProductGuaranteeConfigurationApplier();
-
-        $productColumns = $applier->buildExportColumns([
-            'enableGll' => '1',
-            'enableGaran' => '1',
-            'guaranteeDurationMonths' => '60',
-            'guaranteeBrand' => ' Product & Brand ',
-            'guaranteeModelIdentifier' => ' Product "Model" ',
-        ]);
-
-        $variantColumns = $applier->buildExportColumns(
-            [
-                'enableGll' => '1',
-                'enableGaran' => '1',
-                'guaranteeDurationMonths' => '60',
-                'guaranteeBrand' => 'Parent Brand',
-                'guaranteeModelIdentifier' => 'ParentM',
-            ],
-            [
-                'garanMode' => 'disabled',
-                'guaranteeDurationMonths' => '42',
-                'guaranteeBrand' => ' Variant & Brand ',
-                'guaranteeModelIdentifier' => ' Variant "Model" ',
-            ],
-        );
-
-        self::assertSame(
-            [
-                'enableGll' => '1',
-                'enableGaran' => '1',
-                'guaranteeDurationMonths' => '60',
-                'guaranteeBrand' => 'Product & Brand',
-                'guaranteeModelIdentifier' => 'Product "Model"',
-            ],
-            $productColumns
-        );
-        self::assertSame(
-            [
-                'enableGll' => '',
-                'garanMode' => 'disabled',
-                'guaranteeDurationMonths' => '42',
-                'guaranteeBrand' => 'Variant & Brand',
-                'guaranteeModelIdentifier' => 'Variant "Model"',
-            ],
-            $variantColumns
-        );
-    }
-
     public function testWriteMessagesBlockPersistenceAndExposeReadableError(): void
     {
         $applier = new ProductGuaranteeConfigurationApplier();

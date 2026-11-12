@@ -10,7 +10,9 @@ use Mpdf\Mpdf;
 use Mpdf\Config\ConfigVariables;
 use Mpdf\Config\FontVariables;
 use Mpdf\Output\Destination;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
+use Throwable;
 
 final class MpdfGaranPdfAttachmentWriter implements GaranPdfAttachmentWriterInterface
 {
@@ -19,17 +21,18 @@ final class MpdfGaranPdfAttachmentWriter implements GaranPdfAttachmentWriterInte
     private const PDF_PAGE_MARGIN_MM = 15;
     private const PDF_LABEL_WIDTH_MM = 118;
     private const PRODUCT_NAME_MARGIN_BOTTOM_MM = 6;
-    private const SVG_MARGIN_BOTTOM_MM = 6;
-    private const MACHINE_READABLE_TEXT_COLOR = '#ffffff';
+    private const LABEL_MARGIN_BOTTOM_MM = 6;
 
     public function __construct(
         private readonly string $projectDir,
+        private readonly LoggerInterface $contaoErrorLogger,
     ) {
     }
 
-    public function write(array $pages, string $preferredBaseName): array
+    public function write(array $pages, string $orderNumber, int $orderDateUnixTimestamp): array
     {
-        $outputDirectory = $this->projectDir . '/' . self::RELATIVE_OUTPUT_DIRECTORY;
+        $relativeOutputDirectory = $this->buildRelativeOutputDirectory($orderDateUnixTimestamp);
+        $outputDirectory = $this->projectDir . '/' . $relativeOutputDirectory;
         $mpdfTempDirectory = $this->projectDir . '/' . self::RELATIVE_MPDF_TEMP_DIRECTORY;
         $fontDirectory = $this->projectDir . '/vendor/leadingsystems/contao-merconis/src/Resources/public/legal-guarantee/fonts/inter';
 
@@ -49,11 +52,8 @@ final class MpdfGaranPdfAttachmentWriter implements GaranPdfAttachmentWriterInte
         $this->requireFontFile($fontDirectory . '/Inter-ExtraBold.ttf');
 
         $renderedPages = $this->preparePages($pages);
-        $relativeFilePath = self::RELATIVE_OUTPUT_DIRECTORY . '/' . $this->createFileName(
-            $preferredBaseName,
-            json_encode($renderedPages, JSON_THROW_ON_ERROR)
-        );
-        $absoluteFilePath = $this->projectDir . '/' . $relativeFilePath;
+        $relativeFilePath = '';
+        $absoluteFilePath = '';
 
         $configVariables = new ConfigVariables();
         $fontVariables = new FontVariables();
@@ -78,65 +78,205 @@ final class MpdfGaranPdfAttachmentWriter implements GaranPdfAttachmentWriterInte
         ]);
         $mpdf->SetMargins(self::PDF_PAGE_MARGIN_MM, self::PDF_PAGE_MARGIN_MM, self::PDF_PAGE_MARGIN_MM);
         $mpdf->SetAutoPageBreak(false, self::PDF_PAGE_MARGIN_MM);
+        $mpdf->imageVars = [];
+
+        $staticSvgMarkup = null;
 
         foreach ($renderedPages as $pageIndex => $renderedPage) {
             if ($pageIndex > 0) {
                 $mpdf->AddPage();
             }
 
+            if (isset($renderedPage['staticSvgMarkup'], $renderedPage['valueSvgMarkup'])) {
+                $staticSvgMarkup ??= $renderedPage['staticSvgMarkup'];
+                $mpdf->imageVars['garanStatic'] = $staticSvgMarkup;
+                $mpdf->imageVars['garanValues' . $pageIndex] = $renderedPage['valueSvgMarkup'];
+            }
+
             $mpdf->WriteHTML($renderedPage['html']);
         }
 
-        $mpdf->Output($absoluteFilePath, Destination::FILE);
+        $pdfContents = $mpdf->Output('', Destination::STRING_RETURN);
+
+        if (!is_string($pdfContents) || '' === $pdfContents) {
+            throw new RuntimeException('GARAN PDF output is empty.');
+        }
+
+        [
+            'fileHandle' => $fileHandle,
+            'relativePath' => $relativeFilePath,
+            'absolutePath' => $absoluteFilePath,
+        ] = $this->reserveOutputFile($relativeOutputDirectory, $outputDirectory, $orderNumber);
+
+        try {
+            $writtenBytes = fwrite($fileHandle, $pdfContents);
+
+            if (false === $writtenBytes || $writtenBytes !== strlen($pdfContents)) {
+                throw new RuntimeException(sprintf('Could not write GARAN PDF output file completely: %s', $absoluteFilePath));
+            }
+        } catch (Throwable $exception) {
+            fclose($fileHandle);
+            @unlink($absoluteFilePath);
+
+            throw $exception;
+        }
+
+        fclose($fileHandle);
 
         return [
             'relativePath' => $relativeFilePath,
         ];
     }
 
-    private function createFileName(string $preferredBaseName, string $svgMarkup): string
+    private function buildRelativeOutputDirectory(int $orderDateUnixTimestamp): string
     {
-        $baseName = preg_replace('/\.pdf$/i', '', $preferredBaseName) ?? $preferredBaseName;
-        $suffix = substr(sha1($svgMarkup), 0, 12);
+        $datePath = date('Y/m/d', $orderDateUnixTimestamp > 0 ? $orderDateUnixTimestamp : time());
 
-        return sprintf('%s-%s.pdf', $baseName, $suffix);
+        return self::RELATIVE_OUTPUT_DIRECTORY . '/' . $datePath;
+    }
+
+    /**
+     * @return array{fileHandle: resource, relativePath: string, absolutePath: string}
+     */
+    private function reserveOutputFile(
+        string $relativeOutputDirectory,
+        string $absoluteOutputDirectory,
+        string $orderNumber
+    ): array {
+        $sanitizedOrderNumber = $this->sanitizeOrderNumber($orderNumber);
+        $sequenceNumber = $this->determineNextSequenceNumber($absoluteOutputDirectory, $sanitizedOrderNumber);
+
+        while (true) {
+            $fileName = $this->buildFileName($sanitizedOrderNumber, $sequenceNumber);
+            $absoluteFilePath = $absoluteOutputDirectory . '/' . $fileName;
+            $reservationHandle = @fopen($absoluteFilePath, 'x');
+
+            if (false !== $reservationHandle) {
+                return [
+                    'fileHandle' => $reservationHandle,
+                    'relativePath' => $relativeOutputDirectory . '/' . $fileName,
+                    'absolutePath' => $absoluteFilePath,
+                ];
+            }
+
+            $sequenceNumber = max(
+                $sequenceNumber + 1,
+                $this->determineNextSequenceNumber($absoluteOutputDirectory, $sanitizedOrderNumber)
+            );
+        }
+    }
+
+    private function sanitizeOrderNumber(string $orderNumber): string
+    {
+        $sanitizedOrderNumber = preg_replace('/[^A-Za-z0-9._-]/', '-', trim($orderNumber)) ?? '';
+
+        return '' !== $sanitizedOrderNumber ? $sanitizedOrderNumber : 'order';
+    }
+
+    private function determineNextSequenceNumber(string $absoluteOutputDirectory, string $sanitizedOrderNumber): int
+    {
+        $highestSequenceNumber = 0;
+        $directoryEntries = scandir($absoluteOutputDirectory);
+
+        if (!is_array($directoryEntries)) {
+            throw new RuntimeException(sprintf('Could not read GARAN output directory: %s', $absoluteOutputDirectory));
+        }
+
+        $fileNamePattern = sprintf(
+            '/^garan-labels-%s(?:_(\d+))?\.pdf$/',
+            preg_quote($sanitizedOrderNumber, '/')
+        );
+
+        foreach ($directoryEntries as $directoryEntry) {
+            if (!preg_match($fileNamePattern, $directoryEntry, $matches)) {
+                continue;
+            }
+
+            $sequenceNumber = isset($matches[1]) && $matches[1] !== '' ? (int) $matches[1] : 1;
+            $highestSequenceNumber = max($highestSequenceNumber, $sequenceNumber);
+        }
+
+        return $highestSequenceNumber > 0 ? $highestSequenceNumber + 1 : 1;
+    }
+
+    private function buildFileName(string $sanitizedOrderNumber, int $sequenceNumber): string
+    {
+        if ($sequenceNumber <= 1) {
+            return sprintf('garan-labels-%s.pdf', $sanitizedOrderNumber);
+        }
+
+        return sprintf('garan-labels-%s_%d.pdf', $sanitizedOrderNumber, $sequenceNumber);
     }
 
     /**
      * @param list<array{
-     *   svgMarkup: string,
+     *   type: 'label'|'notice',
      *   productNames: list<string>,
-     *   euLinkText: string,
-     *   euLinkUrl: string
+     *   noticeText: string,
+     *   orderNumber: string,
+     *   articleNumbers: list<string>,
+     *   svgMarkup?: string,
+     *   euLinkText?: string,
+     *   euLinkUrl?: string
      * }> $pages
      *
-     * @return list<array{html: string, svgMarkup: string}>
+     * @return list<array{
+     *   html: string,
+     *   staticSvgMarkup?: string,
+     *   valueSvgMarkup?: string
+     * }>
      */
     private function preparePages(array $pages): array
     {
         $renderedPages = [];
 
         foreach ($pages as $page) {
-            [$preparedSvgMarkup] = $this->prepareSvgForPdf($page['svgMarkup']);
+            if (($page['type'] ?? '') === 'notice') {
+                $renderedPages[] = [
+                    'html' => $this->buildNoticeHtml($page['productNames'], $page['noticeText']),
+                ];
+                continue;
+            }
 
-            $renderedPages[] = [
-                'html' => $this->buildHtml(
-                    $preparedSvgMarkup,
-                    $page['productNames'],
-                    $page['euLinkText'],
-                    $page['euLinkUrl']
-                ),
-                'svgMarkup' => $preparedSvgMarkup,
-            ];
+            try {
+                [
+                    'labelHeightMm' => $labelHeightMm,
+                    'staticSvgMarkup' => $staticSvgMarkup,
+                    'valueSvgMarkup' => $valueSvgMarkup,
+                ] = $this->splitRenderedSvgForPdf((string) ($page['svgMarkup'] ?? ''));
+
+                $renderedPages[] = [
+                    'html' => $this->buildLabelHtml(
+                        $page['productNames'],
+                        'garanStatic',
+                        'garanValues' . count($renderedPages),
+                        $labelHeightMm,
+                        (string) ($page['euLinkText'] ?? ''),
+                        (string) ($page['euLinkUrl'] ?? '')
+                    ),
+                    'staticSvgMarkup' => $staticSvgMarkup,
+                    'valueSvgMarkup' => $valueSvgMarkup,
+                ];
+            } catch (Throwable $exception) {
+                $this->logUnavailableLabel($page['orderNumber'], $page['articleNumbers'], $exception);
+
+                $renderedPages[] = [
+                    'html' => $this->buildNoticeHtml($page['productNames'], $page['noticeText']),
+                ];
+            }
         }
 
         return $renderedPages;
     }
 
     /**
-     * @return array{0: string, 1: float}
+     * @return array{
+     *   labelHeightMm: float,
+     *   staticSvgMarkup: string,
+     *   valueSvgMarkup: string
+     * }
      */
-    private function prepareSvgForPdf(string $svgMarkup): array
+    private function splitRenderedSvgForPdf(string $svgMarkup): array
     {
         $document = new DOMDocument('1.0', 'UTF-8');
         $previousUseInternalErrors = libxml_use_internal_errors(true);
@@ -157,21 +297,13 @@ final class MpdfGaranPdfAttachmentWriter implements GaranPdfAttachmentWriterInte
         [$viewBoxWidth, $viewBoxHeight] = $this->extractViewBoxDimensions($svgElement);
         $labelHeightMm = self::PDF_LABEL_WIDTH_MM * ($viewBoxHeight / $viewBoxWidth);
 
-        if (!$svgElement->hasAttribute('xmlns')) {
-            $svgElement->setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-        }
+        $this->ensureSvgNamespace($svgElement);
 
-        $svgElement->setAttribute('width', $this->formatMillimetres(self::PDF_LABEL_WIDTH_MM));
-        $svgElement->setAttribute('height', $this->formatMillimetres($labelHeightMm));
-        $svgElement->setAttribute('preserveAspectRatio', 'xMidYMin meet');
-
-        $renderedSvg = $document->saveXML($svgElement);
-
-        if (false === $renderedSvg) {
-            throw new RuntimeException('GARAN PDF SVG markup could not be serialised.');
-        }
-
-        return [$renderedSvg, $labelHeightMm];
+        return [
+            'labelHeightMm' => $labelHeightMm,
+            'staticSvgMarkup' => $this->buildStaticSvgMarkup($svgElement),
+            'valueSvgMarkup' => $this->buildValueSvgMarkup($svgElement),
+        ];
     }
 
     /**
@@ -209,13 +341,14 @@ final class MpdfGaranPdfAttachmentWriter implements GaranPdfAttachmentWriterInte
     /**
      * @param list<string> $productNames
      */
-    private function buildHtml(
-        string $svgMarkup,
+    private function buildLabelHtml(
         array $productNames,
+        string $staticImageVar,
+        string $valueImageVar,
+        float $labelHeightMm,
         string $euLinkText,
         string $euLinkUrl
     ): string {
-        $machineReadableText = $this->buildMachineReadableText($svgMarkup);
         $productNamesHtml = implode('', array_map(
             static fn (string $productName): string => sprintf(
                 '<div style="margin:0 0 1.5mm 0;">%s</div>',
@@ -227,55 +360,50 @@ final class MpdfGaranPdfAttachmentWriter implements GaranPdfAttachmentWriterInte
         return sprintf(
             '<div style="font-family:inter-regular;font-size:10.5pt;line-height:1.35;">'
             . '<div style="margin:0 0 %s 0;">%s</div>'
-            . '<div style="width:%s;margin:0 auto %s auto;">%s</div>'
+            . '<div style="width:%s;margin:0 auto %s auto;">'
+            . '<img src="var:%s" style="display:block;width:%s;" alt="" />'
+            . '<div style="margin-top:-%s;">'
+            . '<img src="var:%s" style="display:block;width:%s;" alt="" />'
+            . '</div>'
+            . '</div>'
             . '<div style="margin:0;"><a href="%s">%s</a></div>'
-            . '<div style="font-size:0.1pt;line-height:0;color:%s;">%s</div>'
             . '</div>',
             $this->formatMillimetres(self::PRODUCT_NAME_MARGIN_BOTTOM_MM),
             $productNamesHtml,
             $this->formatMillimetres(self::PDF_LABEL_WIDTH_MM),
-            $this->formatMillimetres(self::SVG_MARGIN_BOTTOM_MM),
-            $svgMarkup,
+            $this->formatMillimetres(self::LABEL_MARGIN_BOTTOM_MM),
+            htmlspecialchars($staticImageVar, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+            $this->formatMillimetres(self::PDF_LABEL_WIDTH_MM),
+            $this->formatMillimetres($labelHeightMm),
+            htmlspecialchars($valueImageVar, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
+            $this->formatMillimetres(self::PDF_LABEL_WIDTH_MM),
             htmlspecialchars($euLinkUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
-            htmlspecialchars($euLinkText, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
-            self::MACHINE_READABLE_TEXT_COLOR,
-            htmlspecialchars($machineReadableText, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
+            htmlspecialchars($euLinkText, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
         );
     }
 
-    private function buildMachineReadableText(string $svgMarkup): string
+    /**
+     * @param list<string> $productNames
+     */
+    private function buildNoticeHtml(array $productNames, string $noticeText): string
     {
-        $document = new DOMDocument('1.0', 'UTF-8');
-        $previousUseInternalErrors = libxml_use_internal_errors(true);
-        $loaded = $document->loadXML($svgMarkup);
-        libxml_clear_errors();
-        libxml_use_internal_errors($previousUseInternalErrors);
+        $productNamesHtml = implode('', array_map(
+            static fn (string $productName): string => sprintf(
+                '<div style="margin:0 0 1.5mm 0;">%s</div>',
+                htmlspecialchars($productName, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
+            ),
+            $productNames
+        ));
 
-        if (!$loaded) {
-            return '';
-        }
-
-        $values = [];
-
-        foreach (['brand', 'model', 'duration'] as $fieldName) {
-            $textNodes = $document->getElementsByTagName('text');
-
-            foreach ($textNodes as $textNode) {
-                if (!$textNode instanceof DOMElement || $textNode->getAttribute('data-field') !== $fieldName) {
-                    continue;
-                }
-
-                $textValue = trim($textNode->textContent ?? '');
-
-                if ($textValue !== '') {
-                    $values[] = $textValue;
-                }
-
-                break;
-            }
-        }
-
-        return implode(' ', $values);
+        return sprintf(
+            '<div style="font-family:inter-regular;font-size:10.5pt;line-height:1.35;">'
+            . '<div style="margin:0 0 %s 0;">%s</div>'
+            . '<div style="margin:0;">%s</div>'
+            . '</div>',
+            $this->formatMillimetres(self::PRODUCT_NAME_MARGIN_BOTTOM_MM),
+            $productNamesHtml,
+            htmlspecialchars($noticeText, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
+        );
     }
 
     private function requireFontFile(string $path): void
@@ -283,5 +411,147 @@ final class MpdfGaranPdfAttachmentWriter implements GaranPdfAttachmentWriterInte
         if (!is_file($path)) {
             throw new RuntimeException(sprintf('Required GARAN PDF font file is missing: %s', $path));
         }
+    }
+
+    private function ensureSvgNamespace(DOMElement $svgElement): void
+    {
+        if (!$svgElement->hasAttribute('xmlns')) {
+            $svgElement->setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+        }
+    }
+
+    private function buildStaticSvgMarkup(DOMElement $sourceSvgElement): string
+    {
+        $staticDocument = new DOMDocument('1.0', 'UTF-8');
+        $staticDocument->loadXML($sourceSvgElement->ownerDocument?->saveXML($sourceSvgElement) ?: '');
+        $staticSvgElement = $staticDocument->documentElement;
+
+        if (!$staticSvgElement instanceof DOMElement) {
+            throw new RuntimeException('GARAN static SVG could not be created.');
+        }
+
+        foreach ($this->findRenderableTextElements($staticSvgElement) as $textElement) {
+            $textElement->parentNode?->removeChild($textElement);
+        }
+
+        $this->stripRootDimensions($staticSvgElement);
+
+        return $this->saveSvgElement($staticDocument, $staticSvgElement, 'static');
+    }
+
+    private function buildValueSvgMarkup(DOMElement $sourceSvgElement): string
+    {
+        $valueDocument = new DOMDocument('1.0', 'UTF-8');
+        $valueSvgElement = $valueDocument->createElementNS('http://www.w3.org/2000/svg', 'svg');
+        $valueDocument->appendChild($valueSvgElement);
+        $valueSvgElement->setAttribute('viewBox', $sourceSvgElement->getAttribute('viewBox'));
+        $valueSvgElement->setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+
+        $defsElement = $this->findDefsElement($sourceSvgElement);
+
+        if (null === $defsElement) {
+            throw new RuntimeException('GARAN value SVG requires a `defs` element.');
+        }
+
+        $valueSvgElement->appendChild($valueDocument->importNode($defsElement, true));
+
+        foreach ($this->requireRenderableTextElements($sourceSvgElement) as $textElement) {
+            $valueSvgElement->appendChild($valueDocument->importNode($textElement, true));
+        }
+
+        return $this->saveSvgElement($valueDocument, $valueSvgElement, 'value');
+    }
+
+    /**
+     * @return list<DOMElement>
+     */
+    private function findRenderableTextElements(DOMElement $svgElement): array
+    {
+        $textElements = [];
+
+        foreach ($svgElement->getElementsByTagName('text') as $textNode) {
+            if ($textNode instanceof DOMElement && $textNode->hasAttribute('data-field')) {
+                $textElements[] = $textNode;
+            }
+        }
+
+        return $textElements;
+    }
+
+    /**
+     * @return array{0: DOMElement, 1: DOMElement, 2: DOMElement}
+     */
+    private function requireRenderableTextElements(DOMElement $svgElement): array
+    {
+        $textElementsByField = [];
+
+        foreach ($this->findRenderableTextElements($svgElement) as $textElement) {
+            $fieldName = trim($textElement->getAttribute('data-field'));
+
+            if (isset($textElementsByField[$fieldName])) {
+                throw new RuntimeException(sprintf('GARAN value SVG contains duplicate field "%s".', $fieldName));
+            }
+
+            $textElementsByField[$fieldName] = $textElement;
+        }
+
+        foreach (['brand', 'model', 'duration'] as $fieldName) {
+            if (!isset($textElementsByField[$fieldName])) {
+                throw new RuntimeException(sprintf('GARAN value SVG is missing field "%s".', $fieldName));
+            }
+        }
+
+        return [
+            $textElementsByField['brand'],
+            $textElementsByField['model'],
+            $textElementsByField['duration'],
+        ];
+    }
+
+    private function findDefsElement(DOMElement $svgElement): ?DOMElement
+    {
+        foreach ($svgElement->getElementsByTagName('defs') as $defsNode) {
+            if ($defsNode instanceof DOMElement) {
+                return $defsNode;
+            }
+        }
+
+        return null;
+    }
+
+    private function stripRootDimensions(DOMElement $svgElement): void
+    {
+        $svgElement->removeAttribute('width');
+        $svgElement->removeAttribute('height');
+        $svgElement->removeAttribute('preserveAspectRatio');
+    }
+
+    private function saveSvgElement(DOMDocument $document, DOMElement $svgElement, string $kind): string
+    {
+        $svgMarkup = $document->saveXML($svgElement);
+
+        if (false === $svgMarkup) {
+            throw new RuntimeException(sprintf('GARAN %s SVG markup could not be serialised.', $kind));
+        }
+
+        return $svgMarkup;
+    }
+
+    /**
+     * @param list<string> $articleNumbers
+     */
+    private function logUnavailableLabel(string $orderNumber, array $articleNumbers, Throwable $exception): void
+    {
+        $normalisedArticleNumbers = array_values(array_filter(array_map(
+            static fn (string $articleNumber): string => trim($articleNumber),
+            $articleNumbers
+        ), static fn (string $articleNumber): bool => $articleNumber !== ''));
+
+        $this->contaoErrorLogger->error(sprintf(
+            'GARAN label generation failed for order %s and article numbers [%s]: %s',
+            $orderNumber !== '' ? $orderNumber : 'unknown',
+            [] !== $normalisedArticleNumbers ? implode(', ', $normalisedArticleNumbers) : 'unknown',
+            $exception->getMessage()
+        ));
     }
 }

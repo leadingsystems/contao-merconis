@@ -85,6 +85,32 @@ final class OrderLabelSnapshotBuilderTest extends TestCase
         self::assertSame('', $snapshot['garanDurationMonths']);
     }
 
+    public function testBuildItemSnapshotSuppressesVariantGaranWhenParentGllIsDisabled(): void
+    {
+        $builder = $this->createBuilder();
+
+        $snapshot = $builder->buildItemSnapshot(
+            [
+                'enableGll' => '',
+                'enableGaran' => '1',
+                'guaranteeBrand' => 'Produkt & Marke',
+                'guaranteeModelIdentifier' => 'Produktmodell "A"',
+                'guaranteeDurationMonths' => '36',
+            ],
+            [
+                'garanMode' => 'override',
+                'guaranteeBrand' => 'Variantenmarke <S>',
+                'guaranteeModelIdentifier' => 'Variantenmodell',
+                'guaranteeDurationMonths' => '42',
+            ]
+        );
+
+        self::assertSame('', $snapshot['garanVersion']);
+        self::assertSame('', $snapshot['garanBrand']);
+        self::assertSame('', $snapshot['garanModelIdentifier']);
+        self::assertSame('', $snapshot['garanDurationMonths']);
+    }
+
     private function createBuilder(): OrderLabelSnapshotBuilder
     {
         return new OrderLabelSnapshotBuilder(

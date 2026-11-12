@@ -6,6 +6,7 @@ namespace LeadingSystems\MerconisBundle\Tests\Functional;
 
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use Symfony\Component\Filesystem\Filesystem;
 
 final class MpdfGaranPdfWriteTest extends TestCase
 {
@@ -19,15 +20,30 @@ final class MpdfGaranPdfWriteTest extends TestCase
      * @var list<array{id: int, garanVersion: string|null, garanBrand: string|null, garanModelIdentifier: string|null, garanDurationMonths: string|int|float|null}>
      */
     private array $originalSnapshotState = [];
+    /**
+     * @var list<string>
+     */
+    private array $generatedRelativePaths = [];
+    /**
+     * @var array{id: int, orderNr: string|null, orderDateUnixTimestamp: int|null}|null
+     */
+    private ?array $originalOrderState = null;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->originalSnapshotState = $this->readSnapshotState();
+        $this->originalOrderState = $this->readOrderState();
     }
 
     protected function tearDown(): void
     {
+        $this->deleteGeneratedAttachmentFiles();
+
+        if (null !== $this->originalOrderState) {
+            $this->writeOrderState($this->originalOrderState);
+        }
+
         if ([] !== $this->originalSnapshotState) {
             $this->writeSnapshotState($this->originalSnapshotState);
         }
@@ -35,55 +51,101 @@ final class MpdfGaranPdfWriteTest extends TestCase
         parent::tearDown();
     }
 
-    public function testOrderAttachmentCommandProducesInspectableGaranAndGllPdfsForFixtureF2(): void
+    public function testOrderAttachmentCommandProducesExpectedStructuralPdfOutputForOneTwoAndThreePages(): void
     {
+        $itemIds = $this->getOrderItemIds();
+        $scenarios = [
+            'one-page fixture F4' => [
+                'expectedFormXObjectCount' => 2,
+                'expectedPageCount' => 1,
+                'fixtures' => [
+                    $this->createEmptySnapshotFixture($itemIds[0]),
+                    $this->createEmptySnapshotFixture($itemIds[1]),
+                    $this->createSnapshotFixture($itemIds[2], 'ACME', 'X100', '20,5'),
+                ],
+            ],
+            'two-page fixture F2' => [
+                'expectedFormXObjectCount' => 2,
+                'expectedPageCount' => 2,
+                'fixtures' => [
+                    $this->createSnapshotFixture($itemIds[0], 'ACME', 'X100', '3'),
+                    $this->createSnapshotFixture($itemIds[1], 'ACME', 'X100', '3'),
+                    $this->createSnapshotFixture($itemIds[2], 'ACME', 'X100', '3'),
+                ],
+            ],
+            'three-page mixed fixtures' => [
+                'expectedFormXObjectCount' => 4,
+                'expectedPageCount' => 3,
+                'fixtures' => [
+                    $this->createSnapshotFixture($itemIds[0], 'Mustermann Qualitätshersteller GmbH & Co. KG', 'FooBar', '2,5'),
+                    $this->createSnapshotFixture($itemIds[1], 'ACME', 'X100', '20,5'),
+                    $this->createSnapshotFixture($itemIds[2], 'ACME', 'X100', '3'),
+                ],
+            ],
+        ];
+
+        foreach ($scenarios as $label => $scenario) {
+            $this->writeSnapshotState($scenario['fixtures']);
+            $inspectionResult = $this->inspectGeneratedAttachments($this->getOrderId());
+            $garanInspector = $inspectionResult['garanInspector'];
+
+            self::assertSame($scenario['expectedPageCount'], $garanInspector->getPageCount(), $label);
+            self::assertSame($scenario['expectedFormXObjectCount'], $garanInspector->getFormXObjectCount(), $label);
+            self::assertSame(1, $garanInspector->countLargeFormXObjects(10000), $label);
+            self::assertGreaterThanOrEqual(1.0, $garanInspector->getMinimumTextFontSize(), $label);
+            self::assertCommonPdfProperties($inspectionResult['garanPath'], $inspectionResult['gllPath']);
+        }
+    }
+
+    public function testOrderAttachmentCommandReplacesBrokenLabelWithNoticePageAndKeepsSharedStaticPart(): void
+    {
+        $itemIds = $this->getOrderItemIds();
         $this->writeSnapshotState([
-            $this->createSnapshotFixture($this->getOrderItemIds()[0], 'ACME', 'X100', '3'),
-            $this->createSnapshotFixture($this->getOrderItemIds()[1], 'ACME', 'X100', '3'),
-            $this->createSnapshotFixture($this->getOrderItemIds()[2], 'ACME', 'X100', '3'),
+            $this->createSnapshotFixture($itemIds[0], 'Mustermann Qualitätshersteller GmbH & Co. KG', 'FooBar', '2,5'),
+            $this->createSnapshotFixture($itemIds[1], 'ACME', 'X100', '20,5', 'v9.9'),
+            $this->createSnapshotFixture($itemIds[2], 'ACME', 'X100', '3'),
         ]);
 
-        $relativePaths = $this->runOrderAttachmentCommand($this->getOrderId());
-        $garanPaths = array_values(array_filter(
-            $relativePaths,
-            static fn (string $relativePath): bool => str_contains($relativePath, '/garantielabels/')
-        ));
-        $gllPaths = array_values(array_filter(
-            $relativePaths,
-            static fn (string $relativePath): bool => str_contains($relativePath, '/legal-guarantee/gll/')
-        ));
+        $inspectionResult = $this->inspectGeneratedAttachments($this->getOrderId());
+        $garanInspector = $inspectionResult['garanInspector'];
 
-        self::assertCount(1, $garanPaths);
-        self::assertCount(1, $gllPaths);
-
-        $garanInspector = new LegalGuaranteePdfDictionaryInspector($this->resolveProjectPath($garanPaths[0]));
-        self::assertSame(2, $garanInspector->getPageCount());
-        $garanMediaBoxes = $garanInspector->getPageMediaBoxesInMillimetres();
-        self::assertCount(1, $garanMediaBoxes);
-        self::assertLessThanOrEqual(0.5, abs($garanMediaBoxes[0]['widthMm'] - 148.0));
-        self::assertLessThanOrEqual(0.5, abs($garanMediaBoxes[0]['heightMm'] - 210.0));
-
-        $fontNames = $garanInspector->getFontNames();
-        self::assertContains('Inter-Regular', $fontNames);
-        self::assertContains('Inter-ExtraBold', $fontNames);
-        self::assertNotContains('DejaVuSans', $fontNames);
-
-        self::assertSame(
-            ['https://europa.eu/youreurope/commercial-guarantee-durability/'],
-            $garanInspector->getLinkUris()
-        );
-        self::assertLessThan(500000, $garanInspector->getFileSize());
-
-        $gllInspector = new LegalGuaranteePdfDictionaryInspector($this->resolveProjectPath($gllPaths[0]));
-        self::assertCount(1, $gllInspector->getPageMediaBoxesInMillimetres());
-
-        if (!str_ends_with($gllPaths[0], '-en.pdf')) {
-            self::assertNotEmpty($gllInspector->getLinkUris());
-        }
+        self::assertSame(3, $garanInspector->getPageCount());
+        self::assertSame(3, $garanInspector->getFormXObjectCount());
+        self::assertSame(1, $garanInspector->countLargeFormXObjects(10000));
+        self::assertGreaterThanOrEqual(1.0, $garanInspector->getMinimumTextFontSize());
+        self::assertCommonPdfProperties($inspectionResult['garanPath'], $inspectionResult['gllPath']);
 
         if (getenv('LEGAL_GUARANTEE_PHPUNIT_FORCE_FAILURE') === '1') {
             self::fail('Intentional failure to verify snapshot restoration.');
         }
+    }
+
+    public function testOrderAttachmentCommandCreatesDatedFilesWithoutOverwritingExistingPdf(): void
+    {
+        $timestamp = 1_794_441_600;
+        $orderNumber = 'stage13-functional-order';
+        $this->writeOrderState([
+            'id' => $this->getOrderId(),
+            'orderNr' => $orderNumber,
+            'orderDateUnixTimestamp' => $timestamp,
+        ]);
+
+        $firstRunPaths = $this->runOrderAttachmentCommand($this->getOrderId());
+        $secondRunPaths = $this->runOrderAttachmentCommand($this->getOrderId());
+        $firstGaranPath = $this->extractSingleGaranPath($firstRunPaths);
+        $secondGaranPath = $this->extractSingleGaranPath($secondRunPaths);
+
+        self::assertSame(
+            'files/merconisfiles/dynamicAttachmentFiles/generatedFiles/garantielabels/2026/11/12/garan-labels-stage13-functional-order.pdf',
+            $firstGaranPath
+        );
+        self::assertSame(
+            'files/merconisfiles/dynamicAttachmentFiles/generatedFiles/garantielabels/2026/11/12/garan-labels-stage13-functional-order_2.pdf',
+            $secondGaranPath
+        );
+        self::assertNotSame($firstGaranPath, $secondGaranPath);
+        self::assertFileExists($this->resolveProjectPath($firstGaranPath));
+        self::assertFileExists($this->resolveProjectPath($secondGaranPath));
     }
 
     /**
@@ -127,14 +189,29 @@ final class MpdfGaranPdfWriteTest extends TestCase
         int $itemId,
         string $brand,
         string $modelIdentifier,
-        string $durationLabel
+        string $durationLabel,
+        string $garanVersion = 'v1.0'
     ): array {
         return [
             'id' => $itemId,
-            'garanVersion' => 'v1.0',
+            'garanVersion' => $garanVersion,
             'garanBrand' => $brand,
             'garanModelIdentifier' => $modelIdentifier,
             'garanDurationMonths' => $this->mapDurationLabelToSnapshotValue($durationLabel),
+        ];
+    }
+
+    /**
+     * @return array{id: int, garanVersion: string|null, garanBrand: string|null, garanModelIdentifier: string|null, garanDurationMonths: string|int|float|null}
+     */
+    private function createEmptySnapshotFixture(int $itemId): array
+    {
+        return [
+            'id' => $itemId,
+            'garanVersion' => '',
+            'garanBrand' => '',
+            'garanModelIdentifier' => '',
+            'garanDurationMonths' => null,
         ];
     }
 
@@ -175,6 +252,29 @@ SQL,
     }
 
     /**
+     * @return array{id: int, orderNr: string|null, orderDateUnixTimestamp: int|null}
+     */
+    private function readOrderState(): array
+    {
+        $query = sprintf(
+            <<<'SQL'
+SELECT JSON_OBJECT(
+  'id', id,
+  'orderNr', orderNr,
+  'orderDateUnixTimestamp', orderDateUnixTimestamp
+)
+FROM tl_ls_shop_orders
+WHERE id = %d
+LIMIT 1;
+SQL,
+            $this->getOrderId()
+        );
+        $output = trim($this->runMysqlQuery($query));
+
+        return json_decode($output, true, 512, JSON_THROW_ON_ERROR);
+    }
+
+    /**
      * @param list<array{id: int, garanVersion: string|null, garanBrand: string|null, garanModelIdentifier: string|null, garanDurationMonths: string|int|float|null}> $itemStates
      */
     private function writeSnapshotState(array $itemStates): void
@@ -202,17 +302,55 @@ SQL,
     }
 
     /**
+     * @param array{id: int, orderNr: string|null, orderDateUnixTimestamp: int|null} $orderState
+     */
+    private function writeOrderState(array $orderState): void
+    {
+        $query = sprintf(
+            <<<'SQL'
+UPDATE tl_ls_shop_orders
+SET
+  orderNr = %s,
+  orderDateUnixTimestamp = %s
+WHERE id = %d;
+SQL,
+            $this->toSqlValue($orderState['orderNr']),
+            $this->toSqlValue($orderState['orderDateUnixTimestamp']),
+            $orderState['id']
+        );
+
+        $this->runMysqlQuery($query);
+    }
+
+    /**
      * @return list<string>
      */
     private function runOrderAttachmentCommand(int $orderId): array
     {
+        $this->clearProdCache();
         $command = ['php', 'vendor/bin/contao-console', 'merconis:legal-guarantee:order-attachments', (string) $orderId];
         $output = $this->runProcess($command);
-
-        return array_values(array_filter(
+        $relativePaths = array_values(array_filter(
             array_map('trim', explode("\n", $output)),
             static fn (string $line): bool => $line !== ''
         ));
+
+        foreach ($relativePaths as $relativePath) {
+            if (str_contains($relativePath, '/garantielabels/')) {
+                $this->generatedRelativePaths[] = $relativePath;
+            }
+        }
+
+        return $relativePaths;
+    }
+
+    private function clearProdCache(): void
+    {
+        $prodCacheDirectory = self::PROJECT_ROOT . '/var/cache/prod';
+
+        if (is_dir($prodCacheDirectory)) {
+            (new Filesystem())->remove($prodCacheDirectory);
+        }
     }
 
     private function runMysqlQuery(string $query): string
@@ -240,6 +378,83 @@ SQL,
         }
 
         return $directPath;
+    }
+
+    private function extractSingleGaranPath(array $relativePaths): string
+    {
+        $garanPaths = array_values(array_filter(
+            $relativePaths,
+            static fn (string $relativePath): bool => str_contains($relativePath, '/garantielabels/')
+        ));
+
+        self::assertCount(1, $garanPaths);
+
+        return $garanPaths[0];
+    }
+
+    private function deleteGeneratedAttachmentFiles(): void
+    {
+        foreach (array_unique($this->generatedRelativePaths) as $generatedRelativePath) {
+            $absolutePath = $this->resolveProjectPath($generatedRelativePath);
+
+            if (is_file($absolutePath)) {
+                unlink($absolutePath);
+            }
+        }
+    }
+
+    /**
+     * @return array{
+     *   garanInspector: LegalGuaranteePdfDictionaryInspector,
+     *   garanPath: string,
+     *   gllPath: string
+     * }
+     */
+    private function inspectGeneratedAttachments(int $orderId): array
+    {
+        $relativePaths = $this->runOrderAttachmentCommand($orderId);
+        $garanPaths = array_values(array_filter(
+            $relativePaths,
+            static fn (string $relativePath): bool => str_contains($relativePath, '/garantielabels/')
+        ));
+        $gllPaths = array_values(array_filter(
+            $relativePaths,
+            static fn (string $relativePath): bool => str_contains($relativePath, '/legal-guarantee/gll/')
+        ));
+
+        self::assertCount(1, $garanPaths);
+        self::assertCount(1, $gllPaths);
+
+        return [
+            'garanInspector' => new LegalGuaranteePdfDictionaryInspector($this->resolveProjectPath($garanPaths[0])),
+            'garanPath' => $garanPaths[0],
+            'gllPath' => $gllPaths[0],
+        ];
+    }
+
+    private function assertCommonPdfProperties(string $garanPath, string $gllPath): void
+    {
+        $garanInspector = new LegalGuaranteePdfDictionaryInspector($this->resolveProjectPath($garanPath));
+        $garanMediaBoxes = $garanInspector->getPageMediaBoxesInMillimetres();
+        self::assertCount(1, $garanMediaBoxes);
+        self::assertLessThanOrEqual(0.5, abs($garanMediaBoxes[0]['widthMm'] - 148.0));
+        self::assertLessThanOrEqual(0.5, abs($garanMediaBoxes[0]['heightMm'] - 210.0));
+
+        $fontNames = $garanInspector->getFontNames();
+        self::assertContains('Inter-Regular', $fontNames);
+        self::assertContains('Inter-ExtraBold', $fontNames);
+        self::assertNotContains('DejaVuSans', $fontNames);
+        self::assertSame(
+            ['https://europa.eu/youreurope/commercial-guarantee-durability/'],
+            $garanInspector->getLinkUris()
+        );
+
+        $gllInspector = new LegalGuaranteePdfDictionaryInspector($this->resolveProjectPath($gllPath));
+        self::assertCount(1, $gllInspector->getPageMediaBoxesInMillimetres());
+
+        if (!str_ends_with($gllPath, '-en.pdf')) {
+            self::assertNotEmpty($gllInspector->getLinkUris());
+        }
     }
 
     /**
@@ -409,6 +624,30 @@ final class LegalGuaranteePdfDictionaryInspector
         )));
     }
 
+    public function getFormXObjectCount(): int
+    {
+        return count($this->getFormXObjectDecodedStreamLengths());
+    }
+
+    public function countLargeFormXObjects(int $minimumDecodedLength): int
+    {
+        return count(array_filter(
+            $this->getFormXObjectDecodedStreamLengths(),
+            static fn (int $decodedLength): bool => $decodedLength > $minimumDecodedLength
+        ));
+    }
+
+    public function getMinimumTextFontSize(): float
+    {
+        preg_match_all('/(?:^|[^0-9.])([0-9]+(?:\.[0-9]+)?)\s+Tf\b/', $this->searchableContents, $matches);
+
+        if (empty($matches[1])) {
+            throw new RuntimeException('No PDF text objects were found.');
+        }
+
+        return min(array_map('floatval', $matches[1]));
+    }
+
     private function buildSearchableContents(string $pdfContents): string
     {
         $segments = [$pdfContents];
@@ -439,6 +678,50 @@ final class LegalGuaranteePdfDictionaryInspector
         }
 
         return implode("\n", $segments);
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function getFormXObjectDecodedStreamLengths(): array
+    {
+        $decodedLengths = [];
+        preg_match_all('/\d+\s+\d+\s+obj(.*?)endobj/s', $this->pdfContents, $matches);
+
+        foreach ($matches[1] as $objectBody) {
+            if (!preg_match('/\/Subtype\s*\/Form\b/', $objectBody)) {
+                continue;
+            }
+
+            $streamContents = $this->extractStreamContents($objectBody);
+
+            if (null === $streamContents) {
+                continue;
+            }
+
+            $decodedLengths[] = $this->decodePdfStream($objectBody, $streamContents);
+        }
+
+        return $decodedLengths;
+    }
+
+    private function decodePdfStream(string $objectBody, string $streamContents): int
+    {
+        if (!preg_match('/\/Filter\s*(?:\[[^\]]*\/FlateDecode[^\]]*\]|\/FlateDecode)/', $objectBody)) {
+            return strlen($streamContents);
+        }
+
+        $decodedStream = zlib_decode($streamContents);
+
+        if (false === $decodedStream) {
+            return strlen($streamContents);
+        }
+
+        if (preg_match('/\/Type\s*\/ObjStm\b/', $objectBody) && preg_match('/\/First\s+(\d+)/', $objectBody, $firstMatch)) {
+            $decodedStream = substr($decodedStream, (int) $firstMatch[1]);
+        }
+
+        return strlen($decodedStream);
     }
 
     private function extractStreamContents(string $objectBody): ?string

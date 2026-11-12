@@ -4,24 +4,22 @@ declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\LegalGuarantee\Order;
 
-use Contao\StringUtil;
 use LeadingSystems\MerconisBundle\LegalGuarantee\GaranLabelGrouping;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranPdfAttachmentWriterInterface;
+use Psr\Log\LoggerInterface;
 use Throwable;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class OrderConfirmationAttachmentGenerator
 {
-    private const PUBLIC_BUNDLE_PREFIX = 'bundles/leadingsystemsmerconis/';
-    private const LOCAL_GLL_BASE_PREFIX = 'src/Resources/public/legal-guarantee/gll/';
-    private const VENDOR_GLL_BASE_PREFIX = 'vendor/leadingsystems/contao-merconis/src/Resources/public/legal-guarantee/gll/';
+    private const GLL_BUNDLE_PATH_PATTERN = 'bundles/leadingsystemsmerconis/legal-guarantee/gll/%s/legal-guarantee-notice-%s.pdf';
 
     public function __construct(
         private readonly OrderLabelSnapshotRenderer $snapshotRenderer,
         private readonly GaranPdfAttachmentWriterInterface $garanPdfAttachmentWriter,
-        private readonly string $projectDir,
         private readonly GaranLabelGrouping $garanLabelGrouping,
         private readonly TranslatorInterface $translator,
+        private readonly LoggerInterface $contaoErrorLogger,
     ) {
     }
 
@@ -35,9 +33,11 @@ final class OrderConfirmationAttachmentGenerator
         $relativePaths = [];
 
         try {
-            $gllPdfPath = $this->snapshotRenderer->resolveGllPdfPath($order);
-            if (null !== $gllPdfPath && is_file($gllPdfPath)) {
-                $relativePaths[] = $this->toRelativePath($gllPdfPath);
+            $gllPdfLanguage = $this->snapshotRenderer->resolveGllPdfLanguage($order);
+            $gllVersion = trim((string) ($order['gllVersion'] ?? ''));
+
+            if (null !== $gllPdfLanguage && '' !== $gllVersion) {
+                $relativePaths[] = sprintf(self::GLL_BUNDLE_PATH_PATTERN, $gllVersion, $gllPdfLanguage);
             }
         } catch (Throwable) {
             // GLL-Ausfall darf den Versand der restlichen Anhänge nicht blockieren.
@@ -54,18 +54,25 @@ final class OrderConfirmationAttachmentGenerator
                     'garanDurationMonths' => $garanGroup['durationMonths'],
                 ]);
 
-                if ('' === $renderedSvg) {
-                    continue;
-                }
-
                 $garanPages[] = [
+                    'type' => 'label',
                     'svgMarkup' => $renderedSvg,
                     'productNames' => $garanGroup['productNames'],
+                    'noticeText' => $this->resolveGaranUnavailableNoticeText($order),
+                    'orderNumber' => $this->resolveOrderNumberForLogging($order),
+                    'articleNumbers' => $garanGroup['articleNumbers'],
                     'euLinkText' => $this->resolveGaranEuLinkText($order),
                     'euLinkUrl' => $this->snapshotRenderer->resolveGaranEuUrl($garanGroup['garanVersion']),
                 ];
-            } catch (Throwable) {
-                // Ein defektes Positions-PDF darf übrige Anhänge nicht verhindern.
+            } catch (Throwable $exception) {
+                $this->logUnavailableLabel($order, $garanGroup['articleNumbers'], $exception);
+                $garanPages[] = [
+                    'type' => 'notice',
+                    'productNames' => $garanGroup['productNames'],
+                    'noticeText' => $this->resolveGaranUnavailableNoticeText($order),
+                    'orderNumber' => $this->resolveOrderNumberForLogging($order),
+                    'articleNumbers' => $garanGroup['articleNumbers'],
+                ];
             }
         }
 
@@ -73,7 +80,8 @@ final class OrderConfirmationAttachmentGenerator
             try {
                 $writtenAttachment = $this->garanPdfAttachmentWriter->write(
                     $garanPages,
-                    $this->buildAttachmentBaseName($order)
+                    $this->resolveOrderNumberForFileName($order),
+                    $this->resolveOrderDateUnixTimestamp($order)
                 );
 
                 $relativePaths[] = $writtenAttachment['relativePath'];
@@ -89,7 +97,15 @@ final class OrderConfirmationAttachmentGenerator
 
     /**
      * @param mixed $items
-     * @return list<array<string, mixed>>
+     * @return list<array{
+     *   productId: string,
+     *   garanVersion: string,
+     *   brand: string,
+     *   modelIdentifier: string,
+     *   durationMonths: string,
+     *   productNames: list<string>,
+     *   articleNumbers: list<string>
+     * }>
      */
     private function collectGroupedGaranItems(mixed $items): array
     {
@@ -111,10 +127,52 @@ final class OrderConfirmationAttachmentGenerator
                 'modelIdentifier' => trim((string) ($item['garanModelIdentifier'] ?? '')),
                 'durationMonths' => trim((string) ($item['garanDurationMonths'] ?? '')),
                 'productName' => $this->buildOrderProductName($item),
+                'articleNumber' => $this->extractArticleNumber($item),
             ];
         }
 
-        return $this->garanLabelGrouping->groupEntries($entries);
+        $articleNumbersByGroupKey = [];
+
+        foreach ($entries as $entry) {
+            $groupKey = $this->buildGaranGroupingKey(
+                $entry['productId'],
+                $entry['garanVersion'],
+                $entry['brand'],
+                $entry['modelIdentifier'],
+                $entry['durationMonths']
+            );
+
+            $articleNumbersByGroupKey[$groupKey][] = $entry['articleNumber'];
+        }
+
+        $groupedEntries = $this->garanLabelGrouping->groupEntries(array_map(
+            static fn (array $entry): array => [
+                'productId' => $entry['productId'],
+                'garanVersion' => $entry['garanVersion'],
+                'brand' => $entry['brand'],
+                'modelIdentifier' => $entry['modelIdentifier'],
+                'durationMonths' => $entry['durationMonths'],
+                'productName' => $entry['productName'],
+            ],
+            $entries
+        ));
+
+        return array_map(function (array $group) use ($articleNumbersByGroupKey): array {
+            $groupKey = $this->buildGaranGroupingKey(
+                (string) $group['productId'],
+                (string) $group['garanVersion'],
+                (string) $group['brand'],
+                (string) $group['modelIdentifier'],
+                (string) $group['durationMonths']
+            );
+
+            $group['articleNumbers'] = array_values(array_filter(
+                $articleNumbersByGroupKey[$groupKey] ?? [],
+                static fn (string $articleNumber): bool => $articleNumber !== ''
+            ));
+
+            return $group;
+        }, $groupedEntries);
     }
 
     /**
@@ -130,16 +188,6 @@ final class OrderConfirmationAttachmentGenerator
             && '' !== trim((string) ($item['garanBrand'] ?? ''))
             && '' !== trim((string) ($item['garanModelIdentifier'] ?? ''))
             && '' !== trim((string) ($item['garanDurationMonths'] ?? ''));
-    }
-
-    /**
-     * @param array<string, mixed> $item
-     */
-    private function buildAttachmentBaseName(array $order): string
-    {
-        $orderNumber = $this->createSlug((string) ($order['orderNr'] ?? $order['id'] ?? 'order'));
-
-        return 'garan-labels-' . $orderNumber;
     }
 
     /**
@@ -181,12 +229,18 @@ final class OrderConfirmationAttachmentGenerator
     {
         $productTitle = $this->getProductTitle($item);
         $variantTitle = $this->getVariantTitle($item);
+        $articleNumber = $this->extractArticleNumber($item);
+        $productName = $productTitle;
 
-        if ('' === $variantTitle) {
-            return $productTitle;
+        if ('' !== $variantTitle) {
+            $productName = sprintf('%s (%s)', $productTitle, $variantTitle);
         }
 
-        return sprintf('%s (%s)', $productTitle, $variantTitle);
+        if ('' === $articleNumber) {
+            return $productName;
+        }
+
+        return sprintf('%s - %s', $productName, $articleNumber);
     }
 
     /**
@@ -223,31 +277,102 @@ final class OrderConfirmationAttachmentGenerator
         return trim($translatedValue);
     }
 
-    private function createSlug(string $value): string
+    /**
+     * @param array<string, mixed> $order
+     */
+    private function resolveOrderNumberForFileName(array $order): string
     {
-        $slug = trim(StringUtil::standardize($value), '-');
+        $orderNumber = trim((string) ($order['orderNr'] ?? ''));
 
-        return '' !== $slug ? $slug : 'item';
-    }
-
-    private function toRelativePath(string $absolutePath): string
-    {
-        $normalizedProjectDir = rtrim($this->projectDir, '/');
-
-        if (str_starts_with($absolutePath, $normalizedProjectDir . '/')) {
-            $relativePath = substr($absolutePath, strlen($normalizedProjectDir) + 1);
-
-            if (str_starts_with($relativePath, self::LOCAL_GLL_BASE_PREFIX)) {
-                return self::PUBLIC_BUNDLE_PREFIX . 'legal-guarantee/gll/' . substr($relativePath, strlen(self::LOCAL_GLL_BASE_PREFIX));
-            }
-
-            if (str_starts_with($relativePath, self::VENDOR_GLL_BASE_PREFIX)) {
-                return self::PUBLIC_BUNDLE_PREFIX . 'legal-guarantee/gll/' . substr($relativePath, strlen(self::VENDOR_GLL_BASE_PREFIX));
-            }
-
-            return $relativePath;
+        if ($orderNumber !== '') {
+            return $orderNumber;
         }
 
-        return $absolutePath;
+        $orderId = trim((string) ($order['id'] ?? ''));
+
+        return $orderId !== '' ? $orderId : 'order';
+    }
+
+    /**
+     * @param array<string, mixed> $order
+     */
+    private function resolveOrderDateUnixTimestamp(array $order): int
+    {
+        return (int) ($order['orderDateUnixTimestamp'] ?? 0);
+    }
+
+    /**
+     * @param array<string, mixed> $item
+     */
+    private function extractArticleNumber(array $item): string
+    {
+        return trim((string) ($item['artNr'] ?? ''));
+    }
+
+    private function buildGaranGroupingKey(
+        string $productId,
+        string $garanVersion,
+        string $brand,
+        string $modelIdentifier,
+        string $durationMonths
+    ): string {
+        return json_encode([
+            trim($productId),
+            trim($garanVersion),
+            trim($brand),
+            trim($modelIdentifier),
+            trim($durationMonths),
+        ], JSON_THROW_ON_ERROR);
+    }
+
+    /**
+     * @param array<string, mixed> $order
+     */
+    private function resolveGaranUnavailableNoticeText(array $order): string
+    {
+        $customerLanguage = trim((string) ($order['customerLanguage'] ?? ''));
+        $locale = $customerLanguage !== '' ? $customerLanguage : null;
+
+        return trim($this->translator->trans(
+            'MSC.ls_shop.legalGuarantee.garanLabelUnavailableNotice',
+            [],
+            'contao_default',
+            $locale
+        ));
+    }
+
+    /**
+     * @param array<string, mixed> $order
+     * @param list<string> $articleNumbers
+     */
+    private function logUnavailableLabel(array $order, array $articleNumbers, Throwable $exception): void
+    {
+        $normalisedArticleNumbers = array_values(array_filter(array_map(
+            static fn (string $articleNumber): string => trim($articleNumber),
+            $articleNumbers
+        ), static fn (string $articleNumber): bool => $articleNumber !== ''));
+
+        $this->contaoErrorLogger->error(sprintf(
+            'GARAN label generation failed for order %s and article numbers [%s]: %s',
+            $this->resolveOrderNumberForLogging($order),
+            [] !== $normalisedArticleNumbers ? implode(', ', $normalisedArticleNumbers) : 'unknown',
+            $exception->getMessage()
+        ));
+    }
+
+    /**
+     * @param array<string, mixed> $order
+     */
+    private function resolveOrderNumberForLogging(array $order): string
+    {
+        $orderNumber = trim((string) ($order['orderNr'] ?? ''));
+
+        if ($orderNumber !== '') {
+            return $orderNumber;
+        }
+
+        $orderId = trim((string) ($order['id'] ?? ''));
+
+        return $orderId !== '' ? $orderId : 'unknown';
     }
 }

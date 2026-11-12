@@ -6,9 +6,17 @@ namespace LeadingSystems\MerconisBundle\Tests\Unit;
 
 use Contao\DataContainer;
 use Contao\Input;
+use Contao\Message;
+use Contao\System;
 use Doctrine\DBAL\Connection;
 use LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\LegalGuaranteeBackendCallbacks;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
+use Contao\CoreBundle\Routing\ScopeMatcher;
 
 final class LegalGuaranteeBackendCallbacksTest extends TestCase
 {
@@ -16,11 +24,16 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
     {
         parent::setUp();
 
+        $this->primeMessageContainer();
+
         $GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeValidationMessages'] = [
             'garan_disabled_gll_required' => 'Produkt: GLL fehlt.',
             'garan_disabled_gll_variant_override' => 'Produkt: Varianten mit override: %s.',
             'garan_disabled_invalid_duration' => 'Produkt: Ungültige Dauer %s.',
         ];
+        $GLOBALS['TL_LANG']['tl_ls_shop_product']['gll_enabled_by_garan'] = 'Produkt: GLL wurde automatisch aktiviert.';
+        $GLOBALS['TL_LANG']['tl_ls_shop_product']['garan_disabled_by_gll'] = 'Produkt: GARAN wurde automatisch deaktiviert.';
+        $GLOBALS['TL_LANG']['tl_ls_shop_product']['garan_not_output_without_gll'] = 'Produkt: GARAN wird ohne GLL nicht ausgegeben.';
         $GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeValidationMessages'] = [
             'garan_invalid_mode' => 'Variante: Ungültiger Modus %s.',
             'garan_override_gll_required' => 'Variante: Elternprodukt braucht GLL.',
@@ -32,7 +45,11 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
     {
         Input::setPost('enableGll', null);
         Input::setPost('enableGll_42', null);
+        Input::setPost('enableGaran', null);
+        Input::setPost('enableGaran_42', null);
         Input::resetCache();
+        $this->primeMessageContainer();
+        Message::reset();
 
         parent::tearDown();
     }
@@ -60,39 +77,16 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
         $callbacks->validateProductGuaranteeDurationMonths('31', $this->createDataContainer(7));
     }
 
-    public function testProductEnableGaranValidationUsesPostedEnableGllValue(): void
+    public function testProductEnableGllValidationAutoEnablesGllWhenStoredOffAndEnableGaranIsPosted(): void
     {
-        Input::setPost('enableGll', '');
+        Input::setPost('enableGaran', '1');
 
-        $callbacks = new LegalGuaranteeBackendCallbacks(
-            $this->createConnectionStub(
-                products: [
-                    7 => [
-                        'enableGll' => '1',
-                        'enableGaran' => '',
-                        'guaranteeDurationMonths' => '',
-                        'guaranteeBrand' => '',
-                        'guaranteeModelIdentifier' => '',
-                        'lsShopProductProducer' => 'Producer',
-                    ],
-                ],
-            )
-        );
-
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Produkt: GLL fehlt.');
-
-        $callbacks->validateProductEnableGaran('1', $this->createDataContainer(7));
-    }
-
-    public function testProductEnableGaranValidationFallsBackToStoredEnableGll(): void
-    {
         $callbacks = new LegalGuaranteeBackendCallbacks(
             $this->createConnectionStub(
                 products: [
                     7 => [
                         'enableGll' => '',
-                        'enableGaran' => '',
+                        'enableGaran' => '1',
                         'guaranteeDurationMonths' => '',
                         'guaranteeBrand' => '',
                         'guaranteeModelIdentifier' => '',
@@ -102,22 +96,19 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
             )
         );
 
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Produkt: GLL fehlt.');
-
-        $callbacks->validateProductEnableGaran('1', $this->createDataContainer(7));
+        self::assertSame('1', $callbacks->validateProductEnableGll('', $this->createDataContainer(7)));
     }
 
-    public function testProductEnableGaranValidationReadsEditAllSuffix(): void
+    public function testProductEnableGllValidationReadsEditAllSuffixForEnableGaran(): void
     {
-        Input::setPost('enableGll_42', '');
+        Input::setPost('enableGaran_42', '1');
 
         $callbacks = new LegalGuaranteeBackendCallbacks(
             $this->createConnectionStub(
                 products: [
                     42 => [
-                        'enableGll' => '1',
-                        'enableGaran' => '',
+                        'enableGll' => '',
+                        'enableGaran' => '1',
                         'guaranteeDurationMonths' => '',
                         'guaranteeBrand' => '',
                         'guaranteeModelIdentifier' => '',
@@ -127,10 +118,7 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
             )
         );
 
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Produkt: GLL fehlt.');
-
-        $callbacks->validateProductEnableGaran('1', $this->createDataContainer(42));
+        self::assertSame('1', $callbacks->validateProductEnableGll('', $this->createDataContainer(42)));
     }
 
     public function testProductEnableGllValidationRejectsOverrideVariants(): void
@@ -160,6 +148,31 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
         $this->expectExceptionMessage('Produkt: Varianten mit override: VAR-001, VAR-002.');
 
         $callbacks->validateProductEnableGll('', $this->createDataContainer(7));
+    }
+
+    public function testHandleProductBeforeSubmitDisablesGaranWhenGllIsDeselected(): void
+    {
+        $callbacks = new LegalGuaranteeBackendCallbacks(
+            $this->createConnectionStub(
+                products: [
+                    7 => [
+                        'enableGll' => '1',
+                        'enableGaran' => '1',
+                        'guaranteeDurationMonths' => '',
+                        'guaranteeBrand' => '',
+                        'guaranteeModelIdentifier' => '',
+                        'lsShopProductProducer' => 'Producer',
+                    ],
+                ],
+            )
+        );
+
+        $result = $callbacks->handleProductBeforeSubmit(
+            ['enableGll' => '', 'enableGaran' => '1'],
+            $this->createDataContainer(7)
+        );
+
+        self::assertSame('', $result['enableGaran']);
     }
 
     public function testVariantGaranModeValidationRejectsOverrideWithoutParentGll(): void
@@ -263,6 +276,98 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
         self::assertSame('ACME', $callbacks->loadVariantGuaranteeBrand('', $this->createDataContainer(16)));
     }
 
+    public function testAddProductSubmitInfoMessagesEmitsAutoEnableHintOnlyAfterSuccessfulSave(): void
+    {
+        $this->primeMessageContainer();
+
+        Input::setPost('enableGaran', '1');
+
+        $callbacks = new LegalGuaranteeBackendCallbacks(
+            $this->createConnectionStub(
+                products: [
+                    7 => [
+                        'enableGll' => '',
+                        'enableGaran' => '1',
+                        'guaranteeDurationMonths' => '',
+                        'guaranteeBrand' => '',
+                        'guaranteeModelIdentifier' => '',
+                        'lsShopProductProducer' => 'Producer',
+                    ],
+                ],
+            )
+        );
+
+        $callbacks->validateProductEnableGll('', $this->createDataContainer(7));
+        self::assertSame('', Message::generateUnwrapped('BE'));
+
+        $callbacks->addProductSubmitInfoMessages($this->createDataContainer(7));
+
+        self::assertStringContainsString(
+            'Produkt: GLL wurde automatisch aktiviert.',
+            Message::generateUnwrapped('BE')
+        );
+    }
+
+    public function testAddProductSubmitInfoMessagesEmitsAutoDisableHintAfterBeforeSubmitAdjustment(): void
+    {
+        $this->primeMessageContainer();
+
+        $callbacks = new LegalGuaranteeBackendCallbacks(
+            $this->createConnectionStub(
+                products: [
+                    7 => [
+                        'enableGll' => '1',
+                        'enableGaran' => '1',
+                        'guaranteeDurationMonths' => '',
+                        'guaranteeBrand' => '',
+                        'guaranteeModelIdentifier' => '',
+                        'lsShopProductProducer' => 'Producer',
+                    ],
+                ],
+            )
+        );
+
+        $callbacks->handleProductBeforeSubmit(
+            ['enableGll' => '', 'enableGaran' => '1'],
+            $this->createDataContainer(7)
+        );
+        self::assertSame('', Message::generateUnwrapped('BE'));
+
+        $callbacks->addProductSubmitInfoMessages($this->createDataContainer(7));
+
+        self::assertStringContainsString(
+            'Produkt: GARAN wurde automatisch deaktiviert.',
+            Message::generateUnwrapped('BE')
+        );
+    }
+
+    public function testAddProductEditInfoMessageWarnsAboutStoredInvalidOutputState(): void
+    {
+        $this->primeMessageContainer(['act' => 'edit']);
+
+        $callbacks = new LegalGuaranteeBackendCallbacks(
+            $this->createConnectionStub(
+                products: [
+                    7 => [
+                        'enableGll' => '',
+                        'enableGaran' => '1',
+                        'guaranteeDurationMonths' => '',
+                        'guaranteeBrand' => '',
+                        'guaranteeModelIdentifier' => '',
+                        'lsShopProductProducer' => 'Producer',
+                    ],
+                ],
+            )
+        );
+
+        $callbacks->addProductEditInfoMessage($this->createDataContainer(7));
+
+        self::assertStringContainsString(
+            'Produkt: GARAN wird ohne GLL nicht ausgegeben.',
+            Message::generateUnwrapped('BE')
+        );
+    }
+
     private function createDataContainer(int $id): DataContainer
     {
         return new class ($id) extends DataContainer {
@@ -329,5 +434,30 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
             );
 
         return $connection;
+    }
+
+    /**
+     * @param array<string, string> $query
+     */
+    private function primeMessageContainer(array $query = []): void
+    {
+        Input::resetCache();
+
+        $request = new Request($query);
+        $request->setSession(new Session(new MockArraySessionStorage()));
+
+        $requestStack = new RequestStack();
+        $requestStack->push($request);
+
+        $scopeMatcher = $this->createMock(ScopeMatcher::class);
+        $scopeMatcher->method('isBackendRequest')->willReturn(true);
+        $scopeMatcher->method('isFrontendRequest')->willReturn(false);
+
+        $container = new ContainerBuilder();
+        $container->set('request_stack', $requestStack);
+        $container->set('contao.routing.scope_matcher', $scopeMatcher);
+
+        System::setContainer($container);
+        Message::reset();
     }
 }

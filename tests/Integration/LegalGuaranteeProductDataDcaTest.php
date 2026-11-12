@@ -61,10 +61,7 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
             [[self::BACKEND_CALLBACKS_CLASS, 'validateProductEnableGll']],
             $tableConfig['fields']['enableGll']['save_callback']
         );
-        self::assertSame(
-            [[self::BACKEND_CALLBACKS_CLASS, 'validateProductEnableGaran']],
-            $tableConfig['fields']['enableGaran']['save_callback']
-        );
+        self::assertArrayNotHasKey('save_callback', $tableConfig['fields']['enableGaran']);
         self::assertSame(
             [[self::BACKEND_CALLBACKS_CLASS, 'validateProductGuaranteeDurationMonths']],
             $tableConfig['fields']['guaranteeDurationMonths']['save_callback']
@@ -80,15 +77,20 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         self::assertArrayNotHasKey('maxlength', $tableConfig['fields']['guaranteeModelIdentifier']['eval']);
         self::assertSame("varchar(255) NOT NULL default ''", $tableConfig['fields']['guaranteeBrand']['sql']);
         self::assertSame("varchar(255) NOT NULL default ''", $tableConfig['fields']['guaranteeModelIdentifier']['sql']);
-        self::assertSame(
-            'saveLastBackendDataChangeTimestamp',
-            $tableConfig['config']['onsubmit_callback'][0][1]
-        );
+        self::assertSame(self::BACKEND_CALLBACKS_CLASS, $tableConfig['config']['onsubmit_callback'][0][0]);
+        self::assertSame('addProductSubmitInfoMessages', $tableConfig['config']['onsubmit_callback'][0][1]);
+        self::assertSame('saveLastBackendDataChangeTimestamp', $tableConfig['config']['onsubmit_callback'][1][1]);
         self::assertTrue($tableConfig['fields']['enableGaran']['eval']['submitOnChange']);
         self::assertArrayNotHasKey('attributes_callback', $tableConfig['fields']['enableGaran']);
-        self::assertArrayNotHasKey('onload_callback', $tableConfig['config']);
+        self::assertSame(
+            [[self::BACKEND_CALLBACKS_CLASS, 'addProductEditInfoMessage']],
+            $tableConfig['config']['onload_callback']
+        );
         self::assertArrayNotHasKey('oncreate_callback', $tableConfig['config']);
-        self::assertArrayNotHasKey('onbeforesubmit_callback', $tableConfig['config']);
+        self::assertSame(
+            [[self::BACKEND_CALLBACKS_CLASS, 'handleProductBeforeSubmit']],
+            $tableConfig['config']['onbeforesubmit_callback']
+        );
     }
 
     public function testVariantDcaContainsOverrideSelectorAndGuaranteeSubpalette(): void
@@ -162,6 +164,9 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         self::assertStringNotContainsString('garanOverrideRequiresStoredGllHint', $variantLanguageEn);
         self::assertStringContainsString('garan_disabled_gll_required', $productLanguageDe);
         self::assertStringContainsString('garan_disabled_gll_variant_override', $productLanguageEn);
+        self::assertStringContainsString('gll_enabled_by_garan', $productLanguageDe);
+        self::assertStringContainsString('garan_disabled_by_gll', $productLanguageEn);
+        self::assertStringContainsString('garan_not_output_without_gll', $productLanguageDe);
         self::assertStringContainsString('garan_invalid_mode', $variantLanguageDe);
         self::assertStringContainsString('garan_override_gll_required', $variantLanguageDe);
         self::assertStringContainsString('garan_disabled_gll_variant_override', $variantLanguageEn);
@@ -268,6 +273,38 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
             '`',
             $this->extractGuaranteeValidationMessage($variantLanguageEn, 'garan_invalid_mode')
         );
+        self::assertSame(
+            'GLL wurde aktiviert, weil GARAN aktiviert ist.',
+            $this->extractSimpleLanguageValue($productLanguageDe, 'gll_enabled_by_garan')
+        );
+        self::assertSame(
+            'GARAN wurde deaktiviert, weil GLL deaktiviert wurde.',
+            $this->extractSimpleLanguageValue($productLanguageDe, 'garan_disabled_by_gll')
+        );
+        self::assertSame(
+            'GARAN wird nicht ausgegeben, solange GLL deaktiviert ist.',
+            $this->extractSimpleLanguageValue($productLanguageDe, 'garan_not_output_without_gll')
+        );
+        self::assertSame(
+            'GLL was enabled because GARAN is enabled.',
+            $this->extractSimpleLanguageValue($productLanguageEn, 'gll_enabled_by_garan')
+        );
+        self::assertSame(
+            'GARAN was disabled because GLL was disabled.',
+            $this->extractSimpleLanguageValue($productLanguageEn, 'garan_disabled_by_gll')
+        );
+        self::assertSame(
+            'GARAN is not output while GLL is disabled.',
+            $this->extractSimpleLanguageValue($productLanguageEn, 'garan_not_output_without_gll')
+        );
+        self::assertSame(
+            'GARAN wurde nicht gespeichert, weil garanMode "override" GLL am Elternprodukt voraussetzt. Bitte zuerst GLL am Produkt aktivieren und speichern.',
+            $this->extractGuaranteeValidationMessage($variantLanguageDe, 'garan_override_gll_required')
+        );
+        self::assertSame(
+            'GARAN was not saved because garanMode "override" requires GLL on the parent product. Please enable and save GLL on the product first.',
+            $this->extractGuaranteeValidationMessage($variantLanguageEn, 'garan_override_gll_required')
+        );
     }
 
     public function testServicesAndMigrationAreRegisteredForEnableGllBackfillAndValidation(): void
@@ -362,6 +399,15 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
     private function extractGuaranteeValidationMessage(string $languageFileContents, string $messageCode): string
     {
         $pattern = "/'" . preg_quote($messageCode, '/') . "' => '((?:\\\\'|[^'])*)'/";
+
+        self::assertSame(1, preg_match($pattern, $languageFileContents, $matches));
+
+        return str_replace("\\'", "'", $matches[1]);
+    }
+
+    private function extractSimpleLanguageValue(string $languageFileContents, string $key): string
+    {
+        $pattern = "/\\['" . preg_quote($key, '/') . "'\\]\\s*=\\s*'((?:\\\\'|[^'])*)'/";
 
         self::assertSame(1, preg_match($pattern, $languageFileContents, $matches));
 

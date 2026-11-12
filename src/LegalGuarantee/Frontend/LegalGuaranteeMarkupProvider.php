@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\LegalGuarantee\Frontend;
 
-use Contao\System;
 use LeadingSystems\MerconisBundle\LegalGuarantee\GaranLabelGrouping;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\GaranLabelRendererInterface;
 use LeadingSystems\MerconisBundle\LegalGuarantee\GuaranteeDurationFormatter;
@@ -12,7 +11,9 @@ use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
 use Merconis\Core\ls_shop_cartX;
 use Merconis\Core\ls_shop_product;
 use Merconis\Core\ls_shop_variant;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
+use Throwable;
 
 final class LegalGuaranteeMarkupProvider
 {
@@ -29,6 +30,7 @@ final class LegalGuaranteeMarkupProvider
         private readonly ProductGuaranteeDisplayResolver $displayResolver,
         private readonly GaranLabelGrouping $garanLabelGrouping,
         private readonly LegalGuaranteeMarkupBuilder $markupBuilder,
+        private readonly LoggerInterface $contaoErrorLogger,
         iterable $garanLabelRenderers,
     ) {
         foreach ($garanLabelRenderers as $renderer) {
@@ -135,7 +137,22 @@ final class LegalGuaranteeMarkupProvider
                 'modelIdentifier' => $garanData['modelIdentifier'],
                 'durationMonths' => $garanData['durationMonths'],
                 'productName' => $this->buildCheckoutProductName($product),
+                'articleNumber' => $this->extractCheckoutArticleNumber($product),
             ];
+        }
+
+        $articleNumbersByGroupKey = [];
+
+        foreach ($entries as $entry) {
+            $groupKey = $this->buildGaranGroupingKey(
+                $entry['productId'],
+                $entry['garanVersion'],
+                $entry['brand'],
+                $entry['modelIdentifier'],
+                $entry['durationMonths']
+            );
+
+            $articleNumbersByGroupKey[$groupKey][] = $entry['articleNumber'];
         }
 
         $groups = $this->garanLabelGrouping->groupEntries($entries);
@@ -149,23 +166,43 @@ final class LegalGuaranteeMarkupProvider
         $items = [];
 
         foreach ($groups as $group) {
-            $items[] = [
-                'productNames' => $group['productNames'],
-                'labelMarkup' => $this->markupBuilder->buildLabelMarkup(
-                    $this->getCurrentGaranLabelRenderer()->render(
-                        $group['brand'],
-                        $group['modelIdentifier'],
-                        $group['durationMonths']
+            $groupKey = $this->buildGaranGroupingKey(
+                (string) $group['productId'],
+                (string) $group['garanVersion'],
+                (string) $group['brand'],
+                (string) $group['modelIdentifier'],
+                (string) $group['durationMonths']
+            );
+            $articleNumbers = array_values(array_filter(
+                $articleNumbersByGroupKey[$groupKey] ?? [],
+                static fn (string $articleNumber): bool => $articleNumber !== ''
+            ));
+
+            try {
+                $items[] = [
+                    'productNames' => $group['productNames'],
+                    'labelMarkup' => $this->markupBuilder->buildLabelMarkup(
+                        $this->getCurrentGaranLabelRenderer()->render(
+                            $group['brand'],
+                            $group['modelIdentifier'],
+                            $group['durationMonths']
+                        ),
+                        $this->buildGaranTitle(
+                            $group['brand'],
+                            $group['modelIdentifier'],
+                            $group['durationMonths']
+                        ),
+                        $this->assetLocator->resolveGaranEuUrl(),
+                        $translations['garanEuLinkText']
                     ),
-                    $this->buildGaranTitle(
-                        $group['brand'],
-                        $group['modelIdentifier'],
-                        $group['durationMonths']
-                    ),
-                    $this->assetLocator->resolveGaranEuUrl(),
-                    $translations['garanEuLinkText']
-                ),
-            ];
+                ];
+            } catch (Throwable $exception) {
+                $this->logUnavailableCheckoutLabel($articleNumbers, $exception);
+            }
+        }
+
+        if ([] === $items) {
+            return '';
         }
 
         return $this->markupBuilder->buildCheckoutGaranBlock($items, $translations);
@@ -198,16 +235,67 @@ final class LegalGuaranteeMarkupProvider
         return $selectedVariant->_hasOriginalTitle ? (string) $selectedVariant->_title : '';
     }
 
+    private function extractCheckoutArticleNumber(ls_shop_product $product): string
+    {
+        if ($product->_variantIsSelected) {
+            /** @var ls_shop_variant $selectedVariant */
+            $selectedVariant = $product->_selectedVariant;
+
+            return trim((string) $selectedVariant->_code);
+        }
+
+        return trim((string) $product->_code);
+    }
+
     private function buildCheckoutProductName(ls_shop_product $product): string
     {
         $productTitle = trim((string) $product->_title);
         $variantTitle = trim($this->getSelectedVariantTitle($product));
+        $articleNumber = $this->extractCheckoutArticleNumber($product);
+        $productName = $productTitle;
 
-        if ('' === $variantTitle) {
-            return $productTitle;
+        if ('' !== $variantTitle) {
+            $productName = sprintf('%s (%s)', $productTitle, $variantTitle);
         }
 
-        return sprintf('%s (%s)', $productTitle, $variantTitle);
+        if ('' === $articleNumber) {
+            return $productName;
+        }
+
+        return sprintf('%s - %s', $productName, $articleNumber);
+    }
+
+    private function buildGaranGroupingKey(
+        string $productId,
+        string $garanVersion,
+        string $brand,
+        string $modelIdentifier,
+        string $durationMonths
+    ): string {
+        return json_encode([
+            trim($productId),
+            trim($garanVersion),
+            trim($brand),
+            trim($modelIdentifier),
+            trim($durationMonths),
+        ], JSON_THROW_ON_ERROR);
+    }
+
+    /**
+     * @param list<string> $articleNumbers
+     */
+    private function logUnavailableCheckoutLabel(array $articleNumbers, Throwable $exception): void
+    {
+        $normalisedArticleNumbers = array_values(array_filter(array_map(
+            static fn (string $articleNumber): string => trim($articleNumber),
+            $articleNumbers
+        ), static fn (string $articleNumber): bool => $articleNumber !== ''));
+
+        $this->contaoErrorLogger->error(sprintf(
+            'GARAN checkout label rendering failed for article numbers [%s]: %s',
+            [] !== $normalisedArticleNumbers ? implode(', ', $normalisedArticleNumbers) : 'unknown',
+            $exception->getMessage()
+        ));
     }
 
     /**

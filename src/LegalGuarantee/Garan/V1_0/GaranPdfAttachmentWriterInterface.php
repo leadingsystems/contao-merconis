@@ -8,13 +8,17 @@ interface GaranPdfAttachmentWriterInterface
 {
     /**
      * @param list<array{
-     *   svgMarkup: string,
+     *   type: 'label'|'notice',
      *   productNames: list<string>,
-     *   euLinkText: string,
-     *   euLinkUrl: string
+     *   noticeText: string,
+     *   orderNumber: string,
+     *   articleNumbers: list<string>,
+     *   svgMarkup?: string,
+     *   euLinkText?: string,
+     *   euLinkUrl?: string
      * }> $pages
      *
      * @return array{relativePath: string}
      */
-    public function write(array $pages, string $preferredBaseName): array;
+    public function write(array $pages, string $orderNumber, int $orderDateUnixTimestamp): array;
 }

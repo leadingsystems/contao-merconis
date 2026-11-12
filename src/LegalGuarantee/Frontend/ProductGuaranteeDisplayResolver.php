@@ -25,7 +25,8 @@ final class ProductGuaranteeDisplayResolver
         $showGll = $this->isTruthy($productData['enableGll'] ?? null);
 
         $effectiveGaranData = $this->resolveEffectiveGaranData($productData, $variantData);
-        $showGaran = $this->isTruthy($effectiveGaranData['enableGaran'] ?? null)
+        $showGaran = $showGll
+            && $this->isTruthy($effectiveGaranData['enableGaran'] ?? null)
             && '' !== $effectiveGaranData['brand']
             && '' !== $effectiveGaranData['modelIdentifier']
             && '' !== $effectiveGaranData['durationMonths'];

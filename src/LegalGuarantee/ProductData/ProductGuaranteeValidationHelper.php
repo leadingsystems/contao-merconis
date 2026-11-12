@@ -4,42 +4,8 @@ declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\LegalGuarantee\ProductData;
 
-use Contao\Input;
-use Contao\Message;
-
 final class ProductGuaranteeValidationHelper
 {
-    private const PRODUCT_REQUEST_FIELD_NAMES = [
-        'enableGll',
-        'enableGaran',
-        'guaranteeDurationMonths',
-        'guaranteeBrand',
-        'guaranteeModelIdentifier',
-        'lsShopProductProducer',
-    ];
-
-    private const PRODUCT_VISIBLE_FIELD_NAMES = [
-        'enableGll',
-        'enableGaran',
-    ];
-
-    private const VARIANT_REQUEST_FIELD_NAMES = [
-        'garanMode',
-        'guaranteeDurationMonths',
-        'guaranteeBrand',
-        'guaranteeModelIdentifier',
-    ];
-
-    private const VARIANT_VISIBLE_FIELD_NAMES = [
-        'garanMode',
-    ];
-
-    private const GUARANTEE_SUBPALETTE_FIELD_NAMES = [
-        'guaranteeDurationMonths',
-        'guaranteeBrand',
-        'guaranteeModelIdentifier',
-    ];
-
     /**
      * @return array{
      *   effectiveValue: string,
@@ -90,13 +56,6 @@ final class ProductGuaranteeValidationHelper
         ];
     }
 
-    public function normalizeDurationStoredValue(mixed $rawValue): ?string
-    {
-        $durationResult = $this->normalizeDurationInput($rawValue);
-
-        return $durationResult['storedValue'];
-    }
-
     public function getFieldNameForMessageCode(string $messageCode): ?string
     {
         return match ($messageCode) {
@@ -115,151 +74,6 @@ final class ProductGuaranteeValidationHelper
     public function isTruthy(mixed $value): bool
     {
         return !in_array($value, [null, '', 0, '0', false], true);
-    }
-
-    public function isGuaranteeSubpaletteField(string $fieldName): bool
-    {
-        return in_array($fieldName, self::GUARANTEE_SUBPALETTE_FIELD_NAMES, true);
-    }
-
-    /**
-     * @return list<string>
-     */
-    public function getProductRequestFieldNames(): array
-    {
-        return self::PRODUCT_REQUEST_FIELD_NAMES;
-    }
-
-    /**
-     * @return list<string>
-     */
-    public function getVariantRequestFieldNames(): array
-    {
-        return self::VARIANT_REQUEST_FIELD_NAMES;
-    }
-
-    /**
-     * @param array<string, mixed> $postedValues
-     *
-     * @return list<string>
-     */
-    public function getVisibleProductFieldNames(array $postedValues): array
-    {
-        return $this->getVisibleGuaranteeFieldNames(
-            $postedValues,
-            self::PRODUCT_VISIBLE_FIELD_NAMES,
-            'enableGaran'
-        );
-    }
-
-    /**
-     * @param array<string, mixed> $postedValues
-     *
-     * @return list<string>
-     */
-    public function getVisibleVariantFieldNames(array $postedValues): array
-    {
-        return $this->getVisibleGuaranteeFieldNames(
-            $postedValues,
-            self::VARIANT_VISIBLE_FIELD_NAMES,
-            'garanMode',
-            'override'
-        );
-    }
-
-    /**
-     * @param list<string> $fieldNames
-     *
-     * @return array<string, mixed>
-     */
-    public function readPostedFieldValues(array $fieldNames, string $inputNameSuffix = ''): array
-    {
-        $postedValues = [];
-
-        foreach ($fieldNames as $fieldName) {
-            $postedValue = Input::post($fieldName . $inputNameSuffix);
-
-            if ($postedValue === null) {
-                continue;
-            }
-
-            $postedValues[$fieldName] = $postedValue;
-        }
-
-        return $postedValues;
-    }
-
-    /**
-     * @param array<string, mixed> $currentData
-     * @param array<string, mixed> $postedValues
-     * @param list<string> $acceptedFieldNames
-     *
-     * @return array<string, mixed>
-     */
-    public function mergePostedFieldValues(array $currentData, array $postedValues, array $acceptedFieldNames): array
-    {
-        foreach ($acceptedFieldNames as $fieldName) {
-            if (!array_key_exists($fieldName, $postedValues)) {
-                continue;
-            }
-
-            $currentData[$fieldName] = $postedValues[$fieldName];
-        }
-
-        return $currentData;
-    }
-
-    /**
-     * @param array<string, mixed> $currentData
-     * @param array<string, mixed> $postedValues
-     * @param list<string> $acceptedFieldNames
-     *
-     * @return array<string, mixed>
-     */
-    public function buildValidationInputData(
-        array $currentData,
-        array $postedValues = [],
-        array $acceptedFieldNames = [],
-        string $currentFieldName = '',
-        mixed $currentFieldValue = null
-    ): array {
-        $validationData = $currentData;
-        $validationData = $this->mergePostedFieldValues(
-            $validationData,
-            $postedValues,
-            $acceptedFieldNames
-        );
-
-        if ($currentFieldName !== '') {
-            $validationData[$currentFieldName] = $currentFieldValue;
-        }
-
-        return $validationData;
-    }
-
-    /**
-     * @param array<string, mixed> $currentData
-     * @param array<string, mixed> $normalizedData
-     * @param list<string> $fieldNames
-     *
-     * @return array<string, mixed>
-     */
-    public function buildChangedFieldValues(array $currentData, array $normalizedData, array $fieldNames): array
-    {
-        $fieldsToPersist = [];
-
-        foreach ($fieldNames as $fieldName) {
-            $currentValue = $currentData[$fieldName] ?? null;
-            $normalizedValue = $normalizedData[$fieldName] ?? null;
-
-            if ((string) $currentValue === (string) $normalizedValue && $currentValue === $normalizedValue) {
-                continue;
-            }
-
-            $fieldsToPersist[$fieldName] = $normalizedValue;
-        }
-
-        return $fieldsToPersist;
     }
 
     /**
@@ -291,65 +105,6 @@ final class ProductGuaranteeValidationHelper
         }
 
         return $fieldMessages;
-    }
-
-    /**
-     * @param list<array{code: string, parameters: array<int, string>}> $messages
-     *
-     * @return list<array{code: string, parameters: array<int, string>}>
-     */
-    public function getUnmappedMessages(array $messages): array
-    {
-        $unmappedMessages = [];
-
-        foreach ($messages as $message) {
-            if ($this->getFieldNameForMessageCode($message['code']) !== null) {
-                continue;
-            }
-
-            $unmappedMessages[] = $message;
-        }
-
-        return $unmappedMessages;
-    }
-
-    /**
-     * @param list<array{code: string, parameters: array<int, string>}> $messages
-     * @param list<string> $visibleFieldNames
-     *
-     * @return list<array{code: string, parameters: array<int, string>}>
-     */
-    public function getGlobalMessages(array $messages, array $visibleFieldNames): array
-    {
-        $globalMessages = [];
-
-        foreach ($messages as $message) {
-            $mappedFieldName = $this->getFieldNameForMessageCode($message['code']);
-
-            if ($mappedFieldName !== null && in_array($mappedFieldName, $visibleFieldNames, true)) {
-                continue;
-            }
-
-            $globalMessages[] = $message;
-        }
-
-        return $globalMessages;
-    }
-
-    /**
-     * @param list<array{code: string, parameters: array<int, string>}> $messages
-     */
-    public function addErrorMessages(array $messages, string $languageScope): void
-    {
-        foreach ($messages as $message) {
-            $messageText = $this->buildMessageText($message, $languageScope);
-
-            if ($messageText === null) {
-                continue;
-            }
-
-            Message::addError($messageText);
-        }
     }
 
     /**
@@ -400,27 +155,5 @@ final class ProductGuaranteeValidationHelper
         }
 
         return vsprintf($messageTemplate, $message['parameters']);
-    }
-
-    /**
-     * @param array<string, mixed> $postedValues
-     * @param list<string> $alwaysVisibleFieldNames
-     *
-     * @return list<string>
-     */
-    private function getVisibleGuaranteeFieldNames(
-        array $postedValues,
-        array $alwaysVisibleFieldNames,
-        string $selectorFieldName,
-        string $selectorValue = '1'
-    ): array {
-        if ((string) ($postedValues[$selectorFieldName] ?? '') !== $selectorValue) {
-            return $alwaysVisibleFieldNames;
-        }
-
-        return array_merge(
-            $alwaysVisibleFieldNames,
-            self::GUARANTEE_SUBPALETTE_FIELD_NAMES
-        );
     }
 }

@@ -6,10 +6,16 @@ namespace LeadingSystems\MerconisBundle\LegalGuarantee\ProductData;
 
 use Contao\DataContainer;
 use Contao\Input;
+use Contao\Message;
 use Doctrine\DBAL\Connection;
 
 final class LegalGuaranteeBackendCallbacks
 {
+    /**
+     * @var array<int, list<string>>
+     */
+    private static array $pendingProductInfoMessages = [];
+
     public function __construct(
         private readonly Connection $connection,
         private readonly ProductGuaranteeConfigurationValidator $validator = new ProductGuaranteeConfigurationValidator(),
@@ -21,12 +27,33 @@ final class LegalGuaranteeBackendCallbacks
     {
         $productId = $this->getRecordId($dataContainer);
         $productData = $this->fetchProductData($productId);
-        $productData['enableGll'] = $value;
+        $storedEnableGll = $this->normalizeCheckboxValue($productData['enableGll'] ?? null);
+        $storedEnableGaran = $this->normalizeCheckboxValue($productData['enableGaran'] ?? null);
+        $normalizedEnableGll = $this->normalizeCheckboxValue($value);
+        $productData['enableGll'] = $normalizedEnableGll;
+        $postedEnableGaranValue = $this->getPostedValue('enableGaran', $dataContainer);
 
-        $validationResult = $this->validator->validateProduct(
-            $productData,
-            $this->fetchRelatedVariants($productId)
-        );
+        if ($postedEnableGaranValue !== null) {
+            $productData['enableGaran'] = $postedEnableGaranValue;
+        }
+
+        $effectiveEnableGaran = $postedEnableGaranValue !== null
+            ? $this->normalizeCheckboxValue($postedEnableGaranValue)
+            : $storedEnableGaran;
+
+        if (
+            $storedEnableGll === ''
+            && $normalizedEnableGll === ''
+            && $effectiveEnableGaran === '1'
+        ) {
+            if ($productId !== null) {
+                $this->queueProductInfoMessage($productId, 'gll_enabled_by_garan');
+            }
+
+            return '1';
+        }
+
+        $validationResult = $this->validator->validateProduct($productData, $this->fetchRelatedVariants($productId));
 
         $this->validationHelper->throwValidationExceptionForField(
             $validationResult->getMessages(),
@@ -34,7 +61,7 @@ final class LegalGuaranteeBackendCallbacks
             'tl_ls_shop_product'
         );
 
-        return (string) ($validationResult->getNormalizedData()['enableGll'] ?? '');
+        return $normalizedEnableGll;
     }
 
     public function validateProductEnableGaran(mixed $value, DataContainer $dataContainer): string
@@ -73,6 +100,82 @@ final class LegalGuaranteeBackendCallbacks
         $productData = $this->fetchProductData($this->getRecordId($dataContainer));
 
         return $this->validator->getInitialGuaranteeBrand((string) ($productData['lsShopProductProducer'] ?? ''));
+    }
+
+    /**
+     * @param array<string, mixed> $values
+     *
+     * @return array<string, mixed>
+     */
+    public function handleProductBeforeSubmit(array $values, DataContainer $dataContainer): array
+    {
+        $productId = $this->getRecordId($dataContainer);
+
+        if ($productId === null || !array_key_exists('enableGll', $values)) {
+            return $values;
+        }
+
+        $productData = $this->fetchProductData($productId);
+        $storedEnableGll = $this->normalizeCheckboxValue($productData['enableGll'] ?? null);
+        $submittedEnableGll = $this->normalizeCheckboxValue($values['enableGll'] ?? null);
+
+        if ($storedEnableGll !== '1' || $submittedEnableGll !== '') {
+            return $values;
+        }
+
+        $effectiveEnableGaran = $this->normalizeCheckboxValue($values['enableGaran'] ?? ($productData['enableGaran'] ?? null));
+
+        if ($effectiveEnableGaran !== '1') {
+            return $values;
+        }
+
+        $values['enableGaran'] = '';
+        $this->queueProductInfoMessage($productId, 'garan_disabled_by_gll');
+
+        return $values;
+    }
+
+    public function addProductSubmitInfoMessages(DataContainer $dataContainer): void
+    {
+        $productId = $this->getRecordId($dataContainer);
+
+        if ($productId === null || !isset(self::$pendingProductInfoMessages[$productId])) {
+            return;
+        }
+
+        foreach (array_unique(self::$pendingProductInfoMessages[$productId]) as $messageKey) {
+            $messageText = $GLOBALS['TL_LANG']['tl_ls_shop_product'][$messageKey] ?? null;
+
+            if (!is_string($messageText) || $messageText === '') {
+                continue;
+            }
+
+            Message::addInfo($messageText);
+        }
+
+        unset(self::$pendingProductInfoMessages[$productId]);
+    }
+
+    public function addProductEditInfoMessage(DataContainer $dataContainer): void
+    {
+        if (Input::get('act') !== 'edit') {
+            return;
+        }
+
+        $productData = $this->fetchProductData($this->getRecordId($dataContainer));
+
+        if (
+            $this->normalizeCheckboxValue($productData['enableGaran'] ?? null) !== '1'
+            || $this->normalizeCheckboxValue($productData['enableGll'] ?? null) === '1'
+        ) {
+            return;
+        }
+
+        $messageText = $GLOBALS['TL_LANG']['tl_ls_shop_product']['garan_not_output_without_gll'] ?? null;
+
+        if (is_string($messageText) && $messageText !== '') {
+            Message::addInfo($messageText);
+        }
     }
 
     public function validateVariantGaranMode(mixed $value, DataContainer $dataContainer): string
@@ -231,5 +334,16 @@ final class LegalGuaranteeBackendCallbacks
         }
 
         return null;
+    }
+
+    private function normalizeCheckboxValue(mixed $value): string
+    {
+        return $this->validationHelper->isTruthy($value) ? '1' : '';
+    }
+
+    private function queueProductInfoMessage(int $productId, string $messageKey): void
+    {
+        self::$pendingProductInfoMessages[$productId] ??= [];
+        self::$pendingProductInfoMessages[$productId][] = $messageKey;
     }
 }

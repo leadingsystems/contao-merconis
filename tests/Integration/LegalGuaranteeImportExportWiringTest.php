@@ -43,11 +43,6 @@ final class LegalGuaranteeImportExportWiringTest extends TestCase
         self::assertStringContainsString('`enableGll` = ?', $importContents);
         self::assertStringContainsString('`garanMode` = ?', $importContents);
         self::assertStringContainsString('garan_override_gll_required', $importContents);
-        self::assertStringNotContainsString('buildExportColumns($arr_productData)', $exportContents);
-        self::assertStringNotContainsString(
-            'buildExportColumns($arr_productData, $arr_variantData)',
-            $exportContents
-        );
         self::assertStringContainsString('$arr_productData[$str_fieldName] ?? null', $exportContents);
         self::assertStringContainsString('$arr_variantData[$str_fieldName] ?? null', $exportContents);
     }

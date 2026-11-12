@@ -260,6 +260,7 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['gllTitle'] = 'Legal gua
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['gllEuLinkText'] = 'EU information about the legal guarantee';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['garanBlockHeadline'] = 'Manufacturer\'s commercial guarantee for the following items:';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['garanEuLinkText'] = 'EU information about the manufacturer\'s commercial guarantee';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['garanLabelUnavailableNotice'] = 'The manufacturer\'s guarantee label for these items could not be generated for technical reasons. Please contact the retailer.';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['garanTitlePattern'] = 'Manufacturer\'s commercial guarantee by %s for %s with %s years';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['label'] = 'Comment for this item';

@@ -16,9 +16,12 @@ use Merconis\Core\ls_shop_cartX;
 use Merconis\Core\ls_shop_product;
 use Merconis\Core\ls_shop_variant;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
+use RuntimeException;
 
 final class LegalGuaranteeMarkupProviderTest extends TestCase
 {
@@ -151,7 +154,7 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
                 ],
                 10,
                 'Kissen',
-                $this->createVariant(101, 'Rot')
+                $this->createVariant(101, 'Rot', 'ART-101')
             ),
             $this->createProduct(
                 [
@@ -163,7 +166,7 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
                 ],
                 10,
                 'Kissen',
-                $this->createVariant(102, 'Blau')
+                $this->createVariant(102, 'Blau', 'ART-102')
             ),
             $this->createProduct(
                 [
@@ -174,7 +177,9 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
                     'guaranteeDurationMonths' => '36',
                 ],
                 20,
-                'Decke'
+                'Decke',
+                null,
+                'ART-200'
             ),
         ]);
 
@@ -184,18 +189,19 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
         self::assertSame(2, substr_count($markup, 'class="merconis-legal-guarantee-checkout-item"'));
         self::assertSame(2, substr_count($markup, '<svg '));
         self::assertSame(2, substr_count($markup, 'merconis-legal-guarantee-link'));
-        self::assertStringContainsString('Kissen (Rot)<br>Kissen (Blau)', $markup);
-        self::assertStringContainsString('Decke', $markup);
-        self::assertNotFalse(strpos($markup, 'Kissen (Rot)<br>Kissen (Blau)'));
+        self::assertStringContainsString('Kissen (Rot) - ART-101<br>Kissen (Blau) - ART-102', $markup);
+        self::assertStringContainsString('Decke - ART-200', $markup);
+        self::assertNotFalse(strpos($markup, 'Kissen (Rot) - ART-101<br>Kissen (Blau) - ART-102'));
         self::assertGreaterThan(
-            strpos($markup, 'Kissen (Rot)<br>Kissen (Blau)'),
-            strpos($markup, 'Decke')
+            strpos($markup, 'Kissen (Rot) - ART-101<br>Kissen (Blau) - ART-102'),
+            strpos($markup, 'Decke - ART-200')
         );
     }
 
     public function testRenderProductGaranLabelUsesRendererMatchingCurrentVersion(): void
     {
         $product = $this->createProduct([
+            'enableGll' => '1',
             'enableGaran' => '1',
             'guaranteeBrand' => 'ACME',
             'guaranteeModelIdentifier' => 'MX-42',
@@ -245,10 +251,113 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
         self::assertStringNotContainsString('wrong-version', $markup);
     }
 
+    public function testCheckoutGaranBlockLeavesArticleNumberOutWhenCodeIsMissing(): void
+    {
+        $GLOBALS['objPage'] = (object) ['language' => 'de_DE'];
+        $this->setCartItems([
+            $this->createProduct([
+                'enableGll' => '1',
+                'enableGaran' => '1',
+                'guaranteeBrand' => 'ACME',
+                'guaranteeModelIdentifier' => 'X100',
+                'guaranteeDurationMonths' => '36',
+            ], 10, 'Kissen'),
+        ]);
+
+        $markup = $this->createProvider()->checkoutGaranBlock();
+
+        self::assertStringContainsString('Kissen', $markup);
+        self::assertStringNotContainsString('Kissen - ', $markup);
+    }
+
+    public function testCheckoutGaranBlockLogsAndSkipsFailedGroupWhileKeepingRemainingGroups(): void
+    {
+        $GLOBALS['objPage'] = (object) ['language' => 'de_DE'];
+        $this->setCartItems([
+            $this->createProduct([
+                'enableGll' => '1',
+                'enableGaran' => '1',
+                'guaranteeBrand' => 'FAIL',
+                'guaranteeModelIdentifier' => 'X100',
+                'guaranteeDurationMonths' => '36',
+            ], 10, 'Defekt', null, 'ART-500'),
+            $this->createProduct([
+                'enableGll' => '1',
+                'enableGaran' => '1',
+                'guaranteeBrand' => 'OK',
+                'guaranteeModelIdentifier' => 'X100',
+                'guaranteeDurationMonths' => '36',
+            ], 20, 'Decke', null, 'ART-200'),
+        ]);
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger
+            ->expects(self::once())
+            ->method('error')
+            ->with(self::stringContains('ART-500'));
+
+        $markup = $this->createProvider(null, [
+            new class implements GaranLabelRendererInterface {
+                public function getVersion(): string
+                {
+                    return OfficialGuaranteeAssetLocator::GARAN_VERSION;
+                }
+
+                public function render(string $brand, string $modelIdentifier, string $durationText): string
+                {
+                    if ($brand === 'FAIL') {
+                        throw new RuntimeException('broken checkout label');
+                    }
+
+                    return '<svg xmlns="http://www.w3.org/2000/svg"><text>ok</text></svg>';
+                }
+            },
+        ], $logger)->checkoutGaranBlock();
+
+        self::assertStringContainsString('Decke - ART-200', $markup);
+        self::assertStringNotContainsString('Defekt - ART-500', $markup);
+        self::assertSame(1, substr_count($markup, 'class="merconis-legal-guarantee-checkout-item"'));
+        self::assertSame(1, substr_count($markup, 'merconis-legal-guarantee-link'));
+    }
+
+    public function testCheckoutGaranBlockReturnsEmptyStringWhenAllGroupsFail(): void
+    {
+        $GLOBALS['objPage'] = (object) ['language' => 'de_DE'];
+        $this->setCartItems([
+            $this->createProduct([
+                'enableGll' => '1',
+                'enableGaran' => '1',
+                'guaranteeBrand' => 'FAIL',
+                'guaranteeModelIdentifier' => 'X100',
+                'guaranteeDurationMonths' => '36',
+            ], 10, 'Defekt', null, 'ART-500'),
+        ]);
+
+        $markup = $this->createProvider(null, [
+            new class implements GaranLabelRendererInterface {
+                public function getVersion(): string
+                {
+                    return OfficialGuaranteeAssetLocator::GARAN_VERSION;
+                }
+
+                public function render(string $brand, string $modelIdentifier, string $durationText): string
+                {
+                    throw new RuntimeException('broken checkout label');
+                }
+            },
+        ])->checkoutGaranBlock();
+
+        self::assertSame('', $markup);
+    }
+
     /**
      * @param iterable<GaranLabelRendererInterface>|null $garanLabelRenderers
      */
-    private function createProvider(?string $projectDir = null, ?iterable $garanLabelRenderers = null): LegalGuaranteeMarkupProvider
+    private function createProvider(
+        ?string $projectDir = null,
+        ?iterable $garanLabelRenderers = null,
+        ?LoggerInterface $contaoErrorLogger = null
+    ): LegalGuaranteeMarkupProvider
     {
         $assetLocator = new OfficialGuaranteeAssetLocator(
             $projectDir ?? dirname(__DIR__, 2),
@@ -260,6 +369,7 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
             new ProductGuaranteeDisplayResolver(),
             new GaranLabelGrouping(),
             new LegalGuaranteeMarkupBuilder(),
+            $contaoErrorLogger ?? new NullLogger(),
             $garanLabelRenderers ?? [new GaranLabelRenderer($assetLocator, OfficialGuaranteeAssetLocator::GARAN_VERSION)],
         );
     }
@@ -271,14 +381,18 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
         array $mainData,
         int $productId = 1,
         string $title = 'Product',
-        ?ls_shop_variant $selectedVariant = null
+        ?ls_shop_variant $selectedVariant = null,
+        string $code = ''
     ): ls_shop_product
     {
         $productReflection = new ReflectionClass(ls_shop_product::class);
         /** @var ls_shop_product $product */
         $product = $productReflection->newInstanceWithoutConstructor();
         $product->ls_ID = $productId;
-        $product->mainData = $mainData + ['title' => $title];
+        $product->mainData = $mainData + [
+            'lsShopProductCode' => $code,
+            'title' => $title,
+        ];
         $product->currentLanguageData = ['title' => $title];
 
         if (null !== $selectedVariant) {
@@ -289,13 +403,16 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
         return $product;
     }
 
-    private function createVariant(int $variantId, string $title): ls_shop_variant
+    private function createVariant(int $variantId, string $title, string $code = ''): ls_shop_variant
     {
         $variantReflection = new ReflectionClass(ls_shop_variant::class);
         /** @var ls_shop_variant $variant */
         $variant = $variantReflection->newInstanceWithoutConstructor();
         $variant->ls_ID = $variantId;
-        $variant->mainData = ['title' => $title];
+        $variant->mainData = [
+            'lsShopVariantCode' => $code,
+            'title' => $title,
+        ];
         $variant->currentLanguageData = ['title' => $title];
 
         return $variant;

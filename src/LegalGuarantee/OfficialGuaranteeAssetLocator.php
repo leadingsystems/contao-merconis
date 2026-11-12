@@ -29,27 +29,30 @@ final class OfficialGuaranteeAssetLocator
     /**
      * @return list<string>
      */
-    public function getAvailableGllSvgLanguages(): array
+    public function getAvailableGllSvgLanguages(?string $version = null): array
     {
-        return $this->scanAvailableLanguages($this->getGllVersionDirectory(), 'svg');
+        return $this->scanAvailableLanguages($this->getGllVersionDirectory($version), 'svg');
     }
 
     /**
      * @return list<string>
      */
-    public function getAvailableGllPdfLanguages(): array
+    public function getAvailableGllPdfLanguages(?string $version = null): array
     {
-        return $this->scanAvailableLanguages($this->getGllVersionDirectory(), 'pdf');
+        return $this->scanAvailableLanguages($this->getGllVersionDirectory($version), 'pdf');
     }
 
-    public function resolveGllSvgLanguage(string $contaoLocale): string
+    public function resolveGllSvgLanguage(string $contaoLocale, ?string $version = null): string
     {
-        return $this->languageResolver->resolveOfficialLanguage($contaoLocale, $this->getAvailableGllSvgLanguages());
+        return $this->languageResolver->resolveOfficialLanguage(
+            $contaoLocale,
+            $this->getAvailableGllSvgLanguages($version)
+        );
     }
 
-    public function resolveGllPdfLanguage(string $contaoLocale): ?string
+    public function resolveGllPdfLanguage(string $contaoLocale, ?string $version = null): ?string
     {
-        $availableLanguages = $this->getAvailableGllPdfLanguages();
+        $availableLanguages = $this->getAvailableGllPdfLanguages($version);
 
         if ([] === $availableLanguages) {
             return null;
@@ -58,20 +61,23 @@ final class OfficialGuaranteeAssetLocator
         return $this->languageResolver->resolveOfficialLanguage($contaoLocale, $availableLanguages);
     }
 
-    public function resolveGllSvgPath(string $contaoLocale): string
+    public function resolveGllSvgPath(string $contaoLocale, ?string $version = null): string
     {
-        return $this->getGllSvgPathByLanguage($this->resolveGllSvgLanguage($contaoLocale));
+        return $this->getGllSvgPathByLanguage(
+            $this->resolveGllSvgLanguage($contaoLocale, $version),
+            $version
+        );
     }
 
-    public function resolveGllPdfPath(string $contaoLocale): ?string
+    public function resolveGllPdfPath(string $contaoLocale, ?string $version = null): ?string
     {
-        $resolvedLanguage = $this->resolveGllPdfLanguage($contaoLocale);
+        $resolvedLanguage = $this->resolveGllPdfLanguage($contaoLocale, $version);
 
         if (null === $resolvedLanguage) {
             return null;
         }
 
-        return $this->getGllPdfPathByLanguage($resolvedLanguage);
+        return $this->getGllPdfPathByLanguage($resolvedLanguage, $version);
     }
 
     public function getGllVersionDirectory(?string $version = null): string

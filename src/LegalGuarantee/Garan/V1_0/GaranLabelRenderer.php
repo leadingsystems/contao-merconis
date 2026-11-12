@@ -17,7 +17,7 @@ final class GaranLabelRenderer implements GaranLabelRendererInterface
     private const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
     private const DEFAULT_TRUNCATION_LENGTH = 30;
     private const ORIGINAL_DURATION_FONT_SIZE = '80px';
-    private const DECIMAL_DURATION_FONT_SIZE = '50.5px';
+    private const DECIMAL_DURATION_FONT_SIZE = '47px';
 
     public function __construct(
         private readonly OfficialGuaranteeAssetLocator $assetLocator,

@@ -26,7 +26,23 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
 		),
 		'onsubmit_callback' => array(
+			array(
+				'LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\LegalGuaranteeBackendCallbacks',
+				'addProductSubmitInfoMessages'
+			),
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
+		),
+		'onload_callback' => array(
+			array(
+				'LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\LegalGuaranteeBackendCallbacks',
+				'addProductEditInfoMessage'
+			)
+		),
+		'onbeforesubmit_callback' => array(
+			array(
+				'LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\LegalGuaranteeBackendCallbacks',
+				'handleProductBeforeSubmit'
+			)
 		),
 		'onrestore_version_callback' => array(
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
@@ -527,12 +543,6 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['enableGaran'],
 			'exclude' => true,
 			'inputType'               => 'checkbox',
-			'save_callback' => array(
-				array(
-					'LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\LegalGuaranteeBackendCallbacks',
-					'validateProductEnableGaran'
-				)
-			),
 			'eval'                    => array('tl_class'=>'w50 m12', 'submitOnChange' => true),
 			'filter'		=> true,
             'sql'                     => "char(1) NOT NULL default ''"

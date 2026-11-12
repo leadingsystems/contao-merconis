@@ -47,6 +47,7 @@ services:
   LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\MpdfGaranPdfAttachmentWriter:
     arguments:
       $projectDir: '%kernel.project_dir%'
+      $contaoErrorLogger: '@monolog.logger.contao.error'
   LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranPdfAttachmentWriterInterface:
     alias: LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\MpdfGaranPdfAttachmentWriter
   LeadingSystems\MerconisBundle\LegalGuarantee\Order\OrderLabelSnapshotBuilder:
@@ -61,13 +62,14 @@ services:
     arguments:
       $garanRenderers: !tagged_iterator merconis.legal_guarantee.garan_order_snapshot_renderer
   LeadingSystems\MerconisBundle\LegalGuarantee\Order\OrderConfirmationAttachmentGenerator:
-    arguments:
-      $projectDir: '%kernel.project_dir%'
     public: true
+    arguments:
+      $contaoErrorLogger: '@monolog.logger.contao.error'
   LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\ProductGuaranteeDisplayResolver: ~
   LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\LegalGuaranteeMarkupBuilder: ~
   LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\LegalGuaranteeMarkupProvider:
     arguments:
+      $contaoErrorLogger: '@monolog.logger.contao.error'
       $garanLabelRenderers: !tagged_iterator merconis.legal_guarantee.garan_label_renderer
     public: true
   LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\EnableGllSettingsMigrationManager:

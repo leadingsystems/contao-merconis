@@ -13,6 +13,7 @@ use LeadingSystems\MerconisBundle\LegalGuarantee\Order\GaranOrderSnapshotRendere
 use LeadingSystems\MerconisBundle\LegalGuarantee\Order\OrderConfirmationAttachmentGenerator;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Order\OrderLabelSnapshotRenderer;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -55,14 +56,13 @@ final class LegalGuaranteeOrderAttachmentsCommandTest extends TestCase
                 ]
             ),
             new class implements \LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranPdfAttachmentWriterInterface {
-                public function write(array $pages, string $preferredBaseName): array
+                public function write(array $pages, string $orderNumber, int $orderDateUnixTimestamp): array
                 {
                     return [
                         'relativePath' => 'files/merconisfiles/dynamicAttachmentFiles/generatedFiles/garantielabels/garan.pdf',
                     ];
                 }
             },
-            $projectDir,
             new GaranLabelGrouping(),
             new class implements TranslatorInterface {
                 public function trans(?string $id, array $parameters = [], ?string $domain = null, ?string $locale = null): string
@@ -79,6 +79,7 @@ final class LegalGuaranteeOrderAttachmentsCommandTest extends TestCase
                 {
                 }
             },
+            new NullLogger(),
         );
 
         $command = new class($framework, $generator) extends LegalGuaranteeOrderAttachmentsCommand {
@@ -136,12 +137,11 @@ final class LegalGuaranteeOrderAttachmentsCommandTest extends TestCase
                 []
             ),
             new class implements \LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranPdfAttachmentWriterInterface {
-                public function write(array $pages, string $preferredBaseName): array
+                public function write(array $pages, string $orderNumber, int $orderDateUnixTimestamp): array
                 {
                     return ['relativePath' => 'unused.pdf'];
                 }
             },
-            $this->createTempProjectDir(),
             new GaranLabelGrouping(),
             new class implements TranslatorInterface {
                 public function trans(?string $id, array $parameters = [], ?string $domain = null, ?string $locale = null): string
@@ -158,6 +158,7 @@ final class LegalGuaranteeOrderAttachmentsCommandTest extends TestCase
                 {
                 }
             },
+            new NullLogger(),
         );
 
         $command = new class($framework, $generator) extends LegalGuaranteeOrderAttachmentsCommand {

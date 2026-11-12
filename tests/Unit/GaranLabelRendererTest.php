@@ -282,9 +282,9 @@ final class GaranLabelRendererTest extends TestCase
      */
     public static function provideDurationFontSizes(): iterable
     {
-        yield 'minimum decimal' => ['30', '2,5', '50.5px'];
-        yield 'worst-case decimal' => ['246', '20,5', '50.5px'];
-        yield 'maximum decimal' => ['354', '29,5', '50.5px'];
+        yield 'minimum decimal' => ['30', '2,5', '47px'];
+        yield 'worst-case decimal' => ['246', '20,5', '47px'];
+        yield 'maximum decimal' => ['354', '29,5', '47px'];
         yield 'minimum integer' => ['36', '3', '80px'];
         yield 'maximum integer' => ['360', '30', '80px'];
     }

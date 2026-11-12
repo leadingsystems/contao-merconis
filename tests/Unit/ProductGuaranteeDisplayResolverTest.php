@@ -122,6 +122,48 @@ final class ProductGuaranteeDisplayResolverTest extends TestCase
         self::assertNull($result['garan']);
     }
 
+    public function testResolveSuppressesCompleteProductGaranOutputWhenGllIsDisabled(): void
+    {
+        $resolver = new ProductGuaranteeDisplayResolver();
+
+        $result = $resolver->resolve([
+            'enableGll' => '',
+            'enableGaran' => '1',
+            'guaranteeBrand' => 'ACME',
+            'guaranteeModelIdentifier' => 'Model 42',
+            'guaranteeDurationMonths' => '54',
+        ]);
+
+        self::assertFalse($result['showGll']);
+        self::assertFalse($result['showGaran']);
+        self::assertNull($result['garan']);
+    }
+
+    public function testResolveSuppressesVariantOverrideGaranOutputWhenParentGllIsDisabled(): void
+    {
+        $resolver = new ProductGuaranteeDisplayResolver();
+
+        $result = $resolver->resolve(
+            [
+                'enableGll' => '',
+                'enableGaran' => '1',
+                'guaranteeBrand' => 'Parent Brand',
+                'guaranteeModelIdentifier' => 'Parent Model',
+                'guaranteeDurationMonths' => '54',
+            ],
+            [
+                'garanMode' => 'override',
+                'guaranteeBrand' => 'Variant Brand',
+                'guaranteeModelIdentifier' => 'Variant Model',
+                'guaranteeDurationMonths' => '60',
+            ],
+        );
+
+        self::assertFalse($result['showGll']);
+        self::assertFalse($result['showGaran']);
+        self::assertNull($result['garan']);
+    }
+
     public function testResolveAcceptsTraversableProductAndVariantData(): void
     {
         $resolver = new ProductGuaranteeDisplayResolver();
