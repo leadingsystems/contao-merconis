@@ -23,18 +23,10 @@ final class OrderLabelSnapshotRendererTest extends TestCase
             'gllVersion' => OfficialGuaranteeAssetLocator::GLL_VERSION,
             'gllLanguage' => 'de',
         ]);
-        $pdfPath = $renderer->resolveGllPdfPath([
-            'gllVersion' => OfficialGuaranteeAssetLocator::GLL_VERSION,
-            'gllLanguage' => 'de',
-        ]);
 
         self::assertSame(
             (string) file_get_contents($assetLocator->getGllSvgPathByLanguage('de')),
             $svg
-        );
-        self::assertStringEndsWith(
-            '/src/Resources/public/legal-guarantee/gll/v1.0/legal-guarantee-notice-de.pdf',
-            (string) $pdfPath
         );
     }
 

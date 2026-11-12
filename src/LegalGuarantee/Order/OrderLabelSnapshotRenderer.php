@@ -51,22 +51,6 @@ final class OrderLabelSnapshotRenderer
     /**
      * @param array<string, mixed> $orderSnapshot
      */
-    public function resolveGllPdfPath(array $orderSnapshot): ?string
-    {
-        $resolvedLanguage = $this->resolveGllPdfLanguage($orderSnapshot);
-
-        if (null === $resolvedLanguage) {
-            return null;
-        }
-
-        $version = trim((string) ($orderSnapshot['gllVersion'] ?? ''));
-
-        return $this->assetLocator->getGllPdfPathByLanguage($resolvedLanguage, $version);
-    }
-
-    /**
-     * @param array<string, mixed> $orderSnapshot
-     */
     public function resolveGllPdfLanguage(array $orderSnapshot): ?string
     {
         $version = trim((string) ($orderSnapshot['gllVersion'] ?? ''));
