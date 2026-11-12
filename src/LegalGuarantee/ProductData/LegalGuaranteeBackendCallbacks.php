@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LeadingSystems\MerconisBundle\LegalGuarantee\ProductData;
 
 use Contao\DataContainer;
+use Contao\Environment;
 use Contao\Input;
 use Contao\Message;
 use Doctrine\DBAL\Connection;
@@ -158,7 +159,13 @@ final class LegalGuaranteeBackendCallbacks
 
     public function addProductEditInfoMessage(DataContainer $dataContainer): void
     {
-        if (Input::get('act') !== 'edit') {
+        // Der `onload_callback` läuft vor den `save_callback`s und vor AJAX-Aktionen wie
+        // `toggleSubpalette`; dort wäre der gelesene Stand nur ein Zwischenstand.
+        if (
+            Input::get('act') !== 'edit'
+            || Input::post('FORM_SUBMIT') === 'tl_ls_shop_product'
+            || Environment::get('isAjaxRequest')
+        ) {
             return;
         }
 

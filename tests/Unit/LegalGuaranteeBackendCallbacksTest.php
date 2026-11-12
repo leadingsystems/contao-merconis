@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LeadingSystems\MerconisBundle\Tests\Unit;
 
 use Contao\DataContainer;
+use Contao\Environment;
 use Contao\Input;
 use Contao\Message;
 use Contao\System;
@@ -47,7 +48,9 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
         Input::setPost('enableGll_42', null);
         Input::setPost('enableGaran', null);
         Input::setPost('enableGaran_42', null);
+        Input::setPost('FORM_SUBMIT', null);
         Input::resetCache();
+        Environment::reset();
         $this->primeMessageContainer();
         Message::reset();
 
@@ -366,6 +369,49 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
             'Produkt: GARAN wird ohne GLL nicht ausgegeben.',
             Message::generateUnwrapped('BE')
         );
+    }
+
+    public function testAddProductEditInfoMessageSkipsFormSubmit(): void
+    {
+        $this->primeMessageContainer(['act' => 'edit']);
+        Input::setPost('FORM_SUBMIT', 'tl_ls_shop_product');
+
+        $callbacks = new LegalGuaranteeBackendCallbacks(
+            $this->createConnectionStub(products: [7 => $this->createStoredGaranWithoutGllProduct()])
+        );
+
+        $callbacks->addProductEditInfoMessage($this->createDataContainer(7));
+
+        self::assertSame('', Message::generateUnwrapped('BE'));
+    }
+
+    public function testAddProductEditInfoMessageSkipsAjaxRequest(): void
+    {
+        $this->primeMessageContainer(['act' => 'edit']);
+        Environment::set('isAjaxRequest', true);
+
+        $callbacks = new LegalGuaranteeBackendCallbacks(
+            $this->createConnectionStub(products: [7 => $this->createStoredGaranWithoutGllProduct()])
+        );
+
+        $callbacks->addProductEditInfoMessage($this->createDataContainer(7));
+
+        self::assertSame('', Message::generateUnwrapped('BE'));
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function createStoredGaranWithoutGllProduct(): array
+    {
+        return [
+            'enableGll' => '',
+            'enableGaran' => '1',
+            'guaranteeDurationMonths' => '',
+            'guaranteeBrand' => '',
+            'guaranteeModelIdentifier' => '',
+            'lsShopProductProducer' => 'Producer',
+        ];
     }
 
     private function createDataContainer(int $id): DataContainer
