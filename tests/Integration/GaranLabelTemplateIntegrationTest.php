@@ -14,6 +14,8 @@ final class GaranLabelTemplateIntegrationTest extends TestCase
 {
     private const TEMPLATE_PATH = __DIR__ . '/../../src/Resources/legal-guarantee/garan/v1.0/garan-label-colour.svg';
     private const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
+    // Unterlänge des Kommas in Inter ExtraBold bei `47px`: `yMin` -410 bei 2048 Einheiten je Geviert.
+    private const DECIMAL_DURATION_COMMA_DESCENT = 9.41;
 
     public function testGaranTemplateContainsExpectedStructureAndWarningComment(): void
     {
@@ -83,8 +85,40 @@ final class GaranLabelTemplateIntegrationTest extends TestCase
         $this->assertClipRectMatchesLocalTextCoordinates(
             $xpath,
             'duration',
-            ['x' => -110.0, 'y' => -70.27, 'width' => 116.0, 'height' => 74.75]
+            ['x' => -110.0, 'y' => -70.27, 'width' => 116.0, 'height' => 82.27]
         );
+    }
+
+    public function testDurationClipCoversCommaDescentInsideUpperLabelFrame(): void
+    {
+        $templateContents = (string) file_get_contents(self::TEMPLATE_PATH);
+        $xpath = $this->createXPathForSvg($templateContents);
+
+        $durationText = $xpath->query('//svg:text[@data-field="duration"]')?->item(0);
+        self::assertInstanceOf(DOMElement::class, $durationText);
+
+        $clipPathReference = $durationText->getAttribute('clip-path');
+        self::assertSame(1, preg_match('/^url\(#([^)]+)\)$/', $clipPathReference, $matches));
+
+        $clipRect = $xpath->query(sprintf('//svg:clipPath[@id="%s"]/svg:rect', $matches[1]))?->item(0);
+        self::assertInstanceOf(DOMElement::class, $clipRect);
+
+        $upperFrameRect = $xpath->query('//svg:rect[@x="3.09" and @y="2.63"]')?->item(0);
+        self::assertInstanceOf(DOMElement::class, $upperFrameRect);
+
+        $durationBaselineY = $this->extractTranslateY($durationText->getAttribute('transform'));
+        $durationClipBottomEdge = $this->extractFloatAttribute($clipRect, 'y')
+            + $this->extractFloatAttribute($clipRect, 'height');
+        $durationClipBottomEdgeInLabelCoordinates = $durationBaselineY + $durationClipBottomEdge;
+        $upperFrameInnerBottomEdge = $this->extractFloatAttribute($upperFrameRect, 'y')
+            + $this->extractFloatAttribute($upperFrameRect, 'height')
+            - $this->extractFloatAttribute($upperFrameRect, 'stroke-width') / 2;
+
+        self::assertEqualsWithDelta(150.57, $durationBaselineY, 0.01);
+        self::assertEqualsWithDelta(12.0, $durationClipBottomEdge, 0.01);
+        self::assertGreaterThan(self::DECIMAL_DURATION_COMMA_DESCENT, $durationClipBottomEdge);
+        self::assertEqualsWithDelta(167.76, $upperFrameInnerBottomEdge, 0.01);
+        self::assertLessThan($upperFrameInnerBottomEdge, $durationClipBottomEdgeInLabelCoordinates);
     }
 
     public function testDurationClipEndsBeforeCalendarSymbol(): void
@@ -254,6 +288,13 @@ final class GaranLabelTemplateIntegrationTest extends TestCase
     private function extractTranslateX(string $transform): float
     {
         self::assertSame(1, preg_match('/translate\(([0-9.]+)\s+[0-9.]+\)/', $transform, $matches));
+
+        return (float) $matches[1];
+    }
+
+    private function extractTranslateY(string $transform): float
+    {
+        self::assertSame(1, preg_match('/translate\([0-9.]+\s+([0-9.]+)\)/', $transform, $matches));
 
         return (float) $matches[1];
     }
