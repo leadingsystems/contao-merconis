@@ -127,6 +127,22 @@ $GLOBALS['TL_DCA'][basename(__FILE__, '.php')] = array(
             'sql'                     => "varchar(255) NOT NULL default ''"
         ),
 
+        'garanVersion' => array (
+            'sql'                     => "varchar(16) NOT NULL default ''"
+        ),
+
+        'garanBrand' => array (
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
+        'garanModelIdentifier' => array (
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
+        'garanDurationMonths' => array (
+            'sql'                     => "int(10) unsigned NULL"
+        ),
+
         'extendedInfo' => array (
             'sql'                     => "MEDIUMBLOB NULL"
         )

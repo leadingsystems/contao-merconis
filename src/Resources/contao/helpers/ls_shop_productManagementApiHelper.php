@@ -5,6 +5,7 @@ use Contao\FilesModel;
 use Contao\PageModel;
 use Contao\StringUtil;
 use Contao\System;
+use LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\ProductGuaranteeConfigurationApplier;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
 class ls_shop_productManagementApiHelper {
@@ -770,7 +771,83 @@ class ls_shop_productManagementApiHelper {
 		return $int_variantId;
 	}
 
+	public static function getLegalGuaranteeProductDataById($int_productId) {
+		if (!$int_productId) {
+			throw new \Exception('no product id given.');
+		}
+
+		$obj_dbres_product = Database::getInstance()
+		->prepare("
+			SELECT		`enableGll`,
+						`enableGaran`,
+						`guaranteeDurationMonths`,
+						`guaranteeBrand`,
+						`guaranteeModelIdentifier`,
+						`lsShopProductProducer` as `producer`
+			FROM		`tl_ls_shop_product`
+			WHERE		`id` = ?
+		")
+		->limit(1)
+		->execute($int_productId);
+
+		if (!$obj_dbres_product->numRows) {
+			throw new \Exception('product could not be found');
+		}
+
+		return $obj_dbres_product->row();
+	}
+
+	public static function getLegalGuaranteeVariantDataByProductId($int_productId) {
+		if (!$int_productId) {
+			return array();
+		}
+
+		$obj_dbres_variants = Database::getInstance()
+		->prepare("
+			SELECT		`id`,
+						`lsShopVariantCode`,
+						`title`,
+						`garanMode`
+			FROM		`tl_ls_shop_variant`
+			WHERE		`pid` = ?
+		")
+		->execute($int_productId);
+
+		return $obj_dbres_variants->fetchAllAssoc();
+	}
+
+	public static function applyLegalGuaranteeProductData($arr_preprocessedDataRow) {
+		$obj_applier = new ProductGuaranteeConfigurationApplier();
+		$int_productId = self::getProductIdForProductCode($arr_preprocessedDataRow['productcode'] ?? '');
+		$arr_result = $obj_applier->applyToProductRow(
+			$arr_preprocessedDataRow,
+			true,
+			'producer',
+			self::getLegalGuaranteeVariantDataByProductId($int_productId)
+		);
+
+		if ($obj_applier->hasBlockingWriteMessages($arr_result['messages'])) {
+			throw new \Exception($obj_applier->formatWriteErrorMessage($arr_result['messages']));
+		}
+
+		return $arr_result['row'];
+	}
+
+	public static function applyLegalGuaranteeVariantData($arr_preprocessedDataRow, $int_parentProductId) {
+		$obj_applier = new ProductGuaranteeConfigurationApplier();
+		$arr_productData = self::getLegalGuaranteeProductDataById($int_parentProductId);
+		$arr_result = $obj_applier->applyToVariantRow($arr_preprocessedDataRow, $arr_productData);
+
+		if ($obj_applier->hasBlockingWriteMessages($arr_result['messages'])) {
+			throw new \Exception($obj_applier->formatWriteErrorMessage($arr_result['messages']));
+		}
+
+		return $arr_result['row'];
+	}
+
 	public static function insertOrUpdateProductRecord($arr_preprocessedDataRow) {
+		$arr_preprocessedDataRow = self::applyLegalGuaranteeProductData($arr_preprocessedDataRow);
+
 		// Prüfen, ob es ein Produkt mit der Artikelnummer bereits gibt
 		$int_alreadyExistsAsID = 0;
 
@@ -820,6 +897,11 @@ class ls_shop_productManagementApiHelper {
 							`lsShopProductRecommendedProducts` = ?,
 							`lsShopProductDeliveryInfoSet` = ?,
 							`lsShopProductProducer` = ?,
+							`enableGll` = ?,
+							`enableGaran` = ?,
+							`guaranteeDurationMonths` = ?,
+							`guaranteeBrand` = ?,
+							`guaranteeModelIdentifier` = ?,
 							`configurator` = ?,
 							`flex_contents` = ?,
 							`flex_contentsLanguageIndependent` = ?,
@@ -861,6 +943,11 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['recommendedProducts'], // blob, translated, check unclear
 				$arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] ? $arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
 				$arr_preprocessedDataRow['producer'], // String, maxlength 255
+				$arr_preprocessedDataRow['enableGll'], // 1 or ''
+				$arr_preprocessedDataRow['enableGaran'], // 1 or ''
+				$arr_preprocessedDataRow['guaranteeDurationMonths'], // decimal, empty = null
+				$arr_preprocessedDataRow['guaranteeBrand'], // String
+				$arr_preprocessedDataRow['guaranteeModelIdentifier'], // String
 				$arr_preprocessedDataRow['configurator'] ? $arr_preprocessedDataRow['configurator'] : 0, // int, empty = 0
 				$arr_preprocessedDataRow['flex_contents'], // blob, translated, check unclear
 				$arr_preprocessedDataRow['flex_contentsLanguageIndependent'], // blob, translated, check unclear
@@ -972,6 +1059,11 @@ class ls_shop_productManagementApiHelper {
 							`lsShopProductRecommendedProducts` = ?,
 							`lsShopProductDeliveryInfoSet` = ?,
 							`lsShopProductProducer` = ?,
+							`enableGll` = ?,
+							`enableGaran` = ?,
+							`guaranteeDurationMonths` = ?,
+							`guaranteeBrand` = ?,
+							`guaranteeModelIdentifier` = ?,
 							`configurator` = ?,
 							`flex_contents` = ?,
 							`flex_contentsLanguageIndependent` = ?,
@@ -1013,6 +1105,11 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['recommendedProducts'], // blob, translated, check unclear
 				$arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] ? $arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
 				$arr_preprocessedDataRow['producer'], // String, maxlength 255
+				$arr_preprocessedDataRow['enableGll'], // 1 or ''
+				$arr_preprocessedDataRow['enableGaran'], // 1 or ''
+				$arr_preprocessedDataRow['guaranteeDurationMonths'], // decimal, empty = null
+				$arr_preprocessedDataRow['guaranteeBrand'], // String
+				$arr_preprocessedDataRow['guaranteeModelIdentifier'], // String
 				$arr_preprocessedDataRow['configurator'] ? $arr_preprocessedDataRow['configurator'] : 0, // int, empty = 0
 				$arr_preprocessedDataRow['flex_contents'], // blob, translated, check unclear
 				$arr_preprocessedDataRow['flex_contentsLanguageIndependent'], // blob, translated, check unclear
@@ -1105,6 +1202,31 @@ class ls_shop_productManagementApiHelper {
 			$int_alreadyExistsAsID = $obj_dbres_variant->id;
 		}
 
+		$int_parentProductId = 0;
+
+		if ($int_alreadyExistsAsID) {
+			$obj_dbres_parentProduct = Database::getInstance()
+			->prepare("
+				SELECT		`pid`
+				FROM		`tl_ls_shop_variant`
+				WHERE		`id` = ?
+			")
+			->limit(1)
+			->execute($int_alreadyExistsAsID);
+
+			if ($obj_dbres_parentProduct->numRows) {
+				$int_parentProductId = (int) $obj_dbres_parentProduct->pid;
+			}
+		} else {
+			$int_parentProductId = self::getProductIdForProductCode($arr_preprocessedDataRow['parentProductcode']);
+		}
+
+		if (!$int_parentProductId) {
+			throw new \Exception('no parent product found with product code '.$arr_preprocessedDataRow['parentProductcode'].' for variant with product code '.$arr_preprocessedDataRow['productcode']);
+		}
+
+		$arr_preprocessedDataRow = self::applyLegalGuaranteeVariantData($arr_preprocessedDataRow, $int_parentProductId);
+
 		/*
 		 * Update the variant record if a variant with this product code already exists
 		 */
@@ -1135,6 +1257,10 @@ class ls_shop_productManagementApiHelper {
 								`lsShopProductVariantMoreImages` = ?,
 								`lsShopVariantDeliveryInfoSet` = ?,
 								`configurator` = ?,
+								`garanMode` = ?,
+								`guaranteeDurationMonths` = ?,
+								`guaranteeBrand` = ?,
+								`guaranteeModelIdentifier` = ?,
 								`flex_contents` = ?,
 								`flex_contentsLanguageIndependent` = ?,
 								`useScalePrice` = ?,
@@ -1170,6 +1296,10 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['moreImages'], // blob, translated, check unclear
 				$arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] ? $arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
 				$arr_preprocessedDataRow['configurator'] ? $arr_preprocessedDataRow['configurator'] : 0, // int, empty = 0
+				$arr_preprocessedDataRow['garanMode'], // inherit, disabled or override
+				$arr_preprocessedDataRow['guaranteeDurationMonths'], // decimal, empty = null
+				$arr_preprocessedDataRow['guaranteeBrand'], // String
+				$arr_preprocessedDataRow['guaranteeModelIdentifier'], // String
 				$arr_preprocessedDataRow['flex_contents'], // blob, translated, check unclear
 				$arr_preprocessedDataRow['flex_contentsLanguageIndependent'], // blob, translated, check unclear
 				$arr_preprocessedDataRow['useScalePrice'] ? '1' : '', // 1 or ''
@@ -1242,12 +1372,6 @@ class ls_shop_productManagementApiHelper {
 		 * Insert a variant record if no variant with this product code exists
 		 */
 		else {
-			$int_parentProductId = self::getProductIdForProductCode($arr_preprocessedDataRow['parentProductcode']);
-
-			if (!$int_parentProductId) {
-				throw new \Exception('no parent product found with product code '.$arr_preprocessedDataRow['parentProductcode'].' for variant with product code '.$arr_preprocessedDataRow['productcode']);
-			}
-
 			$str_addGroupPriceFieldsToQuery = self::createGroupPriceFieldsForQuery('variant');
 
 			$obj_dbquery_insertVariant = Database::getInstance()
@@ -1277,6 +1401,10 @@ class ls_shop_productManagementApiHelper {
 							`lsShopProductVariantMoreImages` = ?,
 							`lsShopVariantDeliveryInfoSet` = ?,
 							`configurator` = ?,
+							`garanMode` = ?,
+							`guaranteeDurationMonths` = ?,
+							`guaranteeBrand` = ?,
+							`guaranteeModelIdentifier` = ?,
 							`flex_contents` = ?,
 							`flex_contentsLanguageIndependent` = ?,
 							`useScalePrice` = ?,
@@ -1313,6 +1441,10 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['moreImages'], // blob, translated, check unclear
 				$arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] ? $arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
 				$arr_preprocessedDataRow['configurator'] ? $arr_preprocessedDataRow['configurator'] : 0, // int, empty = 0
+				$arr_preprocessedDataRow['garanMode'], // inherit, disabled or override
+				$arr_preprocessedDataRow['guaranteeDurationMonths'], // decimal, empty = null
+				$arr_preprocessedDataRow['guaranteeBrand'], // String
+				$arr_preprocessedDataRow['guaranteeModelIdentifier'], // String
 				$arr_preprocessedDataRow['flex_contents'], // blob, translated, check unclear
 				$arr_preprocessedDataRow['flex_contentsLanguageIndependent'], // blob, translated, check unclear
 				$arr_preprocessedDataRow['useScalePrice'] ? '1' : '', // 1 or ''

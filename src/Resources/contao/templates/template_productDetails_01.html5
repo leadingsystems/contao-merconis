@@ -137,6 +137,11 @@ $str_html_productProducerInfo = $this->objProduct->_useCustomTemplate('template_
 
                     <?php echo isset($str_html_deliveryInfo) ? $str_html_deliveryInfo : ''; ?>
 
+                    <div class="merconis-legal-guarantee-output">
+                        <?php echo $this->objProduct->_gllNotice ?: ''; ?>
+                        <?php echo $this->objProduct->_garanLabel ?: ''; ?>
+                    </div>
+
                     <?php
                     // TrustedShops product rating -->
                     // activate if necessary

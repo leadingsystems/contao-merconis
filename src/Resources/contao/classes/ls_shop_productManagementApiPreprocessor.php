@@ -86,6 +86,31 @@ class ls_shop_productManagementApiPreprocessor
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
+				'enableGll' => array(
+					'preprocessor' => 'preprocess_pseudoBoolean',
+					'description' => '',
+					'fieldType' => 'input_output'
+				),
+				'garanMode' => array(
+					'preprocessor' => 'preprocess_garanMode',
+					'description' => '',
+					'fieldType' => 'input_output'
+				),
+				'guaranteeDurationMonths' => array(
+					'preprocessor' => 'preprocess_guaranteeDurationMonths',
+					'description' => '',
+					'fieldType' => 'input_output'
+				),
+				'guaranteeBrand' => array(
+					'preprocessor' => 'preprocess_string',
+					'description' => '',
+					'fieldType' => 'input_output'
+				),
+				'guaranteeModelIdentifier' => array(
+					'preprocessor' => 'preprocess_string',
+					'description' => '',
+					'fieldType' => 'input_output'
+				),
                 'pageTitle' => array(
                     'preprocessor' => 'preprocess_string_maxlength_255',
                     'description' => '',
@@ -931,6 +956,40 @@ class ls_shop_productManagementApiPreprocessor
 
 		if ($int_length > 64) {
 			throw new \Exception('the value must not be longer than 64 characters');
+		}
+
+		return $str_output;
+	}
+
+	protected static function preprocess_string($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+		$str_output = trim($var_input);
+
+		return $str_output;
+	}
+
+	protected static function preprocess_guaranteeDurationMonths($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+		if (
+			!in_array($arr_row['type'], array('product', 'variant'))
+		) {
+			return '';
+		}
+
+		return trim((string) $var_input);
+	}
+
+	protected static function preprocess_garanMode($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+		if ($arr_row['type'] !== 'variant') {
+			return '';
+		}
+
+		$str_output = trim((string) $var_input);
+
+		if ($str_output === '') {
+			return 'inherit';
+		}
+
+		if (!in_array($str_output, array('inherit', 'disabled', 'override'), true)) {
+			throw new \Exception('wrong garanMode given (allowed values: \'inherit\', \'disabled\', \'override\')');
 		}
 
 		return $str_output;

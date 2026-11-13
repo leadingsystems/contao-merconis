@@ -8,7 +8,6 @@ use Contao\Database;
 use Contao\DataContainer;
 use Contao\DC_Table;
 use Contao\Image;
-use Contao\Input;
 use Contao\StringUtil;
 use Contao\System;
 
@@ -82,7 +81,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 		)
 	),
 	'palettes' => array(
-		'__selector__' => array('overrideAvailabilitySettingsOfParentProduct', 'useGroupPrices_1', 'useGroupPrices_2', 'useGroupPrices_3', 'useGroupPrices_4', 'useGroupPrices_5', 'useScalePrice', 'useScalePrice_1', 'useScalePrice_2', 'useScalePrice_3', 'useScalePrice_4', 'useScalePrice_5'),
+		'__selector__' => array('overrideAvailabilitySettingsOfParentProduct', 'garanMode', 'useGroupPrices_1', 'useGroupPrices_2', 'useGroupPrices_3', 'useGroupPrices_4', 'useGroupPrices_5', 'useScalePrice', 'useScalePrice_1', 'useScalePrice_2', 'useScalePrice_3', 'useScalePrice_4', 'useScalePrice_5'),
 		'default' => '
 			{lsShopVariantCode_legend},
 			lsShopVariantCode;
@@ -142,6 +141,9 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			{lsShopStockDeliveryTimeAndAvailability_legend},
 			lsShopVariantDeliveryInfoSet,
 			overrideAvailabilitySettingsOfParentProduct;
+
+			{lsShopGuaranteeLabels_legend},
+			garanMode;
 			
 			{associatedProducts_legend},
 			associatedProducts;
@@ -203,6 +205,12 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 			useOldPrice_5,
 			lsShopVariantPriceOld_5,
 			lsShopVariantPriceTypeOld_5,
+		',
+
+		'garanMode_override' => '
+			guaranteeDurationMonths,
+			guaranteeBrand,
+			guaranteeModelIdentifier
 		',
 
 		'useScalePrice' => 'scalePriceType,scalePriceQuantityDetectionMethod,scalePriceQuantityDetectionAlwaysSeparateConfigurations,scalePriceKeyword,scalePrice',
@@ -1275,6 +1283,62 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
             'filter'		=> true,
             'sql'                     => "char(1) NOT NULL default ''"
         ),
+
+		'garanMode' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['garanMode'],
+			'exclude' => true,
+			'default'                 => 'inherit',
+			'inputType'               => 'select',
+			'options'                 => array('inherit', 'disabled', 'override'),
+			'reference'               => &$GLOBALS['TL_LANG']['tl_ls_shop_variant']['garanModeOptions'],
+			'save_callback' => array(
+				array(
+					'LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\LegalGuaranteeBackendCallbacks',
+					'validateVariantGaranMode'
+				)
+			),
+			'eval'                    => array('tl_class'=>'w50', 'submitOnChange' => true),
+			'filter'		=> true,
+            'sql'                     => "varchar(16) NOT NULL default 'inherit'"
+		),
+
+		'guaranteeDurationMonths' => array(
+			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeDurationMonths'],
+			'exclude' => true,
+			'inputType'		=>	'text',
+			'save_callback' => array(
+				array(
+					'LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\LegalGuaranteeBackendCallbacks',
+					'validateVariantGuaranteeDurationMonths'
+				)
+			),
+			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'rgxp' => 'natural', 'mandatory' => true),
+            'sql'                     => "int(10) unsigned NULL"
+		),
+
+		'guaranteeBrand' => array(
+			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeBrand'],
+			'exclude' => true,
+			'inputType'		=>	'text',
+			'load_callback' => array(
+				array(
+					'LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\LegalGuaranteeBackendCallbacks',
+					'loadVariantGuaranteeBrand'
+				)
+			),
+			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'mandatory' => true, 'alwaysSave' => true),
+			'search'		=> true,
+            'sql'                     => "varchar(255) NOT NULL default ''"
+		),
+
+		'guaranteeModelIdentifier' => array(
+			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeModelIdentifier'],
+			'exclude' => true,
+			'inputType'		=>	'text',
+			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'mandatory' => true),
+			'search'		=> true,
+            'sql'                     => "varchar(255) NOT NULL default ''"
+		),
 
         'availableFrom' => array(
             'exclude'                 => true,
