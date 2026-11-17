@@ -65,7 +65,7 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['legalGuaranteeMessages']							=	[
 		'gllModeChangedForManufacturerGuarantee' => 'The legal guarantee notice setting was changed to "%s" because the manufacturer guarantee is enabled and requires the legal guarantee notice.',
 		'manufacturerGuaranteeDisabledByGllMode' => 'The manufacturer guarantee was disabled because, with the selected setting, the legal guarantee notice is not shown for the standard member group. Duration, brand and model remain saved.',
-		'gllModeRejectedByOwnVariantDetails' => 'The legal guarantee notice setting was not changed because the notice would then not be shown for the standard member group and the following variants use "Own details" for the manufacturer guarantee: %s. Please change these variants first.',
+		'gllModeRejectedByOwnVariantDetails' => 'Blocked by variants with "Own details": %s. Please change these variants first.',
 		'openHintProductNeverShown' => 'The manufacturer guarantee of this product is not shown because the legal guarantee notice is set to "Never show". Please change the legal guarantee notice setting of the product.',
 		'openHintStandardGroupOnlyAlwaysShow' => 'The manufacturer guarantee of this product is not shown because the standard member group is set to "Only products set to \'Always show\'" for the legal guarantee notice and the product is set to "As member group". Please set the product to "Always show"; saving the product already does this.',
 		'openHintVariantsWithOwnDetails' => 'The manufacturer guarantee of the following variants with "Own details" is not shown because the legal guarantee notice of this product is not shown for the standard member group: %s. Please change the legal guarantee notice setting of the product.'
