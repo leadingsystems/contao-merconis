@@ -68,7 +68,7 @@ final class OrderLabelSnapshotBuilderTest extends TestCase
         self::assertSame($expectedShowGll ? OfficialGuaranteeAssetLocator::GARAN_VERSION : '', $snapshot['garanVersion']);
         self::assertSame($expectedShowGll ? 'ACME' : '', $snapshot['garanBrand']);
         self::assertSame($expectedShowGll ? 'X100' : '', $snapshot['garanModelIdentifier']);
-        self::assertSame($expectedShowGll ? '36' : '', $snapshot['garanDurationMonths']);
+        self::assertSame($expectedShowGll ? '36' : null, $snapshot['garanDurationMonths']);
     }
 
     #[DataProvider('memberGroupAndProductGllModeProvider')]
@@ -97,7 +97,7 @@ final class OrderLabelSnapshotBuilderTest extends TestCase
         self::assertSame($expectedShowGll ? OfficialGuaranteeAssetLocator::GARAN_VERSION : '', $snapshot['garanVersion']);
         self::assertSame($expectedShowGll ? 'Variantenmarke' : '', $snapshot['garanBrand']);
         self::assertSame($expectedShowGll ? 'Variantenmodell' : '', $snapshot['garanModelIdentifier']);
-        self::assertSame($expectedShowGll ? '42' : '', $snapshot['garanDurationMonths']);
+        self::assertSame($expectedShowGll ? '42' : null, $snapshot['garanDurationMonths']);
     }
 
     public function testBuildItemSnapshotDoesNotStoreMemberGroupValue(): void
@@ -201,7 +201,7 @@ final class OrderLabelSnapshotBuilderTest extends TestCase
         self::assertSame('', $snapshot['garanVersion']);
         self::assertSame('', $snapshot['garanBrand']);
         self::assertSame('', $snapshot['garanModelIdentifier']);
-        self::assertSame('', $snapshot['garanDurationMonths']);
+        self::assertSame(null, $snapshot['garanDurationMonths']);
     }
 
     private function createBuilder(?string $memberGroupGllMode): OrderLabelSnapshotBuilder

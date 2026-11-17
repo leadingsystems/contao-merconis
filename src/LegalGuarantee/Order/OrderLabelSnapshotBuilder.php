@@ -26,7 +26,7 @@ final class OrderLabelSnapshotBuilder
      * @param iterable<string, mixed> $productData
      * @param iterable<string, mixed>|null $variantData
      *
-     * @return array<string, string>
+     * @return array<string, string|null>
      */
     public function buildItemSnapshot(iterable $productData, ?iterable $variantData = null): array
     {
@@ -50,7 +50,7 @@ final class OrderLabelSnapshotBuilder
                 : '',
             'garanDurationMonths' => $displayData['showGaran'] && null !== $garanData
                 ? $garanData['durationMonths']
-                : '',
+                : null,
         ];
     }
 

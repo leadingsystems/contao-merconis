@@ -1162,7 +1162,7 @@ class ls_shop_checkout {
                     isset($arrItem['garanVersion']) ? $arrItem['garanVersion'] : '',
                     isset($arrItem['garanBrand']) ? $arrItem['garanBrand'] : '',
                     isset($arrItem['garanModelIdentifier']) ? $arrItem['garanModelIdentifier'] : '',
-                    isset($arrItem['garanDurationMonths']) ? $arrItem['garanDurationMonths'] : '',
+                    isset($arrItem['garanDurationMonths']) ? $arrItem['garanDurationMonths'] : null,
                     serialize($arrItem['extendedInfo'])
                 );
         }
