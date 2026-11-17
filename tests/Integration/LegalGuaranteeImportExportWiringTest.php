@@ -46,7 +46,7 @@ final class LegalGuaranteeImportExportWiringTest extends TestCase
             self::SRC_BASE_PATH . 'Resources/contao/helpers/ls_shop_productManagementApiHelper.php'
         );
 
-        self::assertStringContainsString("'gllMode' => array(\n\t\t\t\t\t'preprocessor' => 'preprocess_gllMode'", $preprocessorContents);
+        self::assertStringContainsString("'gllMode' => [\n\t\t\t\t\t'preprocessor' => 'preprocess_gllMode'", $preprocessorContents);
         self::assertStringContainsString("'garanMode'", $preprocessorContents);
         self::assertStringContainsString("'guaranteeDurationMonths'", $preprocessorContents);
         self::assertStringContainsString('applyLegalGuaranteeProductData', $helperContents);

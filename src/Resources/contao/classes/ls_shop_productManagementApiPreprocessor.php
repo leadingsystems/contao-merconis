@@ -89,11 +89,11 @@ class ls_shop_productManagementApiPreprocessor
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
-				'gllMode' => array(
+				'gllMode' => [
 					'preprocessor' => 'preprocess_gllMode',
 					'description' => '',
 					'fieldType' => 'input_output'
-				),
+				],
 				'garanMode' => array(
 					'preprocessor' => 'preprocess_garanMode',
 					'description' => '',

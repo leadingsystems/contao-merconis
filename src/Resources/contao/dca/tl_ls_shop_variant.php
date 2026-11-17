@@ -38,12 +38,12 @@ $GLOBALS['TL_DCA']['tl_ls_shop_variant'] = array(
 		'onsubmit_callback' => array(
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
 		),
-		'onload_callback' => array(
-			array(
+		'onload_callback' => [
+			[
 				'LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\LegalGuaranteeBackendCallbacks',
 				'addVariantEditInfoMessage'
-			)
-		),
+			]
+		],
 		'oncut_callback' => array(
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
 		),

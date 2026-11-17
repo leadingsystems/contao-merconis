@@ -291,7 +291,7 @@ final class ProductGuaranteeConfigurationValidator
             return array();
         }
 
-        $messages = array();
+        $messages = [];
         $affectedVariantIdentifiers = $this->getOverrideVariantIdentifiers($relatedVariants);
 
         if ($affectedVariantIdentifiers !== array()) {
@@ -351,7 +351,7 @@ final class ProductGuaranteeConfigurationValidator
      */
     public function getOverrideVariantIdentifiers(array $relatedVariants): array
     {
-        $identifiers = array();
+        $identifiers = [];
 
         foreach ($relatedVariants as $variantData) {
             if ('override' !== $this->normalizeVariantModeValue($variantData['garanMode'] ?? null)) {

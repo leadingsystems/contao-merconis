@@ -52,7 +52,7 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductRecommendedProducts']				=	array('Recommended products', 'Select products here that can be displayed in a corresponding CrossSeller.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['associatedProducts']								=	array('Associated products', 'Select products here that you want to associate with this product with regard to implementing individual functions.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductProducer']							= 	array('Manufacturer');
-	$GLOBALS['TL_LANG']['tl_ls_shop_product']['gllMode']										=	array('Legal guarantee notice', 'The notice applies to physical goods and goods with digital elements. Select \'Never show\' for purely digital content, SaaS and services. \'As member group\' uses the setting of the customer\'s member group.');
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['gllMode']										=	['Legal guarantee notice', 'The notice applies to physical goods and goods with digital elements. Select \'Never show\' for purely digital content, SaaS and services. \'As member group\' uses the setting of the customer\'s member group.'];
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['gllModeOptions']									=	[
 		'inherit' => 'As member group',
 		'always' => 'Always show',

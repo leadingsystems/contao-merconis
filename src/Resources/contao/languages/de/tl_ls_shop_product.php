@@ -52,7 +52,7 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductRecommendedProducts']				=	array('Empfohlene Produkte', 'Wählen Sie hier Produkte aus, die in einem entsprechenden CrossSeller dargestellt werden können.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['associatedProducts']								=	array('Verbundene Produkte', 'Wählen Sie hier Produkte aus, die Sie zur Realisierung individueller Funktionen mit diesem Produkt in Verbindung setzen möchten.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductProducer']							= 	array('Hersteller');
-	$GLOBALS['TL_LANG']['tl_ls_shop_product']['gllMode']										=	array('Gesetzliche Gewährleistung', 'Die Mitteilung gilt für körperliche Waren und Waren mit digitalen Elementen. Für reine digitale Inhalte, SaaS und Dienstleistungen \'Nie anzeigen\' wählen. \'Wie Mitgliedergruppe\' übernimmt die Einstellung der Mitgliedergruppe des Kunden.');
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['gllMode']										=	['Gesetzliche Gewährleistung', 'Die Mitteilung gilt für körperliche Waren und Waren mit digitalen Elementen. Für reine digitale Inhalte, SaaS und Dienstleistungen \'Nie anzeigen\' wählen. \'Wie Mitgliedergruppe\' übernimmt die Einstellung der Mitgliedergruppe des Kunden.'];
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['gllModeOptions']									=	[
 		'inherit' => 'Wie Mitgliedergruppe',
 		'always' => 'Immer anzeigen',
