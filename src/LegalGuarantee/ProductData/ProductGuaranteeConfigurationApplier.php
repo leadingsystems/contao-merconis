@@ -40,7 +40,7 @@ final class ProductGuaranteeConfigurationApplier
         $result = $this->validator->validateProduct($row, $relatedVariants, $rawDurationInput);
 
         foreach (
-            array('enableGll', 'enableGaran', 'guaranteeDurationMonths', 'guaranteeBrand', 'guaranteeModelIdentifier')
+            array('gllMode', 'enableGaran', 'guaranteeDurationMonths', 'guaranteeBrand', 'guaranteeModelIdentifier')
             as $fieldName
         ) {
             $row[$fieldName] = $result->getNormalizedData()[$fieldName] ?? null;
@@ -87,6 +87,10 @@ final class ProductGuaranteeConfigurationApplier
     }
 
     /**
+     * Meldung der Product Management API. Die Texte stehen in
+     * `$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuaranteeImport']`; der Aufrufer stellt
+     * sicher, dass die Sprachdatei `default` geladen ist.
+     *
      * @param list<array{code: string, field: string, parameters: array<int, string>}> $messages
      */
     public function formatWriteErrorMessage(array $messages): string
@@ -95,13 +99,26 @@ final class ProductGuaranteeConfigurationApplier
 
         foreach ($messages as $message) {
             $formattedMessages[] = sprintf(
-                'field "%s": %s',
-                $message['field'] ?? 'enableGaran',
-                $this->formatWriteErrorDetail($message)
+                $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuaranteeImport']['apiMessage'],
+                $message['field'],
+                $this->formatMessageText($message)
             );
         }
 
         return implode('; ', $formattedMessages);
+    }
+
+    /**
+     * Text einer Meldung ohne Zeile und Feld, für Import-Log und Product Management API.
+     *
+     * @param array{code: string, parameters: array<int, string>} $message
+     */
+    public function formatMessageText(array $message): string
+    {
+        return vsprintf(
+            $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuaranteeImport']['messages'][$message['code']],
+            $message['parameters']
+        );
     }
 
     /**
@@ -122,36 +139,5 @@ final class ProductGuaranteeConfigurationApplier
         }
 
         return $decoratedMessages;
-    }
-
-    /**
-     * @param array{code?: string, parameters?: array<int, string>} $message
-     */
-    private function formatWriteErrorDetail(array $message): string
-    {
-        $parameters = isset($message['parameters']) && is_array($message['parameters'])
-            ? $message['parameters']
-            : array();
-
-        return match ($message['code'] ?? '') {
-            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED => 'GARAN was not saved because GLL is disabled.',
-            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_INVALID_MODE => sprintf(
-                'GARAN was not saved because "%s" is not a valid garanMode. Use "inherit", "disabled" or "override".',
-                $parameters[0] ?? ''
-            ),
-            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_OVERRIDE_GLL_REQUIRED => 'GARAN was not saved because garanMode "override" requires GLL on the parent product.',
-            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_VARIANT_OVERRIDE => sprintf(
-                'GLL was not disabled because the following variants use garanMode "override": %s.',
-                $parameters[0] ?? ''
-            ),
-            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_BRAND => 'GARAN was not saved because "Brand/Trademark" is missing.',
-            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_MODEL => 'GARAN was not saved because "Model identifier" is missing.',
-            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_DURATION => 'GARAN was not saved because the guarantee duration is missing.',
-            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_INVALID_DURATION => sprintf(
-                'GARAN was not saved because "%s" is not an allowed guarantee duration. Use whole months from 30 to 360 in steps of 6.',
-                $parameters[0] ?? ''
-            ),
-            default => 'GARAN data is invalid.',
-        };
     }
 }

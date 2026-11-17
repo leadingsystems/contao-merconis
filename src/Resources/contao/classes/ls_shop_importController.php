@@ -651,18 +651,9 @@ class ls_shop_importController
 			}
 		}
 
-		$objGuaranteeApplier = new ProductGuaranteeConfigurationApplier();
-		$arrGuaranteeResult = $objGuaranteeApplier->applyToProductRow(
-			$row,
-			true,
-			'producer',
-			ls_shop_productManagementApiHelper::getLegalGuaranteeVariantDataByProductId((int) $alreadyExistsAsID),
-			$str_rawGuaranteeDurationInput
-		);
-		$row = $arrGuaranteeResult['row'];
-		$this->logLegalGuaranteeImportWarnings($arrGuaranteeResult['messages']);
+		$row = $this->applyLegalGuaranteeConfigurationToProductRow($row, (int) $alreadyExistsAsID, $str_rawGuaranteeDurationInput);
 
-		if ($objGuaranteeApplier->hasBlockingWriteMessages($arrGuaranteeResult['messages'])) {
+		if ($row === null) {
 			return false;
 		}
 
@@ -703,7 +694,7 @@ class ls_shop_importController
 							`lsShopProductDeliveryInfoSet` = ?,
 							`deliveryInfoSetToUseInPreorderPhase` = ?,
 							`lsShopProductProducer` = ?,
-							`enableGll` = ?,
+							`gllMode` = ?,
 							`enableGaran` = ?,
 							`guaranteeDurationMonths` = ?,
 							`guaranteeBrand` = ?,
@@ -753,7 +744,7 @@ class ls_shop_importController
 				$row['settingsForStockAndDeliveryTime'] ? $row['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
 				$row['settingsForStockAndDeliveryTimeInPreorderPhase'] ? $row['settingsForStockAndDeliveryTimeInPreorderPhase'] : 0, // int, empty = 0
 				$row['producer'], // String, maxlength 255
-				$row['enableGll'], // 1 or ''
+				$row['gllMode'], // inherit, always or never
 				$row['enableGaran'], // 1 or ''
 				$row['guaranteeDurationMonths'], // decimal, empty = null
 				$row['guaranteeBrand'], // String
@@ -872,7 +863,7 @@ class ls_shop_importController
 							`lsShopProductDeliveryInfoSet` = ?,
 							`deliveryInfoSetToUseInPreorderPhase` = ?,
 							`lsShopProductProducer` = ?,
-							`enableGll` = ?,
+							`gllMode` = ?,
 							`enableGaran` = ?,
 							`guaranteeDurationMonths` = ?,
 							`guaranteeBrand` = ?,
@@ -922,7 +913,7 @@ class ls_shop_importController
 				$row['settingsForStockAndDeliveryTime'] ? $row['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
 				$row['settingsForStockAndDeliveryTimeInPreorderPhase'] ? $row['settingsForStockAndDeliveryTimeInPreorderPhase'] : 0, // int, empty = 0
 				$row['producer'], // String, maxlength 255
-				$row['enableGll'], // 1 or ''
+				$row['gllMode'], // inherit, always or never
 				$row['enableGaran'], // 1 or ''
 				$row['guaranteeDurationMonths'], // decimal, empty = null
 				$row['guaranteeBrand'], // String
@@ -2241,6 +2232,29 @@ class ls_shop_importController
 
     }
 
+	/*
+	 * Prüft die Produktzeile nach Spec 27, Abschnitt 4, gegen den gespeicherten Stand der Varianten und übernimmt
+	 * gllMode und die GARAN-Felder. Liefert null, wenn die Zeile nicht geschrieben werden darf; die Meldungen
+	 * stehen dann im Import-Log.
+	 */
+	private function applyLegalGuaranteeConfigurationToProductRow(array $row, int $int_existingProductId, $str_rawGuaranteeDurationInput): ?array {
+		$objGuaranteeApplier = new ProductGuaranteeConfigurationApplier();
+		$arrGuaranteeResult = $objGuaranteeApplier->applyToProductRow(
+			$row,
+			true,
+			'producer',
+			ls_shop_productManagementApiHelper::getLegalGuaranteeVariantDataByProductId($int_existingProductId),
+			$str_rawGuaranteeDurationInput
+		);
+		$this->logLegalGuaranteeImportWarnings($arrGuaranteeResult['messages']);
+
+		if ($objGuaranteeApplier->hasBlockingWriteMessages($arrGuaranteeResult['messages'])) {
+			return null;
+		}
+
+		return $arrGuaranteeResult['row'];
+	}
+
 	private function logLegalGuaranteeImportWarnings(array $arr_messages): void {
 		if (empty($arr_messages)) {
 			return;
@@ -2254,53 +2268,16 @@ class ls_shop_importController
 		}
 	}
 
+	/*
+	 * Die Texte stehen in $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuaranteeImport'] (Sprachdatei "default")
+	 */
 	private function formatLegalGuaranteeImportWarning(array $arr_message): string {
-		$str_fieldName = (string) ($arr_message['field'] ?? 'enableGaran');
-		$int_rowNumber = $this->getCurrentImportDataRowNumber();
-		$arr_parameters = isset($arr_message['parameters']) && is_array($arr_message['parameters'])
-			? $arr_message['parameters']
-			: array();
-
-		switch ($arr_message['code'] ?? '') {
-			case 'garan_disabled_gll_required':
-				$str_detail = 'GARAN was not saved because GLL is disabled.';
-				break;
-			case 'garan_invalid_mode':
-				$str_detail = sprintf(
-					'GARAN was not saved because "%s" is not a valid garanMode. Use "inherit", "disabled" or "override".',
-					$arr_parameters[0] ?? ''
-				);
-				break;
-			case 'garan_override_gll_required':
-				$str_detail = 'GARAN was not saved because garanMode "override" requires GLL on the parent product.';
-				break;
-			case 'garan_disabled_gll_variant_override':
-				$str_detail = sprintf(
-					'GLL was not disabled because the following variants use garanMode "override": %s.',
-					$arr_parameters[0] ?? ''
-				);
-				break;
-			case 'garan_disabled_missing_brand':
-				$str_detail = 'GARAN was not saved because "Brand/Trademark" is missing.';
-				break;
-			case 'garan_disabled_missing_model':
-				$str_detail = 'GARAN was not saved because "Model identifier" is missing.';
-				break;
-			case 'garan_disabled_missing_duration':
-				$str_detail = 'GARAN was not saved because the guarantee duration is missing.';
-				break;
-			case 'garan_disabled_invalid_duration':
-				$str_detail = sprintf(
-					'GARAN was not saved because "%s" is not an allowed guarantee duration. Use whole months from 30 to 360 in steps of 6.',
-					$arr_parameters[0] ?? ''
-				);
-				break;
-			default:
-				$str_detail = 'GARAN validation changed the imported data.';
-				break;
-		}
-
-		return sprintf('line %d, field "%s": %s', $int_rowNumber, $str_fieldName, $str_detail);
+		return sprintf(
+			$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuaranteeImport']['importLogEntry'],
+			$this->getCurrentImportDataRowNumber(),
+			$arr_message['field'],
+			(new ProductGuaranteeConfigurationApplier())->formatMessageText($arr_message)
+		);
 	}
 
 	private function getCurrentImportDataRowNumber(): int {

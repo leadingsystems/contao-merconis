@@ -9,10 +9,14 @@ use Contao\Environment;
 use Contao\Input;
 use Contao\Message;
 use Doctrine\DBAL\Connection;
+use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\StandardMemberGroupGllMode;
 
 final class LegalGuaranteeBackendCallbacks
 {
     /**
+     * Hinweise über automatische Änderungen je Produkt-ID; ausgegeben erst im
+     * `onsubmit_callback`, also nur nach erfolgreichem Speichern.
+     *
      * @var array<int, list<string>>
      */
     private static array $pendingProductInfoMessages = [];
@@ -21,70 +25,66 @@ final class LegalGuaranteeBackendCallbacks
         private readonly Connection $connection,
         private readonly ProductGuaranteeConfigurationValidator $validator = new ProductGuaranteeConfigurationValidator(),
         private readonly ProductGuaranteeValidationHelper $validationHelper = new ProductGuaranteeValidationHelper(),
+        private readonly StandardMemberGroupGllMode $standardMemberGroupGllMode = new StandardMemberGroupGllMode(),
     ) {
     }
 
-    public function validateProductEnableGll(mixed $value, DataContainer $dataContainer): string
+    /**
+     * `save_callback` an `gllMode` (Spec 27, Abschnitt 4).
+     *
+     * R4: Weicht der abgeschickte Wert vom gespeicherten ab, gälte danach "GLL aus" und
+     * stehen Varianten auf `override`, wird das Speichern abgelehnt.
+     * R1: Ist der abgeschickte Wert gleich dem gespeicherten, gilt "GLL aus" und ist
+     * `enableGaran` an, wird `gllMode` auf den Wert nach R1 gesetzt. Ändert der Nutzer
+     * `gllMode`, greift stattdessen R2 im `onbeforesubmit_callback`.
+     *
+     * @throws \Exception Bei einer Ablehnung nach R4
+     */
+    public function handleProductGllModeSave(mixed $value, DataContainer $dataContainer): string
     {
         $productId = $this->getRecordId($dataContainer);
         $productData = $this->fetchProductData($productId);
-        $storedEnableGll = $this->normalizeCheckboxValue($productData['enableGll'] ?? null);
-        $storedEnableGaran = $this->normalizeCheckboxValue($productData['enableGaran'] ?? null);
-        $normalizedEnableGll = $this->normalizeCheckboxValue($value);
-        $productData['enableGll'] = $normalizedEnableGll;
-        $postedEnableGaranValue = $this->getPostedValue('enableGaran', $dataContainer);
+        $standardMemberGroupGllMode = $this->standardMemberGroupGllMode->getStoredGllMode();
+        $storedGllMode = $this->standardMemberGroupGllMode->normalizeProductGllMode($productData['gllMode'] ?? null);
+        $submittedGllMode = $this->standardMemberGroupGllMode->normalizeProductGllMode($value);
+        $isGllOffForSubmittedGllMode = $this->standardMemberGroupGllMode->isGllOff(
+            $standardMemberGroupGllMode,
+            $submittedGllMode
+        );
 
-        if ($postedEnableGaranValue !== null) {
-            $productData['enableGaran'] = $postedEnableGaranValue;
-        }
-
-        $effectiveEnableGaran = $postedEnableGaranValue !== null
-            ? $this->normalizeCheckboxValue($postedEnableGaranValue)
-            : $storedEnableGaran;
-
-        if (
-            $storedEnableGll === ''
-            && $normalizedEnableGll === ''
-            && $effectiveEnableGaran === '1'
-        ) {
-            if ($productId !== null) {
-                $this->queueProductInfoMessage($productId, 'gll_enabled_by_garan');
+        if ($submittedGllMode !== $storedGllMode) {
+            if (!$isGllOffForSubmittedGllMode) {
+                return $submittedGllMode;
             }
 
-            return '1';
+            $overrideVariantIdentifiers = $this->validator->getOverrideVariantIdentifiers(
+                $this->fetchRelatedVariants($productId)
+            );
+
+            if ($overrideVariantIdentifiers !== []) {
+                throw new \Exception(sprintf(
+                    $GLOBALS['TL_LANG']['tl_ls_shop_product']['legalGuaranteeMessages']['gllModeRejectedByOwnVariantDetails'],
+                    implode(', ', $overrideVariantIdentifiers)
+                ));
+            }
+
+            return $submittedGllMode;
         }
 
-        $validationResult = $this->validator->validateProduct($productData, $this->fetchRelatedVariants($productId));
-
-        $this->validationHelper->throwValidationExceptionForField(
-            $validationResult->getMessages(),
-            'enableGll',
-            'tl_ls_shop_product'
-        );
-
-        return $normalizedEnableGll;
-    }
-
-    public function validateProductEnableGaran(mixed $value, DataContainer $dataContainer): string
-    {
-        $productData = $this->fetchProductData($this->getRecordId($dataContainer));
-        $postedEnableGllValue = $this->getPostedValue('enableGll', $dataContainer);
-
-        if ($postedEnableGllValue !== null) {
-            $productData['enableGll'] = $postedEnableGllValue;
+        if (!$isGllOffForSubmittedGllMode || $this->getEffectiveProductEnableGaran($productData, $dataContainer) !== '1') {
+            return $submittedGllMode;
         }
 
-        $productData['enableGaran'] = $value;
+        $gllModeForEnabledGaran = $this->standardMemberGroupGllMode->getGllModeForEnabledGaran($standardMemberGroupGllMode);
 
-        $validationResult = $this->validator->validateProduct($productData);
+        if ($productId !== null) {
+            $this->queueProductInfoMessage($productId, sprintf(
+                $GLOBALS['TL_LANG']['tl_ls_shop_product']['legalGuaranteeMessages']['gllModeChangedForManufacturerGuarantee'],
+                $GLOBALS['TL_LANG']['tl_ls_shop_product']['gllModeOptions'][$gllModeForEnabledGaran]
+            ));
+        }
 
-        $this->validationHelper->throwValidationExceptionForField(
-            $validationResult->getMessages(),
-            'enableGaran',
-            'tl_ls_shop_product'
-        );
-
-        return (string) ($validationResult->getNormalizedData()['enableGaran'] ?? '');
+        return $gllModeForEnabledGaran;
     }
 
     public function validateProductGuaranteeDurationMonths(mixed $value, DataContainer $dataContainer): ?string
@@ -104,6 +104,11 @@ final class LegalGuaranteeBackendCallbacks
     }
 
     /**
+     * `onbeforesubmit_callback` des Produkts, R2 (Spec 27, Abschnitt 4): Enthält `$values`
+     * einen geänderten Wert für `gllMode`, gilt dafür "GLL aus" und ist `enableGaran` an,
+     * wird `enableGaran` ausgeschaltet. Dauer, Marke und Modell bleiben. Beim Umschalten
+     * über `toggleSubpalette` enthält `$values` nur `enableGaran`.
+     *
      * @param array<string, mixed> $values
      *
      * @return array<string, mixed>
@@ -112,18 +117,15 @@ final class LegalGuaranteeBackendCallbacks
     {
         $productId = $this->getRecordId($dataContainer);
 
-        if ($productId === null || !array_key_exists('enableGll', $values)) {
+        if ($productId === null || !array_key_exists('gllMode', $values)) {
+            return $values;
+        }
+
+        if (!$this->standardMemberGroupGllMode->isGllOffForProduct($values['gllMode'])) {
             return $values;
         }
 
         $productData = $this->fetchProductData($productId);
-        $storedEnableGll = $this->normalizeCheckboxValue($productData['enableGll'] ?? null);
-        $submittedEnableGll = $this->normalizeCheckboxValue($values['enableGll'] ?? null);
-
-        if ($storedEnableGll !== '1' || $submittedEnableGll !== '') {
-            return $values;
-        }
-
         $effectiveEnableGaran = $this->normalizeCheckboxValue($values['enableGaran'] ?? ($productData['enableGaran'] ?? null));
 
         if ($effectiveEnableGaran !== '1') {
@@ -131,7 +133,10 @@ final class LegalGuaranteeBackendCallbacks
         }
 
         $values['enableGaran'] = '';
-        $this->queueProductInfoMessage($productId, 'garan_disabled_by_gll');
+        $this->queueProductInfoMessage(
+            $productId,
+            $GLOBALS['TL_LANG']['tl_ls_shop_product']['legalGuaranteeMessages']['manufacturerGuaranteeDisabledByGllMode']
+        );
 
         return $values;
     }
@@ -144,47 +149,59 @@ final class LegalGuaranteeBackendCallbacks
             return;
         }
 
-        foreach (array_unique(self::$pendingProductInfoMessages[$productId]) as $messageKey) {
-            $messageText = $GLOBALS['TL_LANG']['tl_ls_shop_product'][$messageKey] ?? null;
-
-            if (!is_string($messageText) || $messageText === '') {
-                continue;
-            }
-
+        foreach (array_unique(self::$pendingProductInfoMessages[$productId]) as $messageText) {
             Message::addInfo($messageText);
         }
 
         unset(self::$pendingProductInfoMessages[$productId]);
     }
 
+    /**
+     * `onload_callback` des Produkts: Hinweise beim Öffnen der Maske, wenn für den
+     * gespeicherten Datensatz "GLL aus" gilt und `enableGaran` an ist (Ursache und Weg)
+     * beziehungsweise Varianten auf `override` stehen (die Varianten).
+     */
     public function addProductEditInfoMessage(DataContainer $dataContainer): void
     {
-        // Der `onload_callback` läuft vor den `save_callback`s und vor AJAX-Aktionen wie
-        // `toggleSubpalette`; dort wäre der gelesene Stand nur ein Zwischenstand.
-        if (
-            Input::get('act') !== 'edit'
-            || Input::post('FORM_SUBMIT') === 'tl_ls_shop_product'
-            || Environment::get('isAjaxRequest')
-        ) {
+        if (!$this->isOpeningEditMask('tl_ls_shop_product')) {
             return;
         }
 
-        $productData = $this->fetchProductData($this->getRecordId($dataContainer));
+        $productId = $this->getRecordId($dataContainer);
+        $productData = $this->fetchProductData($productId);
+        $productGllMode = $this->standardMemberGroupGllMode->normalizeProductGllMode($productData['gllMode'] ?? null);
 
-        if (
-            $this->normalizeCheckboxValue($productData['enableGaran'] ?? null) !== '1'
-            || $this->normalizeCheckboxValue($productData['enableGll'] ?? null) === '1'
-        ) {
+        if (!$this->standardMemberGroupGllMode->isGllOffForProduct($productGllMode)) {
             return;
         }
 
-        $messageText = $GLOBALS['TL_LANG']['tl_ls_shop_product']['garan_not_output_without_gll'] ?? null;
+        if ($this->normalizeCheckboxValue($productData['enableGaran'] ?? null) === '1') {
+            Message::addInfo(
+                'never' === $productGllMode
+                    ? $GLOBALS['TL_LANG']['tl_ls_shop_product']['legalGuaranteeMessages']['openHintProductNeverShown']
+                    : $GLOBALS['TL_LANG']['tl_ls_shop_product']['legalGuaranteeMessages']['openHintStandardGroupOnlyAlwaysShow']
+            );
+        }
 
-        if (is_string($messageText) && $messageText !== '') {
-            Message::addInfo($messageText);
+        $overrideVariantIdentifiers = $this->validator->getOverrideVariantIdentifiers(
+            $this->fetchRelatedVariants($productId)
+        );
+
+        if ($overrideVariantIdentifiers !== []) {
+            Message::addInfo(sprintf(
+                $GLOBALS['TL_LANG']['tl_ls_shop_product']['legalGuaranteeMessages']['openHintVariantsWithOwnDetails'],
+                implode(', ', $overrideVariantIdentifiers)
+            ));
         }
     }
 
+    /**
+     * `save_callback` an `garanMode` der Variante, R3 (Spec 27, Abschnitt 4), über
+     * `ProductGuaranteeConfigurationValidator::validateVariant()` mit dem gespeicherten
+     * Elternprodukt.
+     *
+     * @throws \Exception Bei einer Ablehnung
+     */
     public function validateVariantGaranMode(mixed $value, DataContainer $dataContainer): string
     {
         $variantData = $this->fetchVariantData($this->getRecordId($dataContainer));
@@ -195,13 +212,52 @@ final class LegalGuaranteeBackendCallbacks
             $this->fetchParentProductData($variantData)
         );
 
+        $garanModeMessages = $this->validationHelper->getMessagesForField($validationResult->getMessages(), 'garanMode');
+        $firstGaranModeMessage = reset($garanModeMessages);
+
+        if (
+            is_array($firstGaranModeMessage)
+            && $firstGaranModeMessage['code'] === ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_OVERRIDE_GLL_REQUIRED
+        ) {
+            throw new \Exception(
+                $GLOBALS['TL_LANG']['tl_ls_shop_variant']['legalGuaranteeMessages']['ownDetailsRejectedWithoutLegalGuarantee']
+            );
+        }
+
         $this->validationHelper->throwValidationExceptionForField(
-            $validationResult->getMessages(),
+            $garanModeMessages,
             'garanMode',
             'tl_ls_shop_variant'
         );
 
         return (string) ($validationResult->getNormalizedData()['garanMode'] ?? 'inherit');
+    }
+
+    /**
+     * `onload_callback` der Variante: Hinweis beim Öffnen der Maske, wenn die Variante
+     * gespeichert auf `override` steht und für das Elternprodukt "GLL aus" gilt.
+     */
+    public function addVariantEditInfoMessage(DataContainer $dataContainer): void
+    {
+        if (!$this->isOpeningEditMask('tl_ls_shop_variant')) {
+            return;
+        }
+
+        $variantData = $this->fetchVariantData($this->getRecordId($dataContainer));
+
+        if ('override' !== trim((string) ($variantData['garanMode'] ?? ''))) {
+            return;
+        }
+
+        $parentProductData = $this->fetchParentProductData($variantData);
+
+        if (!$this->standardMemberGroupGllMode->isGllOffForProduct($parentProductData['gllMode'] ?? null)) {
+            return;
+        }
+
+        Message::addInfo(
+            $GLOBALS['TL_LANG']['tl_ls_shop_variant']['legalGuaranteeMessages']['openHintParentProductWithoutLegalGuarantee']
+        );
     }
 
     public function validateVariantGuaranteeDurationMonths(mixed $value, DataContainer $dataContainer): ?string
@@ -240,6 +296,29 @@ final class LegalGuaranteeBackendCallbacks
     }
 
     /**
+     * Der `onload_callback` läuft vor den `save_callback`s und vor AJAX-Aktionen wie
+     * `toggleSubpalette`; dort wäre der gelesene Stand nur ein Zwischenstand.
+     */
+    private function isOpeningEditMask(string $table): bool
+    {
+        return Input::get('act') === 'edit'
+            && Input::post('FORM_SUBMIT') !== $table
+            && !Environment::get('isAjaxRequest');
+    }
+
+    /**
+     * `enableGaran` aus dem Request, wenn das Feld im Formular steht, sonst gespeichert.
+     *
+     * @param array<string, mixed> $productData
+     */
+    private function getEffectiveProductEnableGaran(array $productData, DataContainer $dataContainer): string
+    {
+        $postedEnableGaranValue = $this->getPostedValue('enableGaran', $dataContainer);
+
+        return $this->normalizeCheckboxValue($postedEnableGaranValue ?? ($productData['enableGaran'] ?? null));
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private function fetchProductData(?int $productId): array
@@ -249,7 +328,7 @@ final class LegalGuaranteeBackendCallbacks
         }
 
         $productData = $this->connection->fetchAssociative(
-            'SELECT enableGll, enableGaran, guaranteeDurationMonths, guaranteeBrand, guaranteeModelIdentifier, lsShopProductProducer
+            'SELECT gllMode, enableGaran, guaranteeDurationMonths, guaranteeBrand, guaranteeModelIdentifier, lsShopProductProducer
              FROM tl_ls_shop_product
              WHERE id = ?',
             [$productId]
@@ -309,6 +388,9 @@ final class LegalGuaranteeBackendCallbacks
         return array_values(array_filter($relatedVariants, 'is_array'));
     }
 
+    /**
+     * In "Mehrere bearbeiten" trägt der Feldname im Request das Suffix `_<id>`.
+     */
     private function getPostedValue(string $fieldName, DataContainer $dataContainer): mixed
     {
         $postedValue = Input::post($fieldName);
@@ -348,9 +430,9 @@ final class LegalGuaranteeBackendCallbacks
         return $this->validationHelper->isTruthy($value) ? '1' : '';
     }
 
-    private function queueProductInfoMessage(int $productId, string $messageKey): void
+    private function queueProductInfoMessage(int $productId, string $messageText): void
     {
         self::$pendingProductInfoMessages[$productId] ??= [];
-        self::$pendingProductInfoMessages[$productId][] = $messageKey;
+        self::$pendingProductInfoMessages[$productId][] = $messageText;
     }
 }

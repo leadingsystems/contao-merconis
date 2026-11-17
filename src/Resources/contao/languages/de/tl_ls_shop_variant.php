@@ -97,6 +97,11 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceType'] = array(
 	'scalePriceFixedAdjustment' => array('Anpassung mit festem Wert', 'Auf den Basispreis wird die angegebene Anpassung angewendet. Bitte stellen Sie dem angegebenen Wert für einen Abschlag ein Minuszeichen voran.')
 );
 
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['legalGuaranteeMessages'] = [
+	'ownDetailsRejectedWithoutLegalGuarantee' => 'Die Variante wurde nicht gespeichert: "Eigene Angaben" bei der Herstellergarantie setzt voraus, dass die Mitteilung über die gesetzliche Gewährleistung für das Produkt in der Standard-Mitgliedergruppe angezeigt wird. Bitte zuerst die Einstellung zur gesetzlichen Gewährleistung am Produkt ändern und speichern.',
+	'openHintParentProductWithoutLegalGuarantee' => 'Die Herstellergarantie dieser Variante mit "Eigene Angaben" wird nicht ausgegeben, weil die Mitteilung über die gesetzliche Gewährleistung für das Produkt in der Standard-Mitgliedergruppe nicht angezeigt wird. Bitte die Einstellung zur gesetzlichen Gewährleistung am Produkt ändern.'
+];
+
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceQuantityDetectionMethod'] = array(
 	'separatedVariantsAndConfigurations' => array('Produkte, Varianten und Konfigurationen getrennt', 'Jede Warenkorbposition - egal ob sich das Produkt, die Variante oder lediglich die Konfiguration unterscheidet - wird separat gezählt.'),
 	'separatedVariants' => array('Produkte und Varianten getrennt', 'Warenkorbpositionen, die sich lediglich in ihrer Konfiguration unterscheiden, werden zusammengefasst. Unterschiedliche Varianten werden aber separat gezählt.'),
@@ -130,11 +135,6 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contentsLanguageIndependent_labe
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contentsLanguageIndependent_label02'] = 'Produktinformation';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeValidationMessages'] = array(
 	'garan_invalid_mode' => 'GARAN wurde nicht gespeichert, weil "%s" kein zulässiger Wert für garanMode ist. Erlaubt sind inherit, disabled oder override.',
-	'garan_override_gll_required' => 'GARAN wurde nicht gespeichert, weil garanMode "override" GLL am Elternprodukt voraussetzt. Bitte zuerst GLL am Produkt aktivieren und speichern.',
-	'garan_disabled_gll_variant_override' => 'GLL wurde nicht deaktiviert, weil folgende Varianten garanMode "override" verwenden: %s.',
-	'garan_disabled_missing_brand' => 'GARAN wurde nicht gespeichert, weil Brand/Trademark fehlt.',
-	'garan_disabled_missing_model' => 'GARAN wurde nicht gespeichert, weil Model identifier fehlt.',
-	'garan_disabled_missing_duration' => 'GARAN wurde nicht gespeichert, weil die Garantiedauer fehlt.',
 	'garan_disabled_invalid_duration' => 'GARAN wurde nicht gespeichert, weil "%s" keine zulässige Garantiedauer ist. Zulässig sind ganze Monate von 30 bis 360 in Schritten von 6.'
 );
 

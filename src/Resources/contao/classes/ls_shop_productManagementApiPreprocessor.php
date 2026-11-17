@@ -1,6 +1,9 @@
 <?php
 namespace Merconis\Core;
 use Contao\FilesModel;
+use Contao\System;
+use LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\ProductGuaranteeConfigurationApplier;
+use LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\ProductGuaranteeConfigurationValidator;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
 class ls_shop_productManagementApiPreprocessor
@@ -86,8 +89,8 @@ class ls_shop_productManagementApiPreprocessor
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
-				'enableGll' => array(
-					'preprocessor' => 'preprocess_pseudoBoolean',
+				'gllMode' => array(
+					'preprocessor' => 'preprocess_gllMode',
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
@@ -977,6 +980,29 @@ class ls_shop_productManagementApiPreprocessor
 		return trim((string) $var_input);
 	}
 
+	/**
+	 * Expected input: 'inherit', 'always', 'never' or an empty string. Only relevant for row type 'product'
+	 * Accepted input: as expected
+	 * Normalization: the input string will be trimmed; an empty string or a missing value becomes 'inherit'
+	 */
+	protected static function preprocess_gllMode($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+		if ($arr_row['type'] !== 'product') {
+			return '';
+		}
+
+		$str_output = trim((string) $var_input);
+
+		if ($str_output === '') {
+			return 'inherit';
+		}
+
+		if (!in_array($str_output, ProductGuaranteeConfigurationValidator::PRODUCT_GLL_MODES, true)) {
+			self::throwLegalGuaranteeException(ProductGuaranteeConfigurationValidator::MESSAGE_GLL_INVALID_MODE, $str_output);
+		}
+
+		return $str_output;
+	}
+
 	protected static function preprocess_garanMode($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
 		if ($arr_row['type'] !== 'variant') {
 			return '';
@@ -989,10 +1015,23 @@ class ls_shop_productManagementApiPreprocessor
 		}
 
 		if (!in_array($str_output, array('inherit', 'disabled', 'override'), true)) {
-			throw new \Exception('wrong garanMode given (allowed values: \'inherit\', \'disabled\', \'override\')');
+			self::throwLegalGuaranteeException(ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_INVALID_MODE, $str_output);
 		}
 
 		return $str_output;
+	}
+
+	/*
+	 * Meldung in der Sprache des Requests ($GLOBALS['TL_LANGUAGE']); ist die Sprachdatei "default" in dieser
+	 * Sprache noch nicht geladen, lädt Contao sie hier.
+	 */
+	private static function throwLegalGuaranteeException(string $str_messageCode, string $str_invalidValue): never {
+		System::loadLanguageFile('default');
+
+		throw new \Exception((new ProductGuaranteeConfigurationApplier())->formatMessageText([
+			'code' => $str_messageCode,
+			'parameters' => [$str_invalidValue],
+		]));
 	}
 
 	/**

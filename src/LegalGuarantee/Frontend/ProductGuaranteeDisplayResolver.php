@@ -9,6 +9,11 @@ use Traversable;
 final class ProductGuaranteeDisplayResolver
 {
     /**
+     * Bestimmt die Ausgabe für die maßgebliche Mitgliedergruppe. `showGll` folgt der Tabelle
+     * in Spec 27, Abschnitt 3.5; für eine Variante gilt `gllMode` des Elternprodukts aus
+     * `$productData`. `showGaran` setzt `showGll` voraus.
+     *
+     * @param string|null $memberGroupGllMode Wert `lsShopGllMode` der maßgeblichen Gruppe
      * @param iterable<string, mixed> $productData
      * @param iterable<string, mixed>|null $variantData
      *
@@ -18,11 +23,11 @@ final class ProductGuaranteeDisplayResolver
      *   garan: array{brand: string, modelIdentifier: string, durationMonths: string}|null
      * }
      */
-    public function resolve(iterable $productData, ?iterable $variantData = null): array
+    public function resolve(?string $memberGroupGllMode, iterable $productData, ?iterable $variantData = null): array
     {
         $productData = $this->normalizeData($productData);
         $variantData = null !== $variantData ? $this->normalizeData($variantData) : null;
-        $showGll = $this->isTruthy($productData['enableGll'] ?? null);
+        $showGll = $this->resolveShowGll($memberGroupGllMode, $productData['gllMode'] ?? null);
 
         $effectiveGaranData = $this->resolveEffectiveGaranData($productData, $variantData);
         $showGaran = $showGll
@@ -101,6 +106,22 @@ final class ProductGuaranteeDisplayResolver
             'modelIdentifier' => $variantModelIdentifier,
             'durationMonths' => $variantDurationMonths,
         ];
+    }
+
+    /**
+     * Leer und `NULL` wirken wie `blocked`. Ein unbekannter Gruppen- oder Produktwert ergibt
+     * keinen GLL-Output.
+     */
+    private function resolveShowGll(?string $memberGroupGllMode, mixed $productGllMode): bool
+    {
+        $normalizedMemberGroupGllMode = trim((string) $memberGroupGllMode);
+        $normalizedProductGllMode = trim((string) $productGllMode);
+
+        return match ($normalizedMemberGroupGllMode) {
+            'on' => in_array($normalizedProductGllMode, ['inherit', 'always'], true),
+            'off' => 'always' === $normalizedProductGllMode,
+            default => false,
+        };
     }
 
     private function normalizeCheckboxValue(mixed $value): string

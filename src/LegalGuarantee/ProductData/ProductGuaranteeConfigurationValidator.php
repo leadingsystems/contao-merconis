@@ -4,23 +4,36 @@ declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\LegalGuarantee\ProductData;
 
+use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\StandardMemberGroupGllMode;
+
 final class ProductGuaranteeConfigurationValidator
 {
+    public const MESSAGE_GLL_INVALID_MODE = 'gll_invalid_mode';
     public const MESSAGE_GARAN_INVALID_MODE = 'garan_invalid_mode';
     public const MESSAGE_GARAN_DISABLED_MISSING_BRAND = 'garan_disabled_missing_brand';
     public const MESSAGE_GARAN_DISABLED_MISSING_MODEL = 'garan_disabled_missing_model';
     public const MESSAGE_GARAN_DISABLED_MISSING_DURATION = 'garan_disabled_missing_duration';
     public const MESSAGE_GARAN_DISABLED_INVALID_DURATION = 'garan_disabled_invalid_duration';
     public const MESSAGE_GARAN_DISABLED_GLL_REQUIRED = 'garan_disabled_gll_required';
+    public const MESSAGE_GARAN_DISABLED_GLL_REQUIRED_ALWAYS = 'garan_disabled_gll_required_always';
     public const MESSAGE_GARAN_OVERRIDE_GLL_REQUIRED = 'garan_override_gll_required';
     public const MESSAGE_GARAN_DISABLED_GLL_VARIANT_OVERRIDE = 'garan_disabled_gll_variant_override';
 
+    public const PRODUCT_GLL_MODES = ['inherit', 'always', 'never'];
+
     public function __construct(
         private readonly ProductGuaranteeValidationHelper $validationHelper = new ProductGuaranteeValidationHelper(),
+        private readonly StandardMemberGroupGllMode $standardMemberGroupGllMode = new StandardMemberGroupGllMode(),
     ) {
     }
 
     /**
+     * Prüft eine Produktzeile aus Import oder Product Management API im Zustand nach dem
+     * Schreiben (Spec 27, Abschnitte 4 und 10). Bezug für "GLL aus" ist der gespeicherte
+     * Wert der Standard-Mitgliedergruppe; `$relatedVariants` ist der gespeicherte Stand der
+     * Varianten. Der Validator ändert keine Werte; eine leere oder fehlende Angabe für
+     * `gllMode` ergibt `inherit`.
+     *
      * @param array<string, mixed> $productData
      * @param list<array<string, mixed>> $relatedVariants
      */
@@ -31,6 +44,7 @@ final class ProductGuaranteeConfigurationValidator
     ): GuaranteeValidationResult
     {
         $normalizedData = $this->normalizeSharedFields($productData);
+        $normalizedData['gllMode'] = $this->normalizeProductGllModeValue($productData['gllMode'] ?? null);
         $durationResult = $this->validationHelper->normalizeDurationInput(
             $rawDurationInput ?? ($productData['guaranteeDurationMonths'] ?? null)
         );
@@ -43,7 +57,10 @@ final class ProductGuaranteeConfigurationValidator
         ];
         $messages = $durationResult['messages'];
 
-        $gllMessages = $this->validateProductGllDependency($normalizedData, $relatedVariants);
+        $gllModeMessages = $this->validateProductGllMode($productData['gllMode'] ?? null);
+        $gllMessages = [] === $gllModeMessages
+            ? $this->validateProductGllDependency($normalizedData, $relatedVariants)
+            : $gllModeMessages;
 
         if ($gllMessages !== array()) {
             $messages = array_merge($messages, $gllMessages);
@@ -62,6 +79,9 @@ final class ProductGuaranteeConfigurationValidator
     }
 
     /**
+     * R3: `override` wird abgelehnt, wenn für `gllMode` des Elternprodukts "GLL aus" gilt.
+     * Fehlt `gllMode` in `$productData`, gilt `inherit`.
+     *
      * @param array<string, mixed> $variantData
      * @param array<string, mixed> $productData
      */
@@ -88,7 +108,7 @@ final class ProductGuaranteeConfigurationValidator
 
         if (
             'override' === ($normalizedVariantData['garanMode'] ?? 'inherit')
-            && !$this->isTruthy($normalizedProductData['enableGll'] ?? null)
+            && $this->standardMemberGroupGllMode->isGllOffForProduct($productData['gllMode'] ?? null)
         ) {
             $messages[] = [
                 'code' => self::MESSAGE_GARAN_OVERRIDE_GLL_REQUIRED,
@@ -127,7 +147,6 @@ final class ProductGuaranteeConfigurationValidator
      */
     private function normalizeSharedFields(array $data): array
     {
-        $data['enableGll'] = $this->normalizeCheckboxValue($data['enableGll'] ?? null);
         $data['enableGaran'] = $this->normalizeCheckboxValue($data['enableGaran'] ?? null);
         $data['guaranteeBrand'] = $this->normalizeTextValue($data['guaranteeBrand'] ?? null);
         $data['guaranteeModelIdentifier'] = $this->normalizeTextValue($data['guaranteeModelIdentifier'] ?? null);
@@ -266,35 +285,71 @@ final class ProductGuaranteeConfigurationValidator
      */
     private function validateProductGllDependency(array $productData, array $relatedVariants): array
     {
-        if ($this->isTruthy($productData['enableGll'] ?? null)) {
+        $standardMemberGroupGllMode = $this->standardMemberGroupGllMode->getStoredGllMode();
+
+        if (!$this->standardMemberGroupGllMode->isGllOff($standardMemberGroupGllMode, $productData['gllMode'])) {
             return array();
         }
 
-        $affectedVariantIdentifiers = $this->getAffectedVariantIdentifiers($relatedVariants);
+        $messages = array();
+        $affectedVariantIdentifiers = $this->getOverrideVariantIdentifiers($relatedVariants);
 
         if ($affectedVariantIdentifiers !== array()) {
-            return [[
+            $messages[] = [
                 'code' => self::MESSAGE_GARAN_DISABLED_GLL_VARIANT_OVERRIDE,
                 'parameters' => [implode(', ', $affectedVariantIdentifiers)],
-            ]];
+            ];
         }
 
-        if (!$this->isTruthy($productData['enableGaran'] ?? null)) {
-            return array();
+        if ($this->isTruthy($productData['enableGaran'] ?? null)) {
+            $messages[] = [
+                'code' => 'always' === $this->standardMemberGroupGllMode->getGllModeForEnabledGaran($standardMemberGroupGllMode)
+                    ? self::MESSAGE_GARAN_DISABLED_GLL_REQUIRED_ALWAYS
+                    : self::MESSAGE_GARAN_DISABLED_GLL_REQUIRED,
+                'parameters' => [],
+            ];
+        }
+
+        return $messages;
+    }
+
+    /**
+     * @return list<array{code: string, parameters: array<int, string>}>
+     */
+    private function validateProductGllMode(mixed $rawMode): array
+    {
+        $rawMode = trim((string) $rawMode);
+
+        if ('' === $rawMode || in_array($rawMode, self::PRODUCT_GLL_MODES, true)) {
+            return [];
         }
 
         return [[
-            'code' => self::MESSAGE_GARAN_DISABLED_GLL_REQUIRED,
-            'parameters' => [],
+            'code' => self::MESSAGE_GLL_INVALID_MODE,
+            'parameters' => [$rawMode],
         ]];
     }
 
     /**
+     * Ein ungültiger Wert wird abgelehnt (`validateProductGllMode()`) und nie geschrieben.
+     */
+    private function normalizeProductGllModeValue(mixed $value): string
+    {
+        $mode = trim((string) $value);
+
+        return in_array($mode, self::PRODUCT_GLL_MODES, true)
+            ? $mode
+            : 'inherit';
+    }
+
+    /**
+     * Kennungen der Varianten auf `override`: Artikelnummer, sonst Bezeichnung, sonst `#<id>`.
+     *
      * @param list<array<string, mixed>> $relatedVariants
      *
      * @return list<string>
      */
-    private function getAffectedVariantIdentifiers(array $relatedVariants): array
+    public function getOverrideVariantIdentifiers(array $relatedVariants): array
     {
         $identifiers = array();
 

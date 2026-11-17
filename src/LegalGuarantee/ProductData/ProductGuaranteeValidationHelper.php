@@ -59,8 +59,10 @@ final class ProductGuaranteeValidationHelper
     public function getFieldNameForMessageCode(string $messageCode): ?string
     {
         return match ($messageCode) {
-            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED => 'enableGaran',
-            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_VARIANT_OVERRIDE => 'enableGll',
+            ProductGuaranteeConfigurationValidator::MESSAGE_GLL_INVALID_MODE,
+            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED,
+            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED_ALWAYS,
+            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_VARIANT_OVERRIDE => 'gllMode',
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_INVALID_MODE,
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_OVERRIDE_GLL_REQUIRED => 'garanMode',
             ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_BRAND => 'guaranteeBrand',

@@ -52,14 +52,24 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductRecommendedProducts']				=	array('Empfohlene Produkte', 'Wählen Sie hier Produkte aus, die in einem entsprechenden CrossSeller dargestellt werden können.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['associatedProducts']								=	array('Verbundene Produkte', 'Wählen Sie hier Produkte aus, die Sie zur Realisierung individueller Funktionen mit diesem Produkt in Verbindung setzen möchten.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductProducer']							= 	array('Hersteller');
-	$GLOBALS['TL_LANG']['tl_ls_shop_product']['enableGll']										=	array('GLL aktivieren', 'GLL gilt für körperliche Waren und Waren mit digitalen Elementen. Für reine digitale Inhalte, SaaS und Dienstleistungen ist der Schalter zu deaktivieren.');
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['gllMode']										=	array('Gesetzliche Gewährleistung', 'Die Mitteilung gilt für körperliche Waren und Waren mit digitalen Elementen. Für reine digitale Inhalte, SaaS und Dienstleistungen \'Nie anzeigen\' wählen. \'Wie Mitgliedergruppe\' übernimmt die Einstellung der Mitgliedergruppe des Kunden.');
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['gllModeOptions']									=	[
+		'inherit' => 'Wie Mitgliedergruppe',
+		'always' => 'Immer anzeigen',
+		'never' => 'Nie anzeigen'
+	];
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['enableGaran']									=	array('GARAN aktivieren');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeDurationMonths']							=	array('Garantiedauer in Monaten', 'Eingabe in ganzen Monaten, von 30 bis 360, in Schritten von 6. Die Ausgabe zeigt Jahre mit Komma als Dezimaltrennzeichen: 30 Monate ergeben 2,5 Jahre, 36 Monate ergeben 3 Jahre.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeBrand']									=	['Brand/Trademark', 'Der volle Wert wird gespeichert. Bei Überlänge wird der Markenname in der Labeldarstellung mit \'...\' gekürzt. Die Kürzungslänge ist in den Grundeinstellungen konfigurierbar.'];
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeModelIdentifier']						=	['Model identifier', 'Der volle Wert wird gespeichert. Bei Überlänge wird die Modellkennung in der Labeldarstellung mit \'...\' gekürzt. Die Kürzungslänge ist in den Grundeinstellungen konfigurierbar.'];
-	$GLOBALS['TL_LANG']['tl_ls_shop_product']['gll_enabled_by_garan']							= 'GLL wurde aktiviert, weil GARAN aktiviert ist.';
-	$GLOBALS['TL_LANG']['tl_ls_shop_product']['garan_disabled_by_gll']							= 'GARAN wurde deaktiviert, weil GLL deaktiviert wurde.';
-	$GLOBALS['TL_LANG']['tl_ls_shop_product']['garan_not_output_without_gll']					= 'GARAN wird nicht ausgegeben, solange GLL deaktiviert ist.';
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['legalGuaranteeMessages']							=	[
+		'gllModeChangedForManufacturerGuarantee' => 'Die Einstellung zur gesetzlichen Gewährleistung wurde auf "%s" gestellt, weil die Herstellergarantie eingeschaltet ist und die Mitteilung über die gesetzliche Gewährleistung voraussetzt.',
+		'manufacturerGuaranteeDisabledByGllMode' => 'Die Herstellergarantie wurde ausgeschaltet, weil die Mitteilung über die gesetzliche Gewährleistung mit der gewählten Einstellung in der Standard-Mitgliedergruppe nicht angezeigt wird. Dauer, Marke und Modell bleiben gespeichert.',
+		'gllModeRejectedByOwnVariantDetails' => 'Die Einstellung zur gesetzlichen Gewährleistung wurde nicht geändert, weil die Mitteilung damit in der Standard-Mitgliedergruppe nicht angezeigt würde und folgende Varianten bei der Herstellergarantie "Eigene Angaben" verwenden: %s. Bitte zuerst diese Varianten ändern.',
+		'openHintProductNeverShown' => 'Die Herstellergarantie dieses Produkts wird nicht ausgegeben, weil die gesetzliche Gewährleistung auf "Nie anzeigen" steht. Bitte die Einstellung zur gesetzlichen Gewährleistung am Produkt ändern.',
+		'openHintStandardGroupOnlyAlwaysShow' => 'Die Herstellergarantie dieses Produkts wird nicht ausgegeben, weil die Standard-Mitgliedergruppe bei der gesetzlichen Gewährleistung auf "Nur Produkte mit \'Immer anzeigen\'" steht und das Produkt auf "Wie Mitgliedergruppe". Bitte das Produkt auf "Immer anzeigen" stellen; das erledigt bereits ein Speichern des Produkts.',
+		'openHintVariantsWithOwnDetails' => 'Die Herstellergarantie folgender Varianten mit "Eigene Angaben" wird nicht ausgegeben, weil die Mitteilung über die gesetzliche Gewährleistung für dieses Produkt in der Standard-Mitgliedergruppe nicht angezeigt wird: %s. Bitte die Einstellung zur gesetzlichen Gewährleistung am Produkt ändern.'
+	];
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['keywords']										= 	array('Schlüsselwörter');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['pageTitle']										=	array('Seitentitel', 'Tragen Sie hier den Seitentitel ein, der auf der Produktdetailseite verwendet werden soll. Sie können die Bedeutung der Produktdetailseite für Suchmaschinen damit verbessern. Falls Sie nichts eintragen, so wird dem von Contao regulär erstellten Seitentitel die Produktbezeichnung vorangestellt.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['pageDescription']								=	array('Meta-Seitenbeschreibung', 'Tragen Sie hier die Seitenbeschreibung ein, die auf der Produktdetailseite im suchmaschinenrelevanten Meta-Element "description" verwendet werden soll. Möglich sind bis zu 255 Zeichen, empfehlenswert sind maximal 160. Sofern Sie hier etwas eintragen, wird dieser Text unter allen Umständen verwendet. Lassen Sie das Feld leer, so kann je nach Grundeinstellung entweder die Seitenbeschreibung verwendet werden, die Contao regulär erstellt, oder es kommt die normale Produktbeschreibung zum Einsatz.');
@@ -136,11 +146,6 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['flex_contentsLanguageIndependent_label01'] = 'Schlüsselwort';
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['flex_contentsLanguageIndependent_label02'] = 'Produktinformation';
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeValidationMessages'] = array(
-		'garan_disabled_gll_required' => 'GARAN wurde nicht gespeichert, weil GLL deaktiviert ist.',
-		'garan_disabled_gll_variant_override' => 'GLL wurde nicht deaktiviert, weil folgende Varianten garanMode "override" verwenden: %s.',
-		'garan_disabled_missing_brand' => 'GARAN wurde nicht gespeichert, weil Brand/Trademark fehlt.',
-		'garan_disabled_missing_model' => 'GARAN wurde nicht gespeichert, weil Model identifier fehlt.',
-		'garan_disabled_missing_duration' => 'GARAN wurde nicht gespeichert, weil die Garantiedauer fehlt.',
 		'garan_disabled_invalid_duration' => 'GARAN wurde nicht gespeichert, weil "%s" keine zulässige Garantiedauer ist. Zulässig sind ganze Monate von 30 bis 360 in Schritten von 6.'
 	);
 

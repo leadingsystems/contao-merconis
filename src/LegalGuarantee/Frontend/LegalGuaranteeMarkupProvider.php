@@ -7,6 +7,7 @@ namespace LeadingSystems\MerconisBundle\LegalGuarantee\Frontend;
 use LeadingSystems\MerconisBundle\LegalGuarantee\GaranLabelGrouping;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\GaranLabelRendererInterface;
 use LeadingSystems\MerconisBundle\LegalGuarantee\GuaranteeDurationFormatter;
+use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\MemberGroupGllModeProviderInterface;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
 use Merconis\Core\ls_shop_cartX;
 use Merconis\Core\ls_shop_product;
@@ -31,6 +32,7 @@ final class LegalGuaranteeMarkupProvider
         private readonly GaranLabelGrouping $garanLabelGrouping,
         private readonly LegalGuaranteeMarkupBuilder $markupBuilder,
         private readonly LoggerInterface $contaoErrorLogger,
+        private readonly MemberGroupGllModeProviderInterface $memberGroupGllModeProvider,
         iterable $garanLabelRenderers,
     ) {
         foreach ($garanLabelRenderers as $renderer) {
@@ -57,7 +59,10 @@ final class LegalGuaranteeMarkupProvider
 
     public function renderProductGllNotice(ls_shop_product $product): string
     {
-        $displayData = $this->displayResolver->resolve($product->mainData);
+        $displayData = $this->displayResolver->resolve(
+            $this->memberGroupGllModeProvider->getCurrentMemberGroupGllMode(),
+            $product->mainData
+        );
 
         if (!$displayData['showGll']) {
             return '';
@@ -69,6 +74,7 @@ final class LegalGuaranteeMarkupProvider
     public function renderProductGaranLabel(ls_shop_product $product): string
     {
         $displayData = $this->displayResolver->resolve(
+            $this->memberGroupGllModeProvider->getCurrentMemberGroupGllMode(),
             $product->mainData,
             $this->getSelectedVariantData($product)
         );
@@ -101,9 +107,11 @@ final class LegalGuaranteeMarkupProvider
 
     public function checkoutGllNotice(): string
     {
+        $memberGroupGllMode = $this->memberGroupGllModeProvider->getCurrentMemberGroupGllMode();
+
         foreach (ls_shop_cartX::getInstance()->itemsExtended as $item) {
             /** @var array{objProduct: ls_shop_product} $item */
-            $displayData = $this->displayResolver->resolve($item['objProduct']->mainData);
+            $displayData = $this->displayResolver->resolve($memberGroupGllMode, $item['objProduct']->mainData);
 
             if ($displayData['showGll']) {
                 return $this->renderCurrentLanguageGllNotice();
@@ -116,11 +124,13 @@ final class LegalGuaranteeMarkupProvider
     public function checkoutGaranBlock(): string
     {
         $entries = [];
+        $memberGroupGllMode = $this->memberGroupGllModeProvider->getCurrentMemberGroupGllMode();
 
         foreach (ls_shop_cartX::getInstance()->itemsExtended as $item) {
             /** @var array{objProduct: ls_shop_product} $item */
             $product = $item['objProduct'];
             $displayData = $this->displayResolver->resolve(
+                $memberGroupGllMode,
                 $product->mainData,
                 $this->getSelectedVariantData($product)
             );

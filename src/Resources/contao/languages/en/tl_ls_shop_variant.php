@@ -97,6 +97,11 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceType'] = array(
 	'scalePriceFixedAdjustment' => array('Adjustment with a fixed value', 'The given value will be applied as an adjustment to the basic product price. Please precede the given value with a minus sign to create a deduction.')
 );
 
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['legalGuaranteeMessages'] = [
+	'ownDetailsRejectedWithoutLegalGuarantee' => 'The variant was not saved: "Own details" for the manufacturer guarantee requires the legal guarantee notice of the product to be shown for the standard member group. Please change and save the legal guarantee notice setting of the product first.',
+	'openHintParentProductWithoutLegalGuarantee' => 'The manufacturer guarantee of this variant with "Own details" is not shown because the legal guarantee notice of the product is not shown for the standard member group. Please change the legal guarantee notice setting of the product.'
+];
+
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceQuantityDetectionMethod'] = array(
 	'separatedVariantsAndConfigurations' => array('Separated by products, variants and configurations', 'Every cart item will be counted separately, no matter if the product, it\'s variant or even only it\'s configuration differs.'),
 	'separatedVariants' => array('Separated by products and variants', 'Cart items only differing in their configuration will be summarized. Different variants will be counted separately.'),
@@ -130,11 +135,6 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contentsLanguageIndependent_labe
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contentsLanguageIndependent_label02'] = 'Variant information';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeValidationMessages'] = array(
 	'garan_invalid_mode' => 'GARAN was not saved because "%s" is not a valid garanMode. Use "inherit", "disabled" or "override".',
-	'garan_override_gll_required' => 'GARAN was not saved because garanMode "override" requires GLL on the parent product. Please enable and save GLL on the product first.',
-	'garan_disabled_gll_variant_override' => 'GLL was not disabled because the following variants use garanMode "override": %s.',
-	'garan_disabled_missing_brand' => 'GARAN was not saved because Brand/Trademark is missing.',
-	'garan_disabled_missing_model' => 'GARAN was not saved because Model identifier is missing.',
-	'garan_disabled_missing_duration' => 'GARAN was not saved because the guarantee duration is missing.',
 	'garan_disabled_invalid_duration' => 'GARAN was not saved because "%s" is not an allowed guarantee duration. Use whole months from 30 to 360 in steps of 6.'
 );
 

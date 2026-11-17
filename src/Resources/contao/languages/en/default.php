@@ -254,7 +254,7 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['invalidServiceNumberMessage'] = '
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['cartPreview']['continueShopping'] = 'Continue shopping';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['cartPreview']['openCart'] = 'open cart';
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['dashboard']['gllAnnouncement'] = 'Version 5.1.18 introduced GLL. In the basic settings you can trigger a migration that sets enableGll to true for all products.';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['dashboard']['gllAnnouncement'] = 'Version 5.1.18 introduced the notice on the legal guarantee and the label of the manufacturer guarantee. Specify for each member group whether they are shown. Until then, the shop does not show them.';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['gllTitle'] = 'Legal guarantee, at least two years';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['gllEuLinkText'] = 'EU information about the legal guarantee';
@@ -262,6 +262,21 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['garanBlockHeadline'] = 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['garanEuLinkText'] = 'EU information about the manufacturer\'s commercial guarantee';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['garanLabelUnavailableNotice'] = 'The manufacturer\'s guarantee label for these items could not be generated for technical reasons. Please contact the retailer.';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['garanTitlePattern'] = 'Manufacturer\'s commercial guarantee by %s for %s with %s years';
+
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuaranteeImport']['importLogEntry'] = 'line %d, field "%s": %s';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuaranteeImport']['apiMessage'] = 'field "%s": %s';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuaranteeImport']['messages'] = [
+	'gll_invalid_mode' => 'The row was not applied because "%s" is not a valid value for the legal guarantee notice setting. Allowed values are "inherit", "always" and "never".',
+	'garan_invalid_mode' => 'The row was not applied because "%s" is not a valid value for the manufacturer guarantee of the variant. Allowed values are "inherit", "disabled" and "override".',
+	'garan_disabled_missing_brand' => 'The row was not applied because the brand (Brand/Trademark) for the manufacturer guarantee is missing.',
+	'garan_disabled_missing_model' => 'The row was not applied because the model (Model identifier) for the manufacturer guarantee is missing.',
+	'garan_disabled_missing_duration' => 'The row was not applied because the guarantee duration for the manufacturer guarantee is missing.',
+	'garan_disabled_invalid_duration' => 'The row was not applied because "%s" is not an allowed guarantee duration. Use whole months from 30 to 360 in steps of 6.',
+	'garan_disabled_gll_required' => 'The row was not applied because the manufacturer guarantee is enabled and, with "never", the legal guarantee notice would not be shown for the standard member group. Please specify "inherit" or "always" for the legal guarantee notice or disable the manufacturer guarantee.',
+	'garan_disabled_gll_required_always' => 'The row was not applied because the manufacturer guarantee is enabled and the legal guarantee notice would not be shown for the standard member group, which only shows it for products set to "always". Please specify "always" for the legal guarantee notice or disable the manufacturer guarantee.',
+	'garan_disabled_gll_variant_override' => 'The row was not applied because the legal guarantee notice would then not be shown for the standard member group and the following variants use "override" for the manufacturer guarantee: %s. Please first set these variants to a value other than "override" and then transfer the row again, or specify a legal guarantee notice setting that shows the notice.',
+	'garan_override_gll_required' => 'The variant was not applied: "override" for the manufacturer guarantee requires the legal guarantee notice of the product to be shown for the standard member group. Please change the legal guarantee notice setting of the product first and then transfer the row again.',
+];
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['label'] = 'Comment for this item';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['placeholder'] = 'Optional comment';

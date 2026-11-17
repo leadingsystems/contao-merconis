@@ -125,7 +125,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			lsShopProductProducer;
 
 			{lsShopGuaranteeLabels_legend},
-			enableGll,
+			gllMode,
 			enableGaran;
 			
 			{lsShopImages_legend},
@@ -523,21 +523,23 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
             'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 
-		'enableGll' => array(
-			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['enableGll'],
+		'gllMode' => [
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['gllMode'],
 			'exclude' => true,
-			'default'                 => '1',
-			'inputType'               => 'checkbox',
-			'save_callback' => array(
-				array(
+			'default'                 => 'inherit',
+			'inputType'               => 'select',
+			'options'                 => ['inherit', 'always', 'never'],
+			'reference'               => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['gllModeOptions'],
+			'save_callback' => [
+				[
 					'LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\LegalGuaranteeBackendCallbacks',
-					'validateProductEnableGll'
-				)
-			),
-			'eval'                    => array('tl_class'=>'clr m12'),
+					'handleProductGllModeSave'
+				]
+			],
+			'eval'                    => ['tl_class'=>'clr'],
 			'filter'		=> true,
-            'sql'                     => "char(1) NOT NULL default ''"
-		),
+            'sql'                     => "varchar(16) NOT NULL default 'inherit'"
+		],
 
 		'enableGaran' => array(
 			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['enableGaran'],

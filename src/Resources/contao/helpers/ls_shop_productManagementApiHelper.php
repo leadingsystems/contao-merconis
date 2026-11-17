@@ -778,7 +778,7 @@ class ls_shop_productManagementApiHelper {
 
 		$obj_dbres_product = Database::getInstance()
 		->prepare("
-			SELECT		`enableGll`,
+			SELECT		`gllMode`,
 						`enableGaran`,
 						`guaranteeDurationMonths`,
 						`guaranteeBrand`,
@@ -827,7 +827,7 @@ class ls_shop_productManagementApiHelper {
 		);
 
 		if ($obj_applier->hasBlockingWriteMessages($arr_result['messages'])) {
-			throw new \Exception($obj_applier->formatWriteErrorMessage($arr_result['messages']));
+			self::throwLegalGuaranteeWriteError($obj_applier, $arr_result['messages']);
 		}
 
 		return $arr_result['row'];
@@ -839,10 +839,20 @@ class ls_shop_productManagementApiHelper {
 		$arr_result = $obj_applier->applyToVariantRow($arr_preprocessedDataRow, $arr_productData);
 
 		if ($obj_applier->hasBlockingWriteMessages($arr_result['messages'])) {
-			throw new \Exception($obj_applier->formatWriteErrorMessage($arr_result['messages']));
+			self::throwLegalGuaranteeWriteError($obj_applier, $arr_result['messages']);
 		}
 
 		return $arr_result['row'];
+	}
+
+	/*
+	 * Die Meldung erscheint in der Sprache des Requests ($GLOBALS['TL_LANGUAGE']). Ist die Sprachdatei "default"
+	 * in dieser Sprache noch nicht geladen, lädt Contao sie hier.
+	 */
+	private static function throwLegalGuaranteeWriteError(ProductGuaranteeConfigurationApplier $obj_applier, array $arr_messages): never {
+		System::loadLanguageFile('default');
+
+		throw new \Exception($obj_applier->formatWriteErrorMessage($arr_messages));
 	}
 
 	public static function insertOrUpdateProductRecord($arr_preprocessedDataRow) {
@@ -897,7 +907,7 @@ class ls_shop_productManagementApiHelper {
 							`lsShopProductRecommendedProducts` = ?,
 							`lsShopProductDeliveryInfoSet` = ?,
 							`lsShopProductProducer` = ?,
-							`enableGll` = ?,
+							`gllMode` = ?,
 							`enableGaran` = ?,
 							`guaranteeDurationMonths` = ?,
 							`guaranteeBrand` = ?,
@@ -943,7 +953,7 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['recommendedProducts'], // blob, translated, check unclear
 				$arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] ? $arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
 				$arr_preprocessedDataRow['producer'], // String, maxlength 255
-				$arr_preprocessedDataRow['enableGll'], // 1 or ''
+				$arr_preprocessedDataRow['gllMode'], // inherit, always or never
 				$arr_preprocessedDataRow['enableGaran'], // 1 or ''
 				$arr_preprocessedDataRow['guaranteeDurationMonths'], // decimal, empty = null
 				$arr_preprocessedDataRow['guaranteeBrand'], // String
@@ -1059,7 +1069,7 @@ class ls_shop_productManagementApiHelper {
 							`lsShopProductRecommendedProducts` = ?,
 							`lsShopProductDeliveryInfoSet` = ?,
 							`lsShopProductProducer` = ?,
-							`enableGll` = ?,
+							`gllMode` = ?,
 							`enableGaran` = ?,
 							`guaranteeDurationMonths` = ?,
 							`guaranteeBrand` = ?,
@@ -1105,7 +1115,7 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['recommendedProducts'], // blob, translated, check unclear
 				$arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] ? $arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
 				$arr_preprocessedDataRow['producer'], // String, maxlength 255
-				$arr_preprocessedDataRow['enableGll'], // 1 or ''
+				$arr_preprocessedDataRow['gllMode'], // inherit, always or never
 				$arr_preprocessedDataRow['enableGaran'], // 1 or ''
 				$arr_preprocessedDataRow['guaranteeDurationMonths'], // decimal, empty = null
 				$arr_preprocessedDataRow['guaranteeBrand'], // String

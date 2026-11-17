@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LeadingSystems\MerconisBundle\LegalGuarantee\Order;
 
 use LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\ProductGuaranteeDisplayResolver;
+use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\MemberGroupGllModeProviderInterface;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
 
 final class OrderLabelSnapshotBuilder
@@ -14,10 +15,14 @@ final class OrderLabelSnapshotBuilder
     public function __construct(
         private readonly ProductGuaranteeDisplayResolver $displayResolver,
         private readonly OfficialGuaranteeAssetLocator $assetLocator,
+        private readonly MemberGroupGllModeProviderInterface $memberGroupGllModeProvider,
     ) {
     }
 
     /**
+     * Hält das Ergebnis für die maßgebliche Gruppe des Käufers zum Bestellzeitpunkt fest.
+     * Der Gruppenwert selbst wird nicht gespeichert.
+     *
      * @param iterable<string, mixed> $productData
      * @param iterable<string, mixed>|null $variantData
      *
@@ -25,7 +30,11 @@ final class OrderLabelSnapshotBuilder
      */
     public function buildItemSnapshot(iterable $productData, ?iterable $variantData = null): array
     {
-        $displayData = $this->displayResolver->resolve($productData, $variantData);
+        $displayData = $this->displayResolver->resolve(
+            $this->memberGroupGllModeProvider->getCurrentMemberGroupGllMode(),
+            $productData,
+            $variantData
+        );
         $garanData = $displayData['garan'];
 
         return [

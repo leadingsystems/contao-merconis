@@ -9,6 +9,7 @@ use LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\LegalGuaranteeMarkupPr
 use LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\ProductGuaranteeDisplayResolver;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranLabelRenderer;
 use LeadingSystems\MerconisBundle\LegalGuarantee\GaranLabelGrouping;
+use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\MemberGroupGllModeProviderInterface;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeLanguageResolver;
 use Merconis\Core\ls_shop_cartX;
@@ -41,7 +42,7 @@ final class CheckoutGaranBlockIntegrationTest extends TestCase
         $this->setCartItems([
             $this->createProduct(
                 [
-                    'enableGll' => '1',
+                    'gllMode' => 'inherit',
                     'enableGaran' => '1',
                     'guaranteeBrand' => 'ACME',
                     'guaranteeModelIdentifier' => 'X100',
@@ -53,7 +54,7 @@ final class CheckoutGaranBlockIntegrationTest extends TestCase
             ),
             $this->createProduct(
                 [
-                    'enableGll' => '1',
+                    'gllMode' => 'inherit',
                     'enableGaran' => '1',
                     'guaranteeBrand' => 'ACME',
                     'guaranteeModelIdentifier' => 'X100',
@@ -65,7 +66,7 @@ final class CheckoutGaranBlockIntegrationTest extends TestCase
             ),
             $this->createProduct(
                 [
-                    'enableGll' => '1',
+                    'gllMode' => 'inherit',
                     'enableGaran' => '1',
                     'guaranteeBrand' => 'ACME',
                     'guaranteeModelIdentifier' => 'X100',
@@ -106,7 +107,7 @@ final class CheckoutGaranBlockIntegrationTest extends TestCase
         $this->setCartItems([
             $this->createProduct(
                 [
-                    'enableGll' => '1',
+                    'gllMode' => 'inherit',
                     'enableGaran' => '1',
                     'guaranteeBrand' => 'ACME',
                     'guaranteeModelIdentifier' => 'X100',
@@ -123,7 +124,67 @@ final class CheckoutGaranBlockIntegrationTest extends TestCase
         self::assertStringNotContainsString('Kissen - ', $markup);
     }
 
-    private function createProvider(): LegalGuaranteeMarkupProvider
+    public function testCheckoutGaranBlockKeepsOnlyPositionsWithGllOutputForMemberGroup(): void
+    {
+        $this->setCartItems([
+            $this->createProduct(
+                [
+                    'gllMode' => 'inherit',
+                    'enableGaran' => '1',
+                    'guaranteeBrand' => 'ACME',
+                    'guaranteeModelIdentifier' => 'X100',
+                    'guaranteeDurationMonths' => '36',
+                ],
+                10,
+                'Kissen',
+                null,
+                'ART-100'
+            ),
+            $this->createProduct(
+                [
+                    'gllMode' => 'always',
+                    'enableGaran' => '1',
+                    'guaranteeBrand' => 'ACME',
+                    'guaranteeModelIdentifier' => 'X100',
+                    'guaranteeDurationMonths' => '36',
+                ],
+                20,
+                'Decke',
+                $this->createVariant(201, 'Grau', 'ART-201')
+            ),
+        ]);
+
+        $markup = $this->createProvider('off')->checkoutGaranBlock();
+
+        self::assertSame(1, substr_count($markup, 'class="merconis-legal-guarantee-checkout-item"'));
+        self::assertSame(1, substr_count($markup, '<svg '));
+        self::assertStringContainsString('Decke (Grau) - ART-201', $markup);
+        self::assertStringNotContainsString('Kissen', $markup);
+    }
+
+    public function testCheckoutGaranBlockIsEmptyWithoutGllOutputForMemberGroup(): void
+    {
+        $this->setCartItems([
+            $this->createProduct(
+                [
+                    'gllMode' => 'always',
+                    'enableGaran' => '1',
+                    'guaranteeBrand' => 'ACME',
+                    'guaranteeModelIdentifier' => 'X100',
+                    'guaranteeDurationMonths' => '36',
+                ],
+                10,
+                'Kissen',
+                null,
+                'ART-100'
+            ),
+        ]);
+
+        self::assertSame('', $this->createProvider('blocked')->checkoutGaranBlock());
+        self::assertSame('', $this->createProvider('')->checkoutGaranBlock());
+    }
+
+    private function createProvider(string $memberGroupGllMode = 'on'): LegalGuaranteeMarkupProvider
     {
         $assetLocator = new OfficialGuaranteeAssetLocator(
             dirname(__DIR__, 2),
@@ -136,6 +197,16 @@ final class CheckoutGaranBlockIntegrationTest extends TestCase
             new GaranLabelGrouping(),
             new LegalGuaranteeMarkupBuilder(),
             new NullLogger(),
+            new class ($memberGroupGllMode) implements MemberGroupGllModeProviderInterface {
+                public function __construct(private readonly string $memberGroupGllMode)
+                {
+                }
+
+                public function getCurrentMemberGroupGllMode(): string
+                {
+                    return $this->memberGroupGllMode;
+                }
+            },
             [new GaranLabelRenderer($assetLocator, OfficialGuaranteeAssetLocator::GARAN_VERSION)],
         );
     }
