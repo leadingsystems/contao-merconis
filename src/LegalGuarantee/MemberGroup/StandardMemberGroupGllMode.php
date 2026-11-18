@@ -9,7 +9,7 @@ use Merconis\Core\ls_shop_generalHelper;
 
 /**
  * Bezug der Regeln R1 bis R4 (Spec 27, Abschnitt 4): der gespeicherte Wert `lsShopGllMode`
- * der Standard-Mitgliedergruppe und die Entscheidung "GLL aus" für einen `gllMode`-Wert.
+ * der Standard-Benutzergruppe und die Entscheidung "GLL aus" für einen `gllMode`-Wert.
  * Die Entscheidung kommt ohne Contao-Kontext aus; nur das Lesen des Gruppenwerts braucht ihn.
  */
 final class StandardMemberGroupGllMode
@@ -28,7 +28,7 @@ final class StandardMemberGroupGllMode
      * Liefert den gespeicherten Wert `lsShopGllMode` der Gruppe aus
      * `$GLOBALS['TL_CONFIG']['ls_shop_standardGroup']`. Gelesen wird über
      * `getGroupSettings()`, nicht über `getGroupSettings4User()`; der Hook
-     * `getGroupSettingsForUser` wirkt deshalb nicht. Fehlt die Standard-Mitgliedergruppe,
+     * `getGroupSettingsForUser` wirkt deshalb nicht. Fehlt die Standard-Benutzergruppe,
      * die Gruppe oder der Wert, ist das Ergebnis `''`; `NULL` wird `''`.
      */
     public function getStoredGllMode(): string
@@ -51,7 +51,7 @@ final class StandardMemberGroupGllMode
 
     /**
      * Entscheidet "GLL aus" für einen `gllMode`-Wert mit dem gespeicherten Wert der
-     * Standard-Mitgliedergruppe.
+     * Standard-Benutzergruppe.
      */
     public function isGllOffForProduct(mixed $productGllMode): bool
     {
@@ -74,7 +74,7 @@ final class StandardMemberGroupGllMode
     }
 
     /**
-     * Wert, den R1 für `gllMode` setzt: `always` bei Standard-Mitgliedergruppe `off`, sonst
+     * Wert, den R1 für `gllMode` setzt: `always` bei Standard-Benutzergruppe `off`, sonst
      * `inherit`.
      */
     public function getGllModeForEnabledGaran(string $standardMemberGroupGllMode): string

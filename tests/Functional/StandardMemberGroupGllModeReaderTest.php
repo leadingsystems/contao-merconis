@@ -18,7 +18,7 @@ use ReflectionProperty;
 use Symfony\Component\DependencyInjection\Container;
 
 /**
- * Prüft das Lesen des gespeicherten Werts der Standard-Mitgliedergruppe über
+ * Prüft das Lesen des gespeicherten Werts der Standard-Benutzergruppe über
  * `ls_shop_generalHelper::getGroupSettings()` gegen eine SQLite-Datenbank. Der Hook
  * `getGroupSettingsForUser` ist registriert und darf den Wert nicht ändern.
  */

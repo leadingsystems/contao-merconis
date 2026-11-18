@@ -23,7 +23,7 @@ use Symfony\Component\DependencyInjection\Container;
 
 /**
  * Product Management API (Spec 27, Abschnitte 4 und 10) gegen eine SQLite-Datenbank: Bezug
- * ist der gespeicherte Wert der Standard-Mitgliedergruppe, für Produktzeilen der
+ * ist der gespeicherte Wert der Standard-Benutzergruppe, für Produktzeilen der
  * gespeicherte Stand der Varianten, für Variantenzeilen der gespeicherte Stand des
  * Elternprodukts. Die Sprachdatei `default` ist zu Beginn nicht geladen; der Code lädt sie
  * über `System::loadLanguageFile()` in der Sprache des Requests (`$GLOBALS['TL_LANGUAGE']`).
@@ -161,7 +161,7 @@ final class LegalGuaranteeProductManagementApiTest extends TestCase
 
     /**
      * Der registrierte Hook `getGroupSettingsForUser` liefert `on`; maßgeblich bleibt der
-     * gespeicherte Wert `off` der Standard-Mitgliedergruppe.
+     * gespeicherte Wert `off` der Standard-Benutzergruppe.
      */
     public function testHookDoesNotChangeReferenceOfTheRules(): void
     {

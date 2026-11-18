@@ -25,8 +25,8 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
 /**
  * Regeln R1 bis R4 und Hinweise nach Spec 27, Abschnitt 4. Der Bezug ist der gespeicherte
- * Wert der Standard-Mitgliedergruppe; `null` steht in den Data-Providern für "keine
- * Standard-Mitgliedergruppe gesetzt".
+ * Wert der Standard-Benutzergruppe; `null` steht in den Data-Providern für "keine
+ * Standard-Benutzergruppe gesetzt".
  */
 final class LegalGuaranteeBackendCallbacksTest extends TestCase
 {
@@ -35,7 +35,7 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
     private const R2_MESSAGE = 'Produkt: Herstellergarantie ausgeschaltet.';
     private const R4_MESSAGE = 'Produkt: abgelehnt wegen Varianten %s.';
     private const OPEN_NEVER_MESSAGE = 'Produkt: Ursache Nie anzeigen.';
-    private const OPEN_GROUP_OFF_MESSAGE = 'Produkt: Ursache Standard-Mitgliedergruppe.';
+    private const OPEN_GROUP_OFF_MESSAGE = 'Produkt: Ursache Standard-Benutzergruppe.';
     private const OPEN_VARIANTS_MESSAGE = 'Produkt: Varianten %s.';
     private const R3_MESSAGE = 'Variante: Eigene Angaben abgelehnt.';
     private const OPEN_VARIANT_MESSAGE = 'Variante: Hinweis auf das Produkt.';
@@ -103,7 +103,7 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
         yield 'Gruppe off' => ['off'];
         yield 'Gruppe blocked' => ['blocked'];
         yield 'Gruppe leer' => [''];
-        yield 'keine Standard-Mitgliedergruppe gesetzt' => [null];
+        yield 'keine Standard-Benutzergruppe gesetzt' => [null];
     }
 
     /**
@@ -119,7 +119,7 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
         yield 'Gruppe off, never' => ['off', 'never', 'always'];
         yield 'Gruppe blocked, never' => ['blocked', 'never', 'inherit'];
         yield 'Gruppe leer, never' => ['', 'never', 'inherit'];
-        yield 'keine Standard-Mitgliedergruppe, never' => [null, 'never', 'inherit'];
+        yield 'keine Standard-Benutzergruppe, never' => [null, 'never', 'inherit'];
     }
 
     #[DataProvider('r1Provider')]
@@ -188,7 +188,7 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
         yield 'Gruppe blocked, inherit' => ['blocked', 'inherit'];
         yield 'Gruppe blocked, always' => ['blocked', 'always'];
         yield 'Gruppe leer, inherit' => ['', 'inherit'];
-        yield 'keine Standard-Mitgliedergruppe, inherit' => [null, 'inherit'];
+        yield 'keine Standard-Benutzergruppe, inherit' => [null, 'inherit'];
     }
 
     #[DataProvider('r1NotApplicableProvider')]
@@ -260,7 +260,7 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
         yield 'Gruppe off, vorher schon aus: never nach inherit' => ['off', 'never', 'inherit'];
         yield 'Gruppe blocked, inherit nach never' => ['blocked', 'inherit', 'never'];
         yield 'Gruppe leer, always nach never' => ['', 'always', 'never'];
-        yield 'keine Standard-Mitgliedergruppe, inherit nach never' => [null, 'inherit', 'never'];
+        yield 'keine Standard-Benutzergruppe, inherit nach never' => [null, 'inherit', 'never'];
     }
 
     #[DataProvider('r2Provider')]
@@ -351,7 +351,7 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
         yield 'Gruppe off, inherit nach never' => ['off', 'inherit', 'never'];
         yield 'Gruppe blocked, always nach never' => ['blocked', 'always', 'never'];
         yield 'Gruppe leer, inherit nach never' => ['', 'inherit', 'never'];
-        yield 'keine Standard-Mitgliedergruppe, inherit nach never' => [null, 'inherit', 'never'];
+        yield 'keine Standard-Benutzergruppe, inherit nach never' => [null, 'inherit', 'never'];
     }
 
     #[DataProvider('r4Provider')]
@@ -453,7 +453,7 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
         yield 'Gruppe off, inherit' => ['off', 'inherit', self::OPEN_GROUP_OFF_MESSAGE];
         yield 'Gruppe blocked, never' => ['blocked', 'never', self::OPEN_NEVER_MESSAGE];
         yield 'Gruppe leer, never' => ['', 'never', self::OPEN_NEVER_MESSAGE];
-        yield 'keine Standard-Mitgliedergruppe, never' => [null, 'never', self::OPEN_NEVER_MESSAGE];
+        yield 'keine Standard-Benutzergruppe, never' => [null, 'never', self::OPEN_NEVER_MESSAGE];
     }
 
     #[DataProvider('productOpenHintCauseProvider')]
@@ -573,7 +573,7 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
         yield 'Gruppe off, gllMode fehlt' => ['off', ''];
         yield 'Gruppe blocked, never' => ['blocked', 'never'];
         yield 'Gruppe leer, never' => ['', 'never'];
-        yield 'keine Standard-Mitgliedergruppe, never' => [null, 'never'];
+        yield 'keine Standard-Benutzergruppe, never' => [null, 'never'];
     }
 
     #[DataProvider('r3Provider')]

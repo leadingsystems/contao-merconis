@@ -30,7 +30,7 @@ final class ProductGuaranteeConfigurationValidator
     /**
      * Prüft eine Produktzeile aus Import oder Product Management API im Zustand nach dem
      * Schreiben (Spec 27, Abschnitte 4 und 10). Bezug für "GLL aus" ist der gespeicherte
-     * Wert der Standard-Mitgliedergruppe; `$relatedVariants` ist der gespeicherte Stand der
+     * Wert der Standard-Benutzergruppe; `$relatedVariants` ist der gespeicherte Stand der
      * Varianten. Der Validator ändert keine Werte; eine leere oder fehlende Angabe für
      * `gllMode` ergibt `inherit`.
      *

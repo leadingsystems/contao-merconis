@@ -30,7 +30,7 @@ use Symfony\Component\DependencyInjection\Container;
 /**
  * Prüft den Weg des Gruppenwerts über `ls_shop_generalHelper::getGroupSettings4User()`
  * einschließlich Hook `getGroupSettingsForUser` bis in Produktdetailseite, letzte
- * Bestellseite und Bestell-Snapshot. Die Standard-Mitgliedergruppe liegt in einer
+ * Bestellseite und Bestell-Snapshot. Die Standard-Benutzergruppe liegt in einer
  * SQLite-Datenbank; angemeldet ist niemand.
  */
 final class LegalGuaranteeMemberGroupGllModeHookTest extends TestCase

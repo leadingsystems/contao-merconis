@@ -16,7 +16,7 @@ require_once __DIR__ . '/../../src/Resources/contao/classes/ls_shop_importContro
 
 /**
  * GLL/GARAN-Teil der Produktzeile im Importer (Spec 27, Abschnitte 4 und 10). Ohne
- * Standard-Mitgliedergruppe gilt nur `never` als "GLL aus"; so liest der Validator keine
+ * Standard-Benutzergruppe gilt nur `never` als "GLL aus"; so liest der Validator keine
  * Gruppe aus der Datenbank. Neue Produkte haben keine gespeicherten Varianten.
  */
 final class LegalGuaranteeImportControllerTest extends TestCase

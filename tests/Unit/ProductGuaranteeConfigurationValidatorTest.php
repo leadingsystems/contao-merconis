@@ -92,7 +92,7 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
     }
 
     /**
-     * "GARAN setzt GLL voraus" für jede Kombination aus Wert der Standard-Mitgliedergruppe
+     * "GARAN setzt GLL voraus" für jede Kombination aus Wert der Standard-Benutzergruppe
      * (`null` = keine gesetzt) und `gllMode` der Zeile (`null` = Spalte fehlt). Erwartet ist
      * der Meldungscode oder `null` für keine Ablehnung.
      *
@@ -391,8 +391,8 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
     }
 
     /**
-     * R3 für jeden Wert der Standard-Mitgliedergruppe; `null` steht für "keine
-     * Standard-Mitgliedergruppe gesetzt", ein fehlender Produktwert für `inherit`.
+     * R3 für jeden Wert der Standard-Benutzergruppe; `null` steht für "keine
+     * Standard-Benutzergruppe gesetzt", ein fehlender Produktwert für `inherit`.
      *
      * @return iterable<string, array{string|null, string|null, bool}>
      */
@@ -416,8 +416,8 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
             }
         }
 
-        yield 'keine Standard-Mitgliedergruppe, Produkt "never"' => [null, 'never', true];
-        yield 'keine Standard-Mitgliedergruppe, Produkt "inherit"' => [null, 'inherit', false];
+        yield 'keine Standard-Benutzergruppe, Produkt "never"' => [null, 'never', true];
+        yield 'keine Standard-Benutzergruppe, Produkt "inherit"' => [null, 'inherit', false];
     }
 
     #[DataProvider('variantOverrideGllProvider')]
@@ -687,7 +687,7 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
     }
 
     /**
-     * `null` heißt "keine Standard-Mitgliedergruppe gesetzt".
+     * `null` heißt "keine Standard-Benutzergruppe gesetzt".
      */
     private function createValidator(?string $standardMemberGroupGllMode = 'on'): ProductGuaranteeConfigurationValidator
     {
