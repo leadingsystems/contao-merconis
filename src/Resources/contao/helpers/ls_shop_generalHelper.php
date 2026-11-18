@@ -33,7 +33,7 @@ use Contao\Validator;
 use Contao\Widget;
 use LeadingSystems\Helpers\FlexWidget;
 use LeadingSystems\MerconisBundle\EventListener\Post;
-use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\MemberGroupGllModeInspector;
+use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\MemberGroupLgnModeInspector;
 
 use LeadingSystems\MerconisBundle\License\LicenseKeyValidator;
 use Symfony\Component\Finder\Finder;
@@ -5481,9 +5481,9 @@ class ls_shop_generalHelper
         return $arr_modules;
     }
 
-    public static function getMerconisSystemMessages(?MemberGroupGllModeInspector $memberGroupGllModeInspector = null)
+    public static function getMerconisSystemMessages(?MemberGroupLgnModeInspector $memberGroupLgnModeInspector = null)
     {
-        $memberGroupGllModeInspector ??= System::getContainer()->get(MemberGroupGllModeInspector::class);
+        $memberGroupLgnModeInspector ??= System::getContainer()->get(MemberGroupLgnModeInspector::class);
 
         ob_start();
 
@@ -5507,11 +5507,11 @@ class ls_shop_generalHelper
             }
         }
 
-        if ($memberGroupGllModeInspector->countMemberGroupsWithoutGllMode() > 0) {
+        if ($memberGroupLgnModeInspector->countMemberGroupsWithoutLgnMode() > 0) {
             ?>
             <div class="ls_shop_systemMessage">
                 <div class="ls_shop_announcement">
-                    <?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['dashboard']['gllAnnouncement']; ?>
+                    <?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['dashboard']['lgnAnnouncement']; ?>
                 </div>
             </div>
             <?php

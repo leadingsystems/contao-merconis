@@ -25,11 +25,11 @@ final class LegalGuaranteeOrderAttachmentsCommandTest extends TestCase
         $framework = $this->createStub(ContaoFramework::class);
         $projectDir = $this->createTempProjectDir();
         $bundleProjectDir = $projectDir . '/vendor/leadingsystems/contao-merconis';
-        $gllDirectory = $bundleProjectDir . '/src/Resources/public/legal-guarantee/gll/v1.0';
+        $lgnDirectory = $bundleProjectDir . '/src/Resources/public/legal-guarantee/lgn/v1.0';
         $garanDirectory = $bundleProjectDir . '/src/Resources/legal-guarantee/garan/v1.0';
-        mkdir($gllDirectory, 0777, true);
+        mkdir($lgnDirectory, 0777, true);
         mkdir($garanDirectory, 0777, true);
-        file_put_contents($gllDirectory . '/legal-guarantee-notice-de.pdf', 'pdf');
+        file_put_contents($lgnDirectory . '/legal-guarantee-notice-de.pdf', 'pdf');
         file_put_contents(
             $garanDirectory . '/eu-text-links.json',
             '{"url":"https://europa.example.test/garan"}'
@@ -99,8 +99,8 @@ final class LegalGuaranteeOrderAttachmentsCommandTest extends TestCase
 
                 return [
                     'id' => 4,
-                    'gllVersion' => 'v1.0',
-                    'gllLanguage' => 'de',
+                    'lgnVersion' => 'v1.0',
+                    'lgnLanguage' => 'de',
                     'items' => [
                         [
                             'productVariantID' => '10-1',
@@ -120,7 +120,7 @@ final class LegalGuaranteeOrderAttachmentsCommandTest extends TestCase
 
         self::assertSame(Command::SUCCESS, $exitCode);
         self::assertSame(
-            "bundles/leadingsystemsmerconis/legal-guarantee/gll/v1.0/legal-guarantee-notice-de.pdf\nfiles/merconisfiles/dynamicAttachmentFiles/generatedFiles/garantielabels/garan.pdf\n",
+            "bundles/leadingsystemsmerconis/legal-guarantee/lgn/v1.0/legal-guarantee-notice-de.pdf\nfiles/merconisfiles/dynamicAttachmentFiles/generatedFiles/garantielabels/garan.pdf\n",
             $tester->getDisplay()
         );
     }

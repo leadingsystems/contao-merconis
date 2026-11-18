@@ -523,8 +523,8 @@ class ls_shop_checkout {
             'orderDate' => date("Y-m-d H:i:s"), // no language
             'customerNr' => $customerNr, // no language
             'customerLanguage' => $objPage->language, // no language
-            'gllVersion' => '', // no language
-            'gllLanguage' => '', // no language
+            'lgnVersion' => '', // no language
+            'lgnLanguage' => '', // no language
             'customerInfo' => array(
                 'personalData' => $this->createShopLanguageArray(ls_shop_checkoutData::getInstance()->arrCustomerDataReview), // shop language
                 'personalData_originalOptionValues' => ls_shop_checkoutData::getInstance()->arrCustomerDataReviewOnlyOriginalOptionValues, // no language
@@ -878,8 +878,8 @@ class ls_shop_checkout {
                         `orderDate` = ?,
                         `customerNr` = ?,
                         `customerLanguage` = ?,
-                        `gllVersion` = ?,
-                        `gllLanguage` = ?,
+                        `lgnVersion` = ?,
+                        `lgnLanguage` = ?,
                         `firstname` = ?,
                         `lastname` = ?,
                         `personalDataReview` = ?,
@@ -954,8 +954,8 @@ class ls_shop_checkout {
             $order['orderDate'],
             $order['customerNr'],
             $order['customerLanguage'],
-            $order['gllVersion'],
-            $order['gllLanguage'],
+            $order['lgnVersion'],
+            $order['lgnLanguage'],
             isset($order['customerInfo']['personalData']['firstname']) ? $order['customerInfo']['personalData']['firstname'] : '',
             isset($order['customerInfo']['personalData']['lastname']) ? $order['customerInfo']['personalData']['lastname'] : '',
             $order['customerInfo']['personalDataReview'],

@@ -10,7 +10,7 @@ use Contao\Database;
 use Contao\System;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
-use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\StandardMemberGroupGllMode;
+use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\StandardMemberGroupLgnMode;
 use Merconis\Core\ls_shop_generalHelper;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -22,7 +22,7 @@ use Symfony\Component\DependencyInjection\Container;
  * `ls_shop_generalHelper::getGroupSettings()` gegen eine SQLite-Datenbank. Der Hook
  * `getGroupSettingsForUser` ist registriert und darf den Wert nicht ändern.
  */
-final class StandardMemberGroupGllModeReaderTest extends TestCase
+final class StandardMemberGroupLgnModeReaderTest extends TestCase
 {
     private const STANDARD_MEMBER_GROUP_ID = 7;
     private const OTHER_MEMBER_GROUP_ID = 8;
@@ -45,7 +45,7 @@ final class StandardMemberGroupGllModeReaderTest extends TestCase
 
         $GLOBALS['TL_CONFIG']['ls_shop_standardGroup'] = self::STANDARD_MEMBER_GROUP_ID;
         $GLOBALS['MERCONIS_HOOKS'] = [
-            'getGroupSettingsForUser' => [[StandardMemberGroupGllModeReaderTestHook::class, 'adjustGroupSettings']],
+            'getGroupSettingsForUser' => [[StandardMemberGroupLgnModeReaderTestHook::class, 'adjustGroupSettings']],
         ];
         $GLOBALS['merconis_globals'] = ['LaFP' => ['y2' => true]];
     }
@@ -81,29 +81,29 @@ final class StandardMemberGroupGllModeReaderTest extends TestCase
     }
 
     #[DataProvider('storedGroupValueProvider')]
-    public function testStoredValueIsReadWithoutHook(?string $storedGllMode, string $expectedGllMode): void
+    public function testStoredValueIsReadWithoutHook(?string $storedLgnMode, string $expectedLgnMode): void
     {
         $this->installContainer($this->createMemberGroupConnection([
-            self::STANDARD_MEMBER_GROUP_ID => $storedGllMode,
+            self::STANDARD_MEMBER_GROUP_ID => $storedLgnMode,
             self::OTHER_MEMBER_GROUP_ID => 'on',
         ]));
 
-        self::assertSame($expectedGllMode, (new StandardMemberGroupGllMode())->getStoredGllMode());
+        self::assertSame($expectedLgnMode, (new StandardMemberGroupLgnMode())->getStoredLgnMode());
     }
 
     public function testHookAdjustmentDoesNotChangeStoredValue(): void
     {
         $this->installContainer($this->createMemberGroupConnection([self::STANDARD_MEMBER_GROUP_ID => 'off']));
 
-        self::assertSame('on', ls_shop_generalHelper::getGroupSettings4User(true)['lsShopGllMode']);
-        self::assertSame('off', (new StandardMemberGroupGllMode())->getStoredGllMode());
+        self::assertSame('on', ls_shop_generalHelper::getGroupSettings4User(true)['lsShopLgnMode']);
+        self::assertSame('off', (new StandardMemberGroupLgnMode())->getStoredLgnMode());
     }
 
     public function testMissingGroupYieldsEmptyValue(): void
     {
         $this->installContainer($this->createMemberGroupConnection([self::OTHER_MEMBER_GROUP_ID => 'on']));
 
-        self::assertSame('', (new StandardMemberGroupGllMode())->getStoredGllMode());
+        self::assertSame('', (new StandardMemberGroupLgnMode())->getStoredLgnMode());
     }
 
     public function testMissingStandardMemberGroupYieldsEmptyValue(): void
@@ -111,7 +111,7 @@ final class StandardMemberGroupGllModeReaderTest extends TestCase
         $this->installContainer($this->createMemberGroupConnection([self::STANDARD_MEMBER_GROUP_ID => 'on']));
         unset($GLOBALS['TL_CONFIG']['ls_shop_standardGroup']);
 
-        self::assertSame('', (new StandardMemberGroupGllMode())->getStoredGllMode());
+        self::assertSame('', (new StandardMemberGroupLgnMode())->getStoredLgnMode());
     }
 
     private function installContainer(Connection $connection): void
@@ -131,24 +131,24 @@ final class StandardMemberGroupGllModeReaderTest extends TestCase
     }
 
     /**
-     * @param array<int, string|null> $gllModeByGroupId
+     * @param array<int, string|null> $lgnModeByGroupId
      */
-    private function createMemberGroupConnection(array $gllModeByGroupId): Connection
+    private function createMemberGroupConnection(array $lgnModeByGroupId): Connection
     {
         $connection = DriverManager::getConnection(['url' => 'sqlite:///:memory:']);
         $connection->executeStatement('
             CREATE TABLE tl_member_group (
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL DEFAULT \'\',
-                lsShopGllMode TEXT NULL
+                lsShopLgnMode TEXT NULL
             )
         ');
 
-        foreach ($gllModeByGroupId as $groupId => $gllMode) {
+        foreach ($lgnModeByGroupId as $groupId => $lgnMode) {
             $connection->insert('tl_member_group', [
                 'id' => $groupId,
                 'name' => 'Gruppe ' . $groupId,
-                'lsShopGllMode' => $gllMode,
+                'lsShopLgnMode' => $lgnMode,
             ]);
         }
 
@@ -162,7 +162,7 @@ final class StandardMemberGroupGllModeReaderTest extends TestCase
     }
 }
 
-final class StandardMemberGroupGllModeReaderTestHook
+final class StandardMemberGroupLgnModeReaderTestHook
 {
     /**
      * @param array<string, mixed> $groupSettings
@@ -171,7 +171,7 @@ final class StandardMemberGroupGllModeReaderTestHook
      */
     public function adjustGroupSettings(array $groupSettings): array
     {
-        $groupSettings['lsShopGllMode'] = 'on';
+        $groupSettings['lsShopLgnMode'] = 'on';
 
         return $groupSettings;
     }

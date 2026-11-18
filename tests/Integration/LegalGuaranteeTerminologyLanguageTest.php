@@ -8,7 +8,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Alle händlersichtbaren GLL- und GARAN-Texte in `de` und `en` nach Spec 27, Abschnitt
+ * Alle händlersichtbaren LGN- und GARAN-Texte in `de` und `en` nach Spec 27, Abschnitt
  * "Terminologie": Backend-Masken, Meldungen und Hinweise im Backend, Dashboard-Hinweis
  * sowie Meldungen im Import-Log und in der Product Management API. Dazu der Wortlaut der
  * Backend-Meldungen zur Herstellergarantie nach Arbeitsauftrag 0016.
@@ -22,8 +22,8 @@ final class LegalGuaranteeTerminologyLanguageTest extends TestCase
      */
     private const LANGUAGE_KEYS_BY_TABLE = [
         'tl_ls_shop_product' => [
-            'gllMode',
-            'gllModeOptions',
+            'lgnMode',
+            'lgnModeOptions',
             'enableGaran',
             'guaranteeDurationMonths',
             'guaranteeBrand',
@@ -43,9 +43,9 @@ final class LegalGuaranteeTerminologyLanguageTest extends TestCase
             'lsShopGuaranteeLabels_legend',
         ],
         'tl_member_group' => [
-            'lsShopGllMode',
-            'lsShopGllModeOptions',
-            'lsShopGllModeBlankOption',
+            'lsShopLgnMode',
+            'lsShopLgnModeOptions',
+            'lsShopLgnModeBlankOption',
         ],
         'tl_lsShopSettings' => [
             'ls_shop_standardGroup',
@@ -58,7 +58,7 @@ final class LegalGuaranteeTerminologyLanguageTest extends TestCase
      * Geprüfte Pfade unter `MSC.ls_shop` in `default.php`.
      */
     private const DEFAULT_LANGUAGE_PATHS = [
-        ['dashboard', 'gllAnnouncement'],
+        ['dashboard', 'lgnAnnouncement'],
         ['legalGuaranteeImport'],
     ];
 
@@ -87,11 +87,11 @@ final class LegalGuaranteeTerminologyLanguageTest extends TestCase
     ];
 
     private const FIELD_AND_CODE_IDENTIFIERS = [
-        'gllMode',
+        'lgnMode',
         'garanMode',
         'enableGaran',
         'enableGll',
-        'lsShopGllMode',
+        'lsShopLgnMode',
         'guaranteeDurationMonths',
         'guaranteeBrand',
         'guaranteeModelIdentifier',
@@ -184,10 +184,10 @@ final class LegalGuaranteeTerminologyLanguageTest extends TestCase
     }
 
     #[DataProvider('languageProvider')]
-    public function testTextsContainNoGllAndGaranOnlyAsSpecifiedSuffix(string $language): void
+    public function testTextsContainNoLgnAndGaranOnlyAsSpecifiedSuffix(string $language): void
     {
         foreach ($this->collectMerchantTexts($language) as $textLocation => $merchantText) {
-            self::assertStringNotContainsString('GLL', $merchantText, $textLocation);
+            self::assertStringNotContainsString('LGN', $merchantText, $textLocation);
 
             $textToCheckForGaran = in_array($textLocation, self::GARAN_SUFFIX_LOCATIONS, true)
                 ? str_replace(self::GARAN_SUFFIX_BY_LANGUAGE[$language], '', $merchantText)

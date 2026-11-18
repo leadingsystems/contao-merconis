@@ -29,20 +29,20 @@ final class OrderLabelSnapshotRenderer
     /**
      * @param array<string, mixed> $orderSnapshot
      */
-    public function renderGllNoticeSvg(array $orderSnapshot): string
+    public function renderLgnNoticeSvg(array $orderSnapshot): string
     {
-        $version = trim((string) ($orderSnapshot['gllVersion'] ?? ''));
-        $language = trim((string) ($orderSnapshot['gllLanguage'] ?? ''));
+        $version = trim((string) ($orderSnapshot['lgnVersion'] ?? ''));
+        $language = trim((string) ($orderSnapshot['lgnLanguage'] ?? ''));
 
         if ('' === $version || '' === $language) {
             return '';
         }
 
-        $svgPath = $this->assetLocator->getGllSvgPathByLanguage($language, $version);
+        $svgPath = $this->assetLocator->getLgnSvgPathByLanguage($language, $version);
         $svgContents = file_get_contents($svgPath);
 
         if (false === $svgContents) {
-            throw new RuntimeException(sprintf('GLL snapshot asset could not be read: %s', $svgPath));
+            throw new RuntimeException(sprintf('LGN snapshot asset could not be read: %s', $svgPath));
         }
 
         return $svgContents;
@@ -51,16 +51,16 @@ final class OrderLabelSnapshotRenderer
     /**
      * @param array<string, mixed> $orderSnapshot
      */
-    public function resolveGllPdfLanguage(array $orderSnapshot): ?string
+    public function resolveLgnPdfLanguage(array $orderSnapshot): ?string
     {
-        $version = trim((string) ($orderSnapshot['gllVersion'] ?? ''));
-        $language = trim((string) ($orderSnapshot['gllLanguage'] ?? ''));
+        $version = trim((string) ($orderSnapshot['lgnVersion'] ?? ''));
+        $language = trim((string) ($orderSnapshot['lgnLanguage'] ?? ''));
 
         if ('' === $version || '' === $language) {
             return null;
         }
 
-        return $this->assetLocator->resolveGllPdfLanguage($language, $version);
+        return $this->assetLocator->resolveLgnPdfLanguage($language, $version);
     }
 
     /**

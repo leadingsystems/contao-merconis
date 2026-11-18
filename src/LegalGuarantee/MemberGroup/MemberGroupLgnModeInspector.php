@@ -10,7 +10,7 @@ use Doctrine\DBAL\Exception;
 /*
  * Nicht `final`, damit Tests des Dashboard-Hinweises die Abfrage ohne Datenbank ersetzen können.
  */
-class MemberGroupGllModeInspector
+class MemberGroupLgnModeInspector
 {
     public function __construct(
         private readonly Connection $connection,
@@ -18,18 +18,18 @@ class MemberGroupGllModeInspector
     }
 
     /**
-     * Liefert die Zahl der Mitgliedergruppen, deren `lsShopGllMode` noch nicht festgelegt ist.
+     * Liefert die Zahl der Mitgliedergruppen, deren `lsShopLgnMode` noch nicht festgelegt ist.
      * Ein gespeicherter Wert `NULL` zählt wie der leere Wert.
      *
      * @throws Exception Bei einem Fehler der Datenbankabfrage
      */
-    public function countMemberGroupsWithoutGllMode(): int
+    public function countMemberGroupsWithoutLgnMode(): int
     {
         return (int) $this->connection->fetchOne("
             SELECT COUNT(*)
             FROM `tl_member_group`
-            WHERE `lsShopGllMode` = ''
-               OR `lsShopGllMode` IS NULL
+            WHERE `lsShopLgnMode` = ''
+               OR `lsShopLgnMode` IS NULL
         ");
     }
 }

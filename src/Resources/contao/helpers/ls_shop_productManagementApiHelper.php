@@ -778,7 +778,7 @@ class ls_shop_productManagementApiHelper {
 
 		$obj_dbres_product = Database::getInstance()
 		->prepare("
-			SELECT		`gllMode`,
+			SELECT		`lgnMode`,
 						`enableGaran`,
 						`guaranteeDurationMonths`,
 						`guaranteeBrand`,
@@ -907,7 +907,7 @@ class ls_shop_productManagementApiHelper {
 							`lsShopProductRecommendedProducts` = ?,
 							`lsShopProductDeliveryInfoSet` = ?,
 							`lsShopProductProducer` = ?,
-							`gllMode` = ?,
+							`lgnMode` = ?,
 							`enableGaran` = ?,
 							`guaranteeDurationMonths` = ?,
 							`guaranteeBrand` = ?,
@@ -953,7 +953,7 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['recommendedProducts'], // blob, translated, check unclear
 				$arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] ? $arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
 				$arr_preprocessedDataRow['producer'], // String, maxlength 255
-				$arr_preprocessedDataRow['gllMode'], // inherit, always or never
+				$arr_preprocessedDataRow['lgnMode'], // inherit, always or never
 				$arr_preprocessedDataRow['enableGaran'], // 1 or ''
 				$arr_preprocessedDataRow['guaranteeDurationMonths'], // decimal, empty = null
 				$arr_preprocessedDataRow['guaranteeBrand'], // String
@@ -1069,7 +1069,7 @@ class ls_shop_productManagementApiHelper {
 							`lsShopProductRecommendedProducts` = ?,
 							`lsShopProductDeliveryInfoSet` = ?,
 							`lsShopProductProducer` = ?,
-							`gllMode` = ?,
+							`lgnMode` = ?,
 							`enableGaran` = ?,
 							`guaranteeDurationMonths` = ?,
 							`guaranteeBrand` = ?,
@@ -1115,7 +1115,7 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['recommendedProducts'], // blob, translated, check unclear
 				$arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] ? $arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
 				$arr_preprocessedDataRow['producer'], // String, maxlength 255
-				$arr_preprocessedDataRow['gllMode'], // inherit, always or never
+				$arr_preprocessedDataRow['lgnMode'], // inherit, always or never
 				$arr_preprocessedDataRow['enableGaran'], // 1 or ''
 				$arr_preprocessedDataRow['guaranteeDurationMonths'], // decimal, empty = null
 				$arr_preprocessedDataRow['guaranteeBrand'], // String

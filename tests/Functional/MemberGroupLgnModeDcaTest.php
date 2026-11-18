@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
  * Functional statt Integration: Die DCA-Datei instanziiert `PaletteManipulator` aus
  * `contao/core-bundle`, das nicht in `require-dev` steht (Implementierungsentscheidung 0010).
  */
-final class MemberGroupGllModeDcaTest extends TestCase
+final class MemberGroupLgnModeDcaTest extends TestCase
 {
     private const MEMBER_GROUP_DCA_PATH = __DIR__ . '/../../src/Resources/contao/dca/tl_member_group.php';
     private const TIMESTAMP_CALLBACK = ['Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp'];
@@ -52,48 +52,48 @@ final class MemberGroupGllModeDcaTest extends TestCase
         parent::tearDown();
     }
 
-    public function testGllModeFieldIsMandatorySelectWithoutPreselection(): void
+    public function testLgnModeFieldIsMandatorySelectWithoutPreselection(): void
     {
-        $gllModeField = $GLOBALS['TL_DCA']['tl_member_group']['fields']['lsShopGllMode'];
+        $lgnModeField = $GLOBALS['TL_DCA']['tl_member_group']['fields']['lsShopLgnMode'];
 
-        self::assertSame('select', $gllModeField['inputType']);
-        self::assertSame(['on', 'off', 'blocked'], $gllModeField['options']);
-        self::assertTrue($gllModeField['exclude']);
-        self::assertTrue($gllModeField['eval']['includeBlankOption']);
-        self::assertArrayHasKey('blankOptionLabel', $gllModeField['eval']);
-        self::assertTrue($gllModeField['eval']['mandatory']);
-        self::assertArrayNotHasKey('default', $gllModeField);
-        self::assertSame("varchar(16) NOT NULL default ''", $gllModeField['sql']);
+        self::assertSame('select', $lgnModeField['inputType']);
+        self::assertSame(['on', 'off', 'blocked'], $lgnModeField['options']);
+        self::assertTrue($lgnModeField['exclude']);
+        self::assertTrue($lgnModeField['eval']['includeBlankOption']);
+        self::assertArrayHasKey('blankOptionLabel', $lgnModeField['eval']);
+        self::assertTrue($lgnModeField['eval']['mandatory']);
+        self::assertArrayNotHasKey('default', $lgnModeField);
+        self::assertSame("varchar(16) NOT NULL default ''", $lgnModeField['sql']);
     }
 
     /**
      * Hilfe-Assistent und halbe Breite nach Implementierungsentscheidung 0027.
      */
-    public function testGllModeFieldHasHelpWizardAndHalfWidth(): void
+    public function testLgnModeFieldHasHelpWizardAndHalfWidth(): void
     {
-        $gllModeField = $GLOBALS['TL_DCA']['tl_member_group']['fields']['lsShopGllMode'];
-        $gllModeCssClasses = explode(' ', $gllModeField['eval']['tl_class']);
+        $lgnModeField = $GLOBALS['TL_DCA']['tl_member_group']['fields']['lsShopLgnMode'];
+        $lgnModeCssClasses = explode(' ', $lgnModeField['eval']['tl_class']);
 
-        self::assertTrue($gllModeField['eval']['helpwizard']);
-        self::assertArrayNotHasKey('explanation', $gllModeField);
-        self::assertContains('w50', $gllModeCssClasses);
-        self::assertContains('clr', $gllModeCssClasses);
+        self::assertTrue($lgnModeField['eval']['helpwizard']);
+        self::assertArrayNotHasKey('explanation', $lgnModeField);
+        self::assertContains('w50', $lgnModeCssClasses);
+        self::assertContains('clr', $lgnModeCssClasses);
     }
 
-    public function testGllModeFieldLabelsReferenceLanguageFiles(): void
+    public function testLgnModeFieldLabelsReferenceLanguageFiles(): void
     {
-        $GLOBALS['TL_LANG']['tl_member_group']['lsShopGllMode'] = ['Title', 'Description'];
-        $GLOBALS['TL_LANG']['tl_member_group']['lsShopGllModeOptions'] = ['on' => 'Show'];
-        $GLOBALS['TL_LANG']['tl_member_group']['lsShopGllModeBlankOption'] = 'Please select';
+        $GLOBALS['TL_LANG']['tl_member_group']['lsShopLgnMode'] = ['Title', 'Description'];
+        $GLOBALS['TL_LANG']['tl_member_group']['lsShopLgnModeOptions'] = ['on' => 'Show'];
+        $GLOBALS['TL_LANG']['tl_member_group']['lsShopLgnModeBlankOption'] = 'Please select';
 
-        $gllModeField = $GLOBALS['TL_DCA']['tl_member_group']['fields']['lsShopGllMode'];
+        $lgnModeField = $GLOBALS['TL_DCA']['tl_member_group']['fields']['lsShopLgnMode'];
 
-        self::assertSame(['Title', 'Description'], $gllModeField['label']);
-        self::assertSame(['on' => 'Show'], $gllModeField['reference']);
-        self::assertSame('Please select', $gllModeField['eval']['blankOptionLabel']);
+        self::assertSame(['Title', 'Description'], $lgnModeField['label']);
+        self::assertSame(['on' => 'Show'], $lgnModeField['reference']);
+        self::assertSame('Please select', $lgnModeField['eval']['blankOptionLabel']);
     }
 
-    public function testGllModeFieldIsAppendedToShopLegend(): void
+    public function testLgnModeFieldIsAppendedToShopLegend(): void
     {
         $defaultPalette = $GLOBALS['TL_DCA']['tl_member_group']['palettes']['default'];
 
@@ -104,9 +104,9 @@ final class MemberGroupGllModeDcaTest extends TestCase
 
         $shopLegendFields = explode(',', trim($shopLegendMatches[1], ','));
 
-        self::assertContains('lsShopGllMode', $shopLegendFields);
-        self::assertSame('lsShopGllMode', end($shopLegendFields));
-        self::assertSame(1, substr_count($defaultPalette, 'lsShopGllMode'));
+        self::assertContains('lsShopLgnMode', $shopLegendFields);
+        self::assertSame('lsShopLgnMode', end($shopLegendFields));
+        self::assertSame(1, substr_count($defaultPalette, 'lsShopLgnMode'));
     }
 
     public function testMemberGroupHasNoAdditionalCallbacks(): void

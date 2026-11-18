@@ -9,16 +9,16 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Meldungen zu R1 bis R4 und Hinweise beim Öffnen nach Spec 27, Abschnitt 4: vorhanden in
- * `de` und `en`, ohne die Kürzel "GLL" und "GARAN" und ohne Feldnamen.
+ * `de` und `en`, ohne die Kürzel "LGN" und "GARAN" und ohne Feldnamen.
  */
 final class LegalGuaranteeRuleMessagesLanguageTest extends TestCase
 {
     private const LANGUAGE_BASE_PATH = __DIR__ . '/../../src/Resources/contao/languages/';
 
     private const PRODUCT_MESSAGE_KEYS = [
-        'gllModeChangedForManufacturerGuarantee',
-        'manufacturerGuaranteeDisabledByGllMode',
-        'gllModeRejectedByOwnVariantDetails',
+        'lgnModeChangedForManufacturerGuarantee',
+        'manufacturerGuaranteeDisabledByLgnMode',
+        'lgnModeRejectedByOwnVariantDetails',
         'openHintProductNeverShown',
         'openHintStandardGroupOnlyAlwaysShow',
         'openHintVariantsWithOwnDetails',
@@ -30,12 +30,12 @@ final class LegalGuaranteeRuleMessagesLanguageTest extends TestCase
     ];
 
     private const FORBIDDEN_FRAGMENTS = [
-        'GLL',
+        'LGN',
         'GARAN',
-        'gllMode',
+        'lgnMode',
         'garanMode',
         'enableGaran',
-        'lsShopGllMode',
+        'lsShopLgnMode',
         'ls_shop_standardGroup',
         'guaranteeDurationMonths',
         'guaranteeBrand',
@@ -101,7 +101,7 @@ final class LegalGuaranteeRuleMessagesLanguageTest extends TestCase
             $this->assertMerchantText($messageKey, $messageText);
         }
 
-        foreach (['gllModeChangedForManufacturerGuarantee', 'gllModeRejectedByOwnVariantDetails', 'openHintVariantsWithOwnDetails'] as $messageKey) {
+        foreach (['lgnModeChangedForManufacturerGuarantee', 'lgnModeRejectedByOwnVariantDetails', 'openHintVariantsWithOwnDetails'] as $messageKey) {
             self::assertSame(1, substr_count($productLanguage['legalGuaranteeMessages'][$messageKey], '%s'), $messageKey);
         }
     }
@@ -134,12 +134,12 @@ final class LegalGuaranteeRuleMessagesLanguageTest extends TestCase
         self::assertStringContainsString('"Only products set to \'Always show\'"', $productLanguageEn['openHintStandardGroupOnlyAlwaysShow']);
         self::assertStringContainsString('"As member group"', $productLanguageEn['openHintStandardGroupOnlyAlwaysShow']);
         self::assertStringContainsString('"Always show"', $productLanguageEn['openHintStandardGroupOnlyAlwaysShow']);
-        self::assertStringContainsString('"Eigene Angaben"', $productLanguageDe['gllModeRejectedByOwnVariantDetails']);
-        self::assertStringContainsString('"Own details"', $productLanguageEn['gllModeRejectedByOwnVariantDetails']);
+        self::assertStringContainsString('"Eigene Angaben"', $productLanguageDe['lgnModeRejectedByOwnVariantDetails']);
+        self::assertStringContainsString('"Own details"', $productLanguageEn['lgnModeRejectedByOwnVariantDetails']);
         self::assertStringContainsString('zuerst die Einstellung zur gesetzlichen Gewährleistung am Produkt ändern und speichern', $variantLanguageDe['ownDetailsRejectedWithoutLegalGuarantee']);
         self::assertStringContainsString('change and save the legal guarantee notice setting of the product first', $variantLanguageEn['ownDetailsRejectedWithoutLegalGuarantee']);
-        self::assertStringContainsString('Dauer, Marke und Modell bleiben gespeichert', $productLanguageDe['manufacturerGuaranteeDisabledByGllMode']);
-        self::assertStringContainsString('Duration, brand and model remain saved', $productLanguageEn['manufacturerGuaranteeDisabledByGllMode']);
+        self::assertStringContainsString('Dauer, Marke und Modell bleiben gespeichert', $productLanguageDe['manufacturerGuaranteeDisabledByLgnMode']);
+        self::assertStringContainsString('Duration, brand and model remain saved', $productLanguageEn['manufacturerGuaranteeDisabledByLgnMode']);
     }
 
     private function assertMerchantText(string $messageKey, mixed $messageText): void

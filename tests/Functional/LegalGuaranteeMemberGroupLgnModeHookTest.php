@@ -15,7 +15,7 @@ use LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\LegalGuaranteeMarkupPr
 use LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\ProductGuaranteeDisplayResolver;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranLabelRenderer;
 use LeadingSystems\MerconisBundle\LegalGuarantee\GaranLabelGrouping;
-use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\CurrentMemberGroupGllModeProvider;
+use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\CurrentMemberGroupLgnModeProvider;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeLanguageResolver;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Order\OrderLabelSnapshotBuilder;
@@ -33,7 +33,7 @@ use Symfony\Component\DependencyInjection\Container;
  * Bestellseite und Bestell-Snapshot. Die Standard-Benutzergruppe liegt in einer
  * SQLite-Datenbank; angemeldet ist niemand.
  */
-final class LegalGuaranteeMemberGroupGllModeHookTest extends TestCase
+final class LegalGuaranteeMemberGroupLgnModeHookTest extends TestCase
 {
     private const STANDARD_MEMBER_GROUP_ID = 7;
 
@@ -57,15 +57,15 @@ final class LegalGuaranteeMemberGroupGllModeHookTest extends TestCase
         $GLOBALS['MERCONIS_HOOKS'] = [];
         $GLOBALS['merconis_globals'] = ['LaFP' => ['y2' => true]];
         $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee'] = [
-            'gllTitle' => 'Gesetzliche Gewährleistung, mindestens zwei Jahre',
-            'gllEuLinkText' => 'EU-Information zur gesetzlichen Gewährleistung',
+            'lgnTitle' => 'Gesetzliche Gewährleistung, mindestens zwei Jahre',
+            'lgnEuLinkText' => 'EU-Information zur gesetzlichen Gewährleistung',
             'garanBlockHeadline' => 'Herstellergarantie für folgende Artikel:',
             'garanEuLinkText' => 'EU-Information zur Herstellergarantie',
             'garanTitlePattern' => 'Herstellergarantie von %s für %s mit %s Jahren',
         ];
         $GLOBALS['TL_CSS'] = [];
         $GLOBALS['objPage'] = (object) ['language' => 'de_DE'];
-        LegalGuaranteeMemberGroupGllModeTestHook::$gllModeToSet = '';
+        LegalGuaranteeMemberGroupLgnModeTestHook::$lgnModeToSet = '';
     }
 
     protected function tearDown(): void
@@ -94,9 +94,9 @@ final class LegalGuaranteeMemberGroupGllModeHookTest extends TestCase
         $alwaysProduct = $this->createProduct('always', 20, 'Decke', 'ART-200');
         $markupProvider = $this->createMarkupProvider();
 
-        self::assertSame('', $markupProvider->renderProductGllNotice($inheritProduct));
+        self::assertSame('', $markupProvider->renderProductLgnNotice($inheritProduct));
         self::assertSame('', $markupProvider->renderProductGaranLabel($inheritProduct));
-        self::assertNotSame('', $markupProvider->renderProductGllNotice($alwaysProduct));
+        self::assertNotSame('', $markupProvider->renderProductLgnNotice($alwaysProduct));
         self::assertNotSame('', $markupProvider->renderProductGaranLabel($alwaysProduct));
     }
 
@@ -107,7 +107,7 @@ final class LegalGuaranteeMemberGroupGllModeHookTest extends TestCase
         $product = $this->createProduct('inherit', 10, 'Kissen', 'ART-100');
         $markupProvider = $this->createMarkupProvider();
 
-        self::assertStringContainsString('EU-Information zur gesetzlichen Gewährleistung', $markupProvider->renderProductGllNotice($product));
+        self::assertStringContainsString('EU-Information zur gesetzlichen Gewährleistung', $markupProvider->renderProductLgnNotice($product));
         self::assertStringContainsString('Herstellergarantie von ACME für X100 mit 3 Jahren', $markupProvider->renderProductGaranLabel($product));
     }
 
@@ -118,7 +118,7 @@ final class LegalGuaranteeMemberGroupGllModeHookTest extends TestCase
         $this->setCartItems([$this->createProduct('inherit', 10, 'Kissen', 'ART-100')]);
         $markupProvider = $this->createMarkupProvider();
 
-        self::assertNotSame('', $markupProvider->checkoutGllNotice());
+        self::assertNotSame('', $markupProvider->checkoutLgnNotice());
         self::assertStringContainsString('Kissen - ART-100', $markupProvider->checkoutGaranBlock());
     }
 
@@ -131,7 +131,7 @@ final class LegalGuaranteeMemberGroupGllModeHookTest extends TestCase
             $this->createProduct('inherit', 10, 'Kissen', 'ART-100')->mainData
         );
 
-        self::assertSame('1', $snapshot[OrderLabelSnapshotBuilder::REQUIRES_GLL_ORDER_SNAPSHOT_KEY]);
+        self::assertSame('1', $snapshot[OrderLabelSnapshotBuilder::REQUIRES_LGN_ORDER_SNAPSHOT_KEY]);
         self::assertSame('ACME', $snapshot['garanBrand']);
     }
 
@@ -143,13 +143,13 @@ final class LegalGuaranteeMemberGroupGllModeHookTest extends TestCase
         $this->setCartItems([$product]);
         $markupProvider = $this->createMarkupProvider();
 
-        self::assertSame('', $markupProvider->renderProductGllNotice($product));
+        self::assertSame('', $markupProvider->renderProductLgnNotice($product));
         self::assertSame('', $markupProvider->renderProductGaranLabel($product));
-        self::assertSame('', $markupProvider->checkoutGllNotice());
+        self::assertSame('', $markupProvider->checkoutLgnNotice());
         self::assertSame('', $markupProvider->checkoutGaranBlock());
         self::assertSame(
             '',
-            $this->createSnapshotBuilder()->buildItemSnapshot($product->mainData)[OrderLabelSnapshotBuilder::REQUIRES_GLL_ORDER_SNAPSHOT_KEY]
+            $this->createSnapshotBuilder()->buildItemSnapshot($product->mainData)[OrderLabelSnapshotBuilder::REQUIRES_LGN_ORDER_SNAPSHOT_KEY]
         );
     }
 
@@ -158,15 +158,15 @@ final class LegalGuaranteeMemberGroupGllModeHookTest extends TestCase
         $this->installContainer($this->createMemberGroupConnection(null));
         $product = $this->createProduct('always', 10, 'Kissen', 'ART-100');
 
-        self::assertSame('', (new CurrentMemberGroupGllModeProvider())->getCurrentMemberGroupGllMode());
-        self::assertSame('', $this->createMarkupProvider()->renderProductGllNotice($product));
+        self::assertSame('', (new CurrentMemberGroupLgnModeProvider())->getCurrentMemberGroupLgnMode());
+        self::assertSame('', $this->createMarkupProvider()->renderProductLgnNotice($product));
     }
 
-    private function registerHook(string $gllModeToSet): void
+    private function registerHook(string $lgnModeToSet): void
     {
-        LegalGuaranteeMemberGroupGllModeTestHook::$gllModeToSet = $gllModeToSet;
+        LegalGuaranteeMemberGroupLgnModeTestHook::$lgnModeToSet = $lgnModeToSet;
         $GLOBALS['MERCONIS_HOOKS']['getGroupSettingsForUser'][] = [
-            LegalGuaranteeMemberGroupGllModeTestHook::class,
+            LegalGuaranteeMemberGroupLgnModeTestHook::class,
             'adjustGroupSettings',
         ];
     }
@@ -187,20 +187,20 @@ final class LegalGuaranteeMemberGroupGllModeHookTest extends TestCase
         $this->resetDatabaseSingleton();
     }
 
-    private function createMemberGroupConnection(?string $standardMemberGroupGllMode): Connection
+    private function createMemberGroupConnection(?string $standardMemberGroupLgnMode): Connection
     {
         $connection = DriverManager::getConnection(['url' => 'sqlite:///:memory:']);
         $connection->executeStatement('
             CREATE TABLE tl_member_group (
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL DEFAULT \'\',
-                lsShopGllMode TEXT NULL
+                lsShopLgnMode TEXT NULL
             )
         ');
         $connection->insert('tl_member_group', [
             'id' => self::STANDARD_MEMBER_GROUP_ID,
             'name' => 'Standard',
-            'lsShopGllMode' => $standardMemberGroupGllMode,
+            'lsShopLgnMode' => $standardMemberGroupLgnMode,
         ]);
 
         return $connection;
@@ -216,7 +216,7 @@ final class LegalGuaranteeMemberGroupGllModeHookTest extends TestCase
             new GaranLabelGrouping(),
             new LegalGuaranteeMarkupBuilder(),
             new NullLogger(),
-            new CurrentMemberGroupGllModeProvider(),
+            new CurrentMemberGroupLgnModeProvider(),
             [new GaranLabelRenderer($assetLocator, OfficialGuaranteeAssetLocator::GARAN_VERSION)],
         );
     }
@@ -226,7 +226,7 @@ final class LegalGuaranteeMemberGroupGllModeHookTest extends TestCase
         return new OrderLabelSnapshotBuilder(
             new ProductGuaranteeDisplayResolver(),
             $this->createAssetLocator(),
-            new CurrentMemberGroupGllModeProvider()
+            new CurrentMemberGroupLgnModeProvider()
         );
     }
 
@@ -235,14 +235,14 @@ final class LegalGuaranteeMemberGroupGllModeHookTest extends TestCase
         return new OfficialGuaranteeAssetLocator(dirname(__DIR__, 2), new OfficialGuaranteeLanguageResolver());
     }
 
-    private function createProduct(string $gllMode, int $productId, string $title, string $code): ls_shop_product
+    private function createProduct(string $lgnMode, int $productId, string $title, string $code): ls_shop_product
     {
         $productReflection = new ReflectionClass(ls_shop_product::class);
         /** @var ls_shop_product $product */
         $product = $productReflection->newInstanceWithoutConstructor();
         $product->ls_ID = $productId;
         $product->mainData = [
-            'gllMode' => $gllMode,
+            'lgnMode' => $lgnMode,
             'enableGaran' => '1',
             'guaranteeBrand' => 'ACME',
             'guaranteeModelIdentifier' => 'X100',
@@ -290,9 +290,9 @@ final class LegalGuaranteeMemberGroupGllModeHookTest extends TestCase
     }
 }
 
-final class LegalGuaranteeMemberGroupGllModeTestHook
+final class LegalGuaranteeMemberGroupLgnModeTestHook
 {
-    public static string $gllModeToSet = '';
+    public static string $lgnModeToSet = '';
 
     /**
      * @param array<string, mixed> $groupSettings
@@ -301,7 +301,7 @@ final class LegalGuaranteeMemberGroupGllModeTestHook
      */
     public function adjustGroupSettings(array $groupSettings): array
     {
-        $groupSettings['lsShopGllMode'] = self::$gllModeToSet;
+        $groupSettings['lsShopLgnMode'] = self::$lgnModeToSet;
 
         return $groupSettings;
     }

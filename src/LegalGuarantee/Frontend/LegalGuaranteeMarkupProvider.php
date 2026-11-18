@@ -7,7 +7,7 @@ namespace LeadingSystems\MerconisBundle\LegalGuarantee\Frontend;
 use LeadingSystems\MerconisBundle\LegalGuarantee\GaranLabelGrouping;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\GaranLabelRendererInterface;
 use LeadingSystems\MerconisBundle\LegalGuarantee\GuaranteeDurationFormatter;
-use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\MemberGroupGllModeProviderInterface;
+use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\MemberGroupLgnModeProviderInterface;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
 use Merconis\Core\ls_shop_cartX;
 use Merconis\Core\ls_shop_product;
@@ -32,7 +32,7 @@ final class LegalGuaranteeMarkupProvider
         private readonly GaranLabelGrouping $garanLabelGrouping,
         private readonly LegalGuaranteeMarkupBuilder $markupBuilder,
         private readonly LoggerInterface $contaoErrorLogger,
-        private readonly MemberGroupGllModeProviderInterface $memberGroupGllModeProvider,
+        private readonly MemberGroupLgnModeProviderInterface $memberGroupLgnModeProvider,
         iterable $garanLabelRenderers,
     ) {
         foreach ($garanLabelRenderers as $renderer) {
@@ -40,41 +40,41 @@ final class LegalGuaranteeMarkupProvider
         }
     }
 
-    public function renderCurrentLanguageGllNotice(): string
+    public function renderCurrentLanguageLgnNotice(): string
     {
         $this->ensureStylesheetRegistered();
 
-        $officialLanguage = $this->assetLocator->resolveGllSvgLanguage($this->getCurrentLocale());
-        $svgMarkup = (string) file_get_contents($this->assetLocator->resolveGllSvgPath($officialLanguage));
+        $officialLanguage = $this->assetLocator->resolveLgnSvgLanguage($this->getCurrentLocale());
+        $svgMarkup = (string) file_get_contents($this->assetLocator->resolveLgnSvgPath($officialLanguage));
         $translations = $this->getTranslations();
 
         return $this->markupBuilder->buildLabelMarkup(
             $svgMarkup,
-            $translations['gllTitle'],
-            $this->assetLocator->getGllEuUrlByLanguage($officialLanguage),
-            $translations['gllEuLinkText'],
+            $translations['lgnTitle'],
+            $this->assetLocator->getLgnEuUrlByLanguage($officialLanguage),
+            $translations['lgnEuLinkText'],
             ['lang' => $officialLanguage]
         );
     }
 
-    public function renderProductGllNotice(ls_shop_product $product): string
+    public function renderProductLgnNotice(ls_shop_product $product): string
     {
         $displayData = $this->displayResolver->resolve(
-            $this->memberGroupGllModeProvider->getCurrentMemberGroupGllMode(),
+            $this->memberGroupLgnModeProvider->getCurrentMemberGroupLgnMode(),
             $product->mainData
         );
 
-        if (!$displayData['showGll']) {
+        if (!$displayData['showLgn']) {
             return '';
         }
 
-        return $this->renderCurrentLanguageGllNotice();
+        return $this->renderCurrentLanguageLgnNotice();
     }
 
     public function renderProductGaranLabel(ls_shop_product $product): string
     {
         $displayData = $this->displayResolver->resolve(
-            $this->memberGroupGllModeProvider->getCurrentMemberGroupGllMode(),
+            $this->memberGroupLgnModeProvider->getCurrentMemberGroupLgnMode(),
             $product->mainData,
             $this->getSelectedVariantData($product)
         );
@@ -105,16 +105,16 @@ final class LegalGuaranteeMarkupProvider
         );
     }
 
-    public function checkoutGllNotice(): string
+    public function checkoutLgnNotice(): string
     {
-        $memberGroupGllMode = $this->memberGroupGllModeProvider->getCurrentMemberGroupGllMode();
+        $memberGroupLgnMode = $this->memberGroupLgnModeProvider->getCurrentMemberGroupLgnMode();
 
         foreach (ls_shop_cartX::getInstance()->itemsExtended as $item) {
             /** @var array{objProduct: ls_shop_product} $item */
-            $displayData = $this->displayResolver->resolve($memberGroupGllMode, $item['objProduct']->mainData);
+            $displayData = $this->displayResolver->resolve($memberGroupLgnMode, $item['objProduct']->mainData);
 
-            if ($displayData['showGll']) {
-                return $this->renderCurrentLanguageGllNotice();
+            if ($displayData['showLgn']) {
+                return $this->renderCurrentLanguageLgnNotice();
             }
         }
 
@@ -124,13 +124,13 @@ final class LegalGuaranteeMarkupProvider
     public function checkoutGaranBlock(): string
     {
         $entries = [];
-        $memberGroupGllMode = $this->memberGroupGllModeProvider->getCurrentMemberGroupGllMode();
+        $memberGroupLgnMode = $this->memberGroupLgnModeProvider->getCurrentMemberGroupLgnMode();
 
         foreach (ls_shop_cartX::getInstance()->itemsExtended as $item) {
             /** @var array{objProduct: ls_shop_product} $item */
             $product = $item['objProduct'];
             $displayData = $this->displayResolver->resolve(
-                $memberGroupGllMode,
+                $memberGroupLgnMode,
                 $product->mainData,
                 $this->getSelectedVariantData($product)
             );
@@ -310,8 +310,8 @@ final class LegalGuaranteeMarkupProvider
 
     /**
      * @return array{
-     *   gllTitle: string,
-     *   gllEuLinkText: string,
+     *   lgnTitle: string,
+     *   lgnEuLinkText: string,
      *   garanBlockHeadline: string,
      *   garanEuLinkText: string,
      *   garanTitlePattern: string
@@ -322,8 +322,8 @@ final class LegalGuaranteeMarkupProvider
         $translations = $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee'] ?? [];
 
         return [
-            'gllTitle' => $translations['gllTitle'] ?? 'Legal guarantee, at least two years',
-            'gllEuLinkText' => $translations['gllEuLinkText'] ?? 'EU information about the legal guarantee',
+            'lgnTitle' => $translations['lgnTitle'] ?? 'Legal guarantee, at least two years',
+            'lgnEuLinkText' => $translations['lgnEuLinkText'] ?? 'EU information about the legal guarantee',
             'garanBlockHeadline' => $translations['garanBlockHeadline'] ?? 'Manufacturer\'s commercial guarantee for the following items:',
             'garanEuLinkText' => $translations['garanEuLinkText'] ?? 'EU information about the manufacturer\'s commercial guarantee',
             'garanTitlePattern' => $translations['garanTitlePattern'] ?? 'Manufacturer\'s commercial guarantee by %s for %s with %s years',

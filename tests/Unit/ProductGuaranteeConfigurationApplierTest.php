@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\Tests\Unit;
 
-use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\StandardMemberGroupGllMode;
+use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\StandardMemberGroupLgnMode;
 use LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\ProductGuaranteeConfigurationApplier;
 use LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\ProductGuaranteeConfigurationValidator;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -25,16 +25,16 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
         $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuaranteeImport'] = [
             'apiMessage' => 'Feld <%s>: %s',
             'messages' => [
-                ProductGuaranteeConfigurationValidator::MESSAGE_GLL_INVALID_MODE => 'Text gll_invalid_mode <%s>',
+                ProductGuaranteeConfigurationValidator::MESSAGE_LGN_INVALID_MODE => 'Text lgn_invalid_mode <%s>',
                 ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_INVALID_MODE => 'Text garan_invalid_mode <%s>',
                 ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_BRAND => 'Text missing_brand',
                 ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_MODEL => 'Text missing_model',
                 ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_DURATION => 'Text missing_duration',
                 ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_INVALID_DURATION => 'Text invalid_duration <%s>',
-                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED => 'Text gll_required',
-                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED_ALWAYS => 'Text gll_required_always',
-                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_VARIANT_OVERRIDE => 'Text variant_override <%s>',
-                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_OVERRIDE_GLL_REQUIRED => 'Text override_gll_required',
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_LGN_REQUIRED => 'Text lgn_required',
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_LGN_REQUIRED_ALWAYS => 'Text lgn_required_always',
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_LGN_VARIANT_OVERRIDE => 'Text variant_override <%s>',
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_OVERRIDE_LGN_REQUIRED => 'Text override_lgn_required',
             ],
         ];
     }
@@ -52,12 +52,12 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
         parent::tearDown();
     }
 
-    private function createApplier(string $standardMemberGroupGllMode = 'on'): ProductGuaranteeConfigurationApplier
+    private function createApplier(string $standardMemberGroupLgnMode = 'on'): ProductGuaranteeConfigurationApplier
     {
         return new ProductGuaranteeConfigurationApplier(
             new ProductGuaranteeConfigurationValidator(
-                standardMemberGroupGllMode: new StandardMemberGroupGllMode(
-                    static fn (int $groupId): array => ['id' => $groupId, 'lsShopGllMode' => $standardMemberGroupGllMode]
+                standardMemberGroupLgnMode: new StandardMemberGroupLgnMode(
+                    static fn (int $groupId): array => ['id' => $groupId, 'lsShopLgnMode' => $standardMemberGroupLgnMode]
                 )
             )
         );
@@ -70,7 +70,7 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
 
         $result = $applier->applyToProductRow([
             'producer' => $producer,
-            'gllMode' => 'inherit',
+            'lgnMode' => 'inherit',
             'enableGaran' => '1',
             'guaranteeDurationMonths' => '30',
             'guaranteeBrand' => '',
@@ -89,22 +89,22 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
      *
      * @return iterable<string, array{array<string, mixed>, string}>
      */
-    public static function productRowGllModeProvider(): iterable
+    public static function productRowLgnModeProvider(): iterable
     {
         yield 'Spalte fehlt' => [[], 'inherit'];
-        yield 'leere Zelle' => [['gllMode' => ''], 'inherit'];
-        yield 'Leerzeichen' => [['gllMode' => '  '], 'inherit'];
-        yield 'inherit' => [['gllMode' => 'inherit'], 'inherit'];
-        yield 'always' => [['gllMode' => 'always'], 'always'];
-        yield 'never' => [['gllMode' => 'never'], 'never'];
-        yield 'always mit Leerzeichen' => [['gllMode' => ' always '], 'always'];
+        yield 'leere Zelle' => [['lgnMode' => ''], 'inherit'];
+        yield 'Leerzeichen' => [['lgnMode' => '  '], 'inherit'];
+        yield 'inherit' => [['lgnMode' => 'inherit'], 'inherit'];
+        yield 'always' => [['lgnMode' => 'always'], 'always'];
+        yield 'never' => [['lgnMode' => 'never'], 'never'];
+        yield 'always mit Leerzeichen' => [['lgnMode' => ' always '], 'always'];
     }
 
     /**
-     * @param array<string, mixed> $gllModeCell
+     * @param array<string, mixed> $lgnModeCell
      */
-    #[DataProvider('productRowGllModeProvider')]
-    public function testApplyToProductRowWritesGllMode(array $gllModeCell, string $expectedGllMode): void
+    #[DataProvider('productRowLgnModeProvider')]
+    public function testApplyToProductRowWritesLgnMode(array $lgnModeCell, string $expectedLgnMode): void
     {
         $result = $this->createApplier()->applyToProductRow(array_merge(
             [
@@ -114,18 +114,18 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
                 'guaranteeBrand' => '',
                 'guaranteeModelIdentifier' => '',
             ],
-            $gllModeCell
+            $lgnModeCell
         ));
 
         self::assertSame([], $result['messages']);
-        self::assertSame($expectedGllMode, $result['row']['gllMode']);
+        self::assertSame($expectedLgnMode, $result['row']['lgnMode']);
     }
 
     public function testApplyToProductRowIgnoresEnableGllColumn(): void
     {
         $applier = $this->createApplier();
 
-        $resultWithoutGllMode = $applier->applyToProductRow([
+        $resultWithoutLgnMode = $applier->applyToProductRow([
             'producer' => 'ACME',
             'enableGll' => '',
             'enableGaran' => '',
@@ -133,13 +133,13 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
         $resultWithNever = $applier->applyToProductRow([
             'producer' => 'ACME',
             'enableGll' => '1',
-            'gllMode' => 'never',
+            'lgnMode' => 'never',
             'enableGaran' => '',
         ]);
 
-        self::assertSame('inherit', $resultWithoutGllMode['row']['gllMode']);
-        self::assertSame('never', $resultWithNever['row']['gllMode']);
-        self::assertSame('', $resultWithoutGllMode['row']['enableGll']);
+        self::assertSame('inherit', $resultWithoutLgnMode['row']['lgnMode']);
+        self::assertSame('never', $resultWithNever['row']['lgnMode']);
+        self::assertSame('', $resultWithoutLgnMode['row']['enableGll']);
         self::assertSame('1', $resultWithNever['row']['enableGll']);
     }
 
@@ -155,7 +155,7 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
                 'guaranteeModelIdentifier' => 'VarMod',
             ],
             [
-                'gllMode' => 'inherit',
+                'lgnMode' => 'inherit',
                 'enableGaran' => '1',
                 'guaranteeDurationMonths' => '54',
                 'guaranteeBrand' => '',
@@ -197,7 +197,7 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
         $result = $applier->applyToProductRow(
             [
                 'producer' => 'ACME Corporation',
-                'gllMode' => 'inherit',
+                'lgnMode' => 'inherit',
                 'enableGaran' => '1',
                 'guaranteeDurationMonths' => '216',
                 'guaranteeBrand' => 'ACME',
@@ -220,25 +220,25 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
     /**
      * @return iterable<string, array{string, string, string}>
      */
-    public static function gllRequiredProvider(): iterable
+    public static function lgnRequiredProvider(): iterable
     {
-        yield 'Gruppe on, Produkt never' => ['on', 'never', 'Feld <gllMode>: Text gll_required'];
-        yield 'Gruppe blocked, Produkt never' => ['blocked', 'never', 'Feld <gllMode>: Text gll_required'];
-        yield 'Gruppe off, Produkt inherit' => ['off', 'inherit', 'Feld <gllMode>: Text gll_required_always'];
-        yield 'Gruppe off, Produkt never' => ['off', 'never', 'Feld <gllMode>: Text gll_required_always'];
+        yield 'Gruppe on, Produkt never' => ['on', 'never', 'Feld <lgnMode>: Text lgn_required'];
+        yield 'Gruppe blocked, Produkt never' => ['blocked', 'never', 'Feld <lgnMode>: Text lgn_required'];
+        yield 'Gruppe off, Produkt inherit' => ['off', 'inherit', 'Feld <lgnMode>: Text lgn_required_always'];
+        yield 'Gruppe off, Produkt never' => ['off', 'never', 'Feld <lgnMode>: Text lgn_required_always'];
     }
 
-    #[DataProvider('gllRequiredProvider')]
-    public function testWriteMessagesExposeGllDependencyOnGllMode(
-        string $standardMemberGroupGllMode,
-        string $productGllMode,
+    #[DataProvider('lgnRequiredProvider')]
+    public function testWriteMessagesExposeLgnDependencyOnLgnMode(
+        string $standardMemberGroupLgnMode,
+        string $productLgnMode,
         string $expectedMessage
     ): void {
-        $applier = $this->createApplier($standardMemberGroupGllMode);
+        $applier = $this->createApplier($standardMemberGroupLgnMode);
 
         $result = $applier->applyToProductRow([
             'producer' => 'ACME Corporation',
-            'gllMode' => $productGllMode,
+            'lgnMode' => $productLgnMode,
             'enableGaran' => '1',
             'guaranteeDurationMonths' => '36',
             'guaranteeBrand' => 'ACME',
@@ -246,31 +246,31 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
         ]);
 
         self::assertTrue($applier->hasBlockingWriteMessages($result['messages']));
-        self::assertSame('gllMode', $result['messages'][0]['field']);
+        self::assertSame('lgnMode', $result['messages'][0]['field']);
         self::assertSame($expectedMessage, $applier->formatWriteErrorMessage($result['messages']));
-        self::assertSame($productGllMode, $result['row']['gllMode']);
+        self::assertSame($productLgnMode, $result['row']['lgnMode']);
         self::assertSame('1', $result['row']['enableGaran']);
     }
 
-    public function testWriteMessagesExposeInvalidGllMode(): void
+    public function testWriteMessagesExposeInvalidLgnMode(): void
     {
         $applier = $this->createApplier();
 
         $result = $applier->applyToProductRow([
             'producer' => 'ACME Corporation',
-            'gllMode' => 'sometimes',
+            'lgnMode' => 'sometimes',
             'enableGaran' => '',
         ]);
 
         self::assertTrue($applier->hasBlockingWriteMessages($result['messages']));
-        self::assertSame('gllMode', $result['messages'][0]['field']);
+        self::assertSame('lgnMode', $result['messages'][0]['field']);
         self::assertSame(
-            'Feld <gllMode>: Text gll_invalid_mode <sometimes>',
+            'Feld <lgnMode>: Text lgn_invalid_mode <sometimes>',
             $applier->formatWriteErrorMessage($result['messages'])
         );
     }
 
-    public function testWriteMessagesExposeOverrideGllDependencyOnGaranMode(): void
+    public function testWriteMessagesExposeOverrideLgnDependencyOnGaranMode(): void
     {
         $applier = $this->createApplier('off');
 
@@ -282,7 +282,7 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
                 'guaranteeModelIdentifier' => 'VariantM',
             ],
             [
-                'gllMode' => 'inherit',
+                'lgnMode' => 'inherit',
                 'enableGaran' => '1',
                 'guaranteeDurationMonths' => '60',
                 'guaranteeBrand' => 'Parent Brand',
@@ -293,11 +293,11 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
         self::assertTrue($applier->hasBlockingWriteMessages($result['messages']));
         self::assertSame('garanMode', $result['messages'][0]['field']);
         self::assertSame(
-            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_OVERRIDE_GLL_REQUIRED,
+            ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_OVERRIDE_LGN_REQUIRED,
             $result['messages'][0]['code']
         );
         self::assertSame(
-            'Feld <garanMode>: Text override_gll_required',
+            'Feld <garanMode>: Text override_lgn_required',
             $applier->formatWriteErrorMessage($result['messages'])
         );
     }
@@ -314,7 +314,7 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
                 'guaranteeModelIdentifier' => 'VarMod',
             ],
             [
-                'gllMode' => 'inherit',
+                'lgnMode' => 'inherit',
                 'enableGaran' => '1',
                 'guaranteeDurationMonths' => '186',
                 'guaranteeBrand' => 'Parent Brand',
@@ -331,14 +331,14 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
         );
     }
 
-    public function testWriteMessagesExposeAffectedVariantsOnGllMode(): void
+    public function testWriteMessagesExposeAffectedVariantsOnLgnMode(): void
     {
         $applier = $this->createApplier();
 
         $result = $applier->applyToProductRow(
             [
                 'producer' => 'ACME Corporation',
-                'gllMode' => 'never',
+                'lgnMode' => 'never',
                 'enableGaran' => '',
                 'guaranteeDurationMonths' => null,
                 'guaranteeBrand' => '',
@@ -355,9 +355,9 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
         );
 
         self::assertTrue($applier->hasBlockingWriteMessages($result['messages']));
-        self::assertSame('gllMode', $result['messages'][0]['field']);
+        self::assertSame('lgnMode', $result['messages'][0]['field']);
         self::assertSame(
-            'Feld <gllMode>: Text variant_override <VAR-001>',
+            'Feld <lgnMode>: Text variant_override <VAR-001>',
             $applier->formatWriteErrorMessage($result['messages'])
         );
     }
@@ -369,7 +369,7 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
         $result = $applier->applyToProductRow(
             [
                 'producer' => 'ACME Corporation',
-                'gllMode' => 'inherit',
+                'lgnMode' => 'inherit',
                 'enableGaran' => '1',
                 'guaranteeDurationMonths' => '36',
                 'guaranteeBrand' => 'ACME',
@@ -381,7 +381,7 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
         );
 
         self::assertSame(
-            'Feld <gllMode>: Text variant_override <VAR-001>; Feld <gllMode>: Text gll_required_always',
+            'Feld <lgnMode>: Text variant_override <VAR-001>; Feld <lgnMode>: Text lgn_required_always',
             $applier->formatWriteErrorMessage($result['messages'])
         );
     }
@@ -394,7 +394,7 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
 
         $result = $applier->applyToProductRow([
             'producer' => 'ACME Corporation',
-            'gllMode' => 'inherit',
+            'lgnMode' => 'inherit',
             'enableGaran' => '',
             'guaranteeDurationMonths' => '',
             'guaranteeBrand' => $brand,
@@ -420,7 +420,7 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
                 'guaranteeModelIdentifier' => '',
             ],
             [
-                'gllMode' => 'inherit',
+                'lgnMode' => 'inherit',
                 'enableGaran' => '',
                 'guaranteeDurationMonths' => '',
                 'guaranteeBrand' => $brand,
@@ -446,7 +446,7 @@ final class ProductGuaranteeConfigurationApplierTest extends TestCase
                 'guaranteeModelIdentifier' => '',
             ],
             [
-                'gllMode' => 'inherit',
+                'lgnMode' => 'inherit',
                 'enableGaran' => '',
                 'guaranteeDurationMonths' => '',
                 'guaranteeBrand' => '',

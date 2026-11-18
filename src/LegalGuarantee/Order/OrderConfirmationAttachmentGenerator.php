@@ -12,7 +12,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class OrderConfirmationAttachmentGenerator
 {
-    private const GLL_BUNDLE_PATH_PATTERN = 'bundles/leadingsystemsmerconis/legal-guarantee/gll/%s/legal-guarantee-notice-%s.pdf';
+    private const LGN_BUNDLE_PATH_PATTERN = 'bundles/leadingsystemsmerconis/legal-guarantee/lgn/%s/legal-guarantee-notice-%s.pdf';
 
     public function __construct(
         private readonly OrderLabelSnapshotRenderer $snapshotRenderer,
@@ -33,14 +33,14 @@ final class OrderConfirmationAttachmentGenerator
         $relativePaths = [];
 
         try {
-            $gllPdfLanguage = $this->snapshotRenderer->resolveGllPdfLanguage($order);
-            $gllVersion = trim((string) ($order['gllVersion'] ?? ''));
+            $lgnPdfLanguage = $this->snapshotRenderer->resolveLgnPdfLanguage($order);
+            $lgnVersion = trim((string) ($order['lgnVersion'] ?? ''));
 
-            if (null !== $gllPdfLanguage && '' !== $gllVersion) {
-                $relativePaths[] = sprintf(self::GLL_BUNDLE_PATH_PATTERN, $gllVersion, $gllPdfLanguage);
+            if (null !== $lgnPdfLanguage && '' !== $lgnVersion) {
+                $relativePaths[] = sprintf(self::LGN_BUNDLE_PATH_PATTERN, $lgnVersion, $lgnPdfLanguage);
             }
         } catch (Throwable) {
-            // GLL-Ausfall darf den Versand der restlichen Anhänge nicht blockieren.
+            // LGN-Ausfall darf den Versand der restlichen Anhänge nicht blockieren.
         }
 
         $garanPages = [];

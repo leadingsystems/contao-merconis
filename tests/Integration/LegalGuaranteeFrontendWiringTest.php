@@ -20,9 +20,9 @@ final class LegalGuaranteeFrontendWiringTest extends TestCase
             self::SRC_BASE_PATH . 'Resources/contao/classes/ls_shop_product.php'
         );
 
-        self::assertStringContainsString('_gllNotice', $templateContents);
+        self::assertStringContainsString('_lgnNotice', $templateContents);
         self::assertStringContainsString('_garanLabel', $templateContents);
-        self::assertStringContainsString("case '_gllNotice':", $productClassContents);
+        self::assertStringContainsString("case '_lgnNotice':", $productClassContents);
         self::assertStringContainsString("case '_garanLabel':", $productClassContents);
     }
 
@@ -57,7 +57,7 @@ final class LegalGuaranteeFrontendWiringTest extends TestCase
 
         self::assertStringContainsString('LegalGuaranteeMarkupProvider', $servicesContents);
         self::assertStringContainsString('InsertTag\AsInsertTag\\', $servicesContents);
-        self::assertStringContainsString("['legalGuarantee']['gllTitle']", $defaultLanguageDe);
+        self::assertStringContainsString("['legalGuarantee']['lgnTitle']", $defaultLanguageDe);
         self::assertStringContainsString("['legalGuarantee']['garanEuLinkText']", $defaultLanguageEn);
     }
 
@@ -73,12 +73,12 @@ final class LegalGuaranteeFrontendWiringTest extends TestCase
             self::SRC_BASE_PATH . 'InsertTag/AsInsertTag/ShopEuLgn.php'
         );
 
-        self::assertStringContainsString('checkoutGllNotice', $moduleContents);
+        self::assertStringContainsString('checkoutLgnNotice', $moduleContents);
         self::assertStringContainsString('checkoutGaranBlock', $moduleContents);
         self::assertStringNotContainsString('renderCheckoutGllLinks', $moduleContents);
         self::assertStringNotContainsString('renderCheckoutGaranBlock', $moduleContents);
         self::assertStringContainsString('merconis-legal-guarantee-checkout-output', $templateContents);
-        self::assertStringContainsString('checkoutGllNotice', $templateContents);
+        self::assertStringContainsString('checkoutLgnNotice', $templateContents);
         self::assertStringContainsString('checkoutGaranBlock', $templateContents);
         self::assertStringNotContainsString('gllCheckoutLinks', $templateContents);
         self::assertStringNotContainsString('garanCheckoutBlock', $templateContents);

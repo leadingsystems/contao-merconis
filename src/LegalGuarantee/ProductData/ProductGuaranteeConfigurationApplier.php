@@ -40,7 +40,7 @@ final class ProductGuaranteeConfigurationApplier
         $result = $this->validator->validateProduct($row, $relatedVariants, $rawDurationInput);
 
         foreach (
-            ['gllMode', 'enableGaran', 'guaranteeDurationMonths', 'guaranteeBrand', 'guaranteeModelIdentifier']
+            ['lgnMode', 'enableGaran', 'guaranteeDurationMonths', 'guaranteeBrand', 'guaranteeModelIdentifier']
             as $fieldName
         ) {
             $row[$fieldName] = $result->getNormalizedData()[$fieldName] ?? null;

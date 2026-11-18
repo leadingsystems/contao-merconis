@@ -15,8 +15,8 @@ use Symfony\Component\DependencyInjection\Container;
 require_once __DIR__ . '/../../src/Resources/contao/classes/ls_shop_importController.php';
 
 /**
- * GLL/GARAN-Teil der Produktzeile im Importer (Spec 27, Abschnitte 4 und 10). Ohne
- * Standard-Benutzergruppe gilt nur `never` als "GLL aus"; so liest der Validator keine
+ * LGN/GARAN-Teil der Produktzeile im Importer (Spec 27, Abschnitte 4 und 10). Ohne
+ * Standard-Benutzergruppe gilt nur `never` als "LGN aus"; so liest der Validator keine
  * Gruppe aus der Datenbank. Neue Produkte haben keine gespeicherten Varianten.
  */
 final class LegalGuaranteeImportControllerTest extends TestCase
@@ -46,8 +46,8 @@ final class LegalGuaranteeImportControllerTest extends TestCase
         $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuaranteeImport'] = [
             'importLogEntry' => 'Zeile <%d>, Feld <%s>: %s',
             'messages' => [
-                'gll_invalid_mode' => 'Text gll_invalid_mode <%s>',
-                'garan_disabled_gll_required' => 'Text gll_required',
+                'lgn_invalid_mode' => 'Text lgn_invalid_mode <%s>',
+                'garan_disabled_lgn_required' => 'Text lgn_required',
                 'garan_disabled_missing_brand' => 'Text missing_brand',
                 'garan_disabled_invalid_duration' => 'Text invalid_duration <%s>',
             ],
@@ -81,47 +81,47 @@ final class LegalGuaranteeImportControllerTest extends TestCase
     /**
      * @return iterable<string, array{array<string, mixed>, string}>
      */
-    public static function gllModeCellProvider(): iterable
+    public static function lgnModeCellProvider(): iterable
     {
         yield 'Spalte fehlt' => [[], 'inherit'];
-        yield 'leere Zelle' => [['gllMode' => ''], 'inherit'];
-        yield 'inherit' => [['gllMode' => 'inherit'], 'inherit'];
-        yield 'always' => [['gllMode' => 'always'], 'always'];
-        yield 'never' => [['gllMode' => 'never'], 'never'];
+        yield 'leere Zelle' => [['lgnMode' => ''], 'inherit'];
+        yield 'inherit' => [['lgnMode' => 'inherit'], 'inherit'];
+        yield 'always' => [['lgnMode' => 'always'], 'always'];
+        yield 'never' => [['lgnMode' => 'never'], 'never'];
     }
 
     /**
-     * @param array<string, mixed> $gllModeCell
+     * @param array<string, mixed> $lgnModeCell
      */
-    #[DataProvider('gllModeCellProvider')]
-    public function testProductRowGetsGllModeToWrite(array $gllModeCell, string $expectedGllMode): void
+    #[DataProvider('lgnModeCellProvider')]
+    public function testProductRowGetsLgnModeToWrite(array $lgnModeCell, string $expectedLgnMode): void
     {
-        $row = $this->applyToProductRow(array_merge($this->createProductRow(), $gllModeCell));
+        $row = $this->applyToProductRow(array_merge($this->createProductRow(), $lgnModeCell));
 
         self::assertIsArray($row);
-        self::assertSame($expectedGllMode, $row['gllMode']);
+        self::assertSame($expectedLgnMode, $row['lgnMode']);
         self::assertSame([], $this->importLog->records);
     }
 
     public function testEnableGllColumnHasNoEffect(): void
     {
-        $rowWithoutGllMode = $this->applyToProductRow(array_merge($this->createProductRow(), ['enableGll' => '']));
+        $rowWithoutLgnMode = $this->applyToProductRow(array_merge($this->createProductRow(), ['enableGll' => '']));
         $rowWithNever = $this->applyToProductRow(array_merge(
             $this->createProductRow(),
-            ['enableGll' => '1', 'gllMode' => 'never', 'enableGaran' => '1', 'guaranteeDurationMonths' => '36', 'guaranteeBrand' => 'ACME', 'guaranteeModelIdentifier' => 'M-1']
+            ['enableGll' => '1', 'lgnMode' => 'never', 'enableGaran' => '1', 'guaranteeDurationMonths' => '36', 'guaranteeBrand' => 'ACME', 'guaranteeModelIdentifier' => 'M-1']
         ));
 
-        self::assertIsArray($rowWithoutGllMode);
-        self::assertSame('inherit', $rowWithoutGllMode['gllMode']);
+        self::assertIsArray($rowWithoutLgnMode);
+        self::assertSame('inherit', $rowWithoutLgnMode['lgnMode']);
         self::assertNull($rowWithNever);
-        self::assertSame(['MERCONIS IMPORTER: Zeile <5>, Feld <gllMode>: Text gll_required'], $this->importLog->records);
+        self::assertSame(['MERCONIS IMPORTER: Zeile <5>, Feld <lgnMode>: Text lgn_required'], $this->importLog->records);
     }
 
-    public function testInvalidGllModeIsRejectedWithRowFieldAndText(): void
+    public function testInvalidLgnModeIsRejectedWithRowFieldAndText(): void
     {
-        self::assertNull($this->applyToProductRow(array_merge($this->createProductRow(), ['gllMode' => 'sometimes'])));
+        self::assertNull($this->applyToProductRow(array_merge($this->createProductRow(), ['lgnMode' => 'sometimes'])));
         self::assertSame(
-            ['MERCONIS IMPORTER: Zeile <5>, Feld <gllMode>: Text gll_invalid_mode <sometimes>'],
+            ['MERCONIS IMPORTER: Zeile <5>, Feld <lgnMode>: Text lgn_invalid_mode <sometimes>'],
             $this->importLog->records
         );
     }

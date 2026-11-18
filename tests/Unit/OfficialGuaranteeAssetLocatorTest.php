@@ -13,7 +13,7 @@ final class OfficialGuaranteeAssetLocatorTest extends TestCase
     public function testDetectsAvailableSvgLanguagesFromVersionedCoreDirectory(): void
     {
         $assetLocator = $this->createAssetLocator();
-        $availableLanguages = $assetLocator->getAvailableGllSvgLanguages();
+        $availableLanguages = $assetLocator->getAvailableLgnSvgLanguages();
 
         self::assertContains('de', $availableLanguages);
         self::assertContains('en', $availableLanguages);
@@ -25,12 +25,12 @@ final class OfficialGuaranteeAssetLocatorTest extends TestCase
         $assetLocator = $this->createAssetLocator();
 
         self::assertStringEndsWith(
-            '/src/Resources/public/legal-guarantee/gll/v1.0/legal-guarantee-notice-de.svg',
-            $assetLocator->resolveGllSvgPath('de_AT')
+            '/src/Resources/public/legal-guarantee/lgn/v1.0/legal-guarantee-notice-de.svg',
+            $assetLocator->resolveLgnSvgPath('de_AT')
         );
         self::assertStringEndsWith(
-            '/src/Resources/public/legal-guarantee/gll/v1.0/legal-guarantee-notice-en.svg',
-            $assetLocator->resolveGllSvgPath('xx_YY')
+            '/src/Resources/public/legal-guarantee/lgn/v1.0/legal-guarantee-notice-en.svg',
+            $assetLocator->resolveLgnSvgPath('xx_YY')
         );
     }
 
@@ -39,22 +39,22 @@ final class OfficialGuaranteeAssetLocatorTest extends TestCase
         $assetLocator = $this->createAssetLocator();
 
         self::assertStringEndsWith(
-            '/src/Resources/public/legal-guarantee/gll/v1.0/legal-guarantee-notice-de.pdf',
-            (string) $assetLocator->resolveGllPdfPath('de_AT')
+            '/src/Resources/public/legal-guarantee/lgn/v1.0/legal-guarantee-notice-de.pdf',
+            (string) $assetLocator->resolveLgnPdfPath('de_AT')
         );
         self::assertStringEndsWith(
-            '/src/Resources/public/legal-guarantee/gll/v1.0/legal-guarantee-notice-en.pdf',
-            (string) $assetLocator->resolveGllPdfPath('xx_YY')
+            '/src/Resources/public/legal-guarantee/lgn/v1.0/legal-guarantee-notice-en.pdf',
+            (string) $assetLocator->resolveLgnPdfPath('xx_YY')
         );
-        self::assertFileExists((string) $assetLocator->resolveGllPdfPath('de_AT'));
-        self::assertFileExists((string) $assetLocator->resolveGllPdfPath('xx_YY'));
+        self::assertFileExists((string) $assetLocator->resolveLgnPdfPath('de_AT'));
+        self::assertFileExists((string) $assetLocator->resolveLgnPdfPath('xx_YY'));
     }
 
     public function testProvidesPdfForEveryOfficialSvgLanguage(): void
     {
         $assetLocator = $this->createAssetLocator();
-        $svgLanguages = $assetLocator->getAvailableGllSvgLanguages();
-        $pdfLanguages = $assetLocator->getAvailableGllPdfLanguages();
+        $svgLanguages = $assetLocator->getAvailableLgnSvgLanguages();
+        $pdfLanguages = $assetLocator->getAvailableLgnPdfLanguages();
 
         self::assertSame(
             [
@@ -72,16 +72,16 @@ final class OfficialGuaranteeAssetLocatorTest extends TestCase
         $assetLocator = $this->createAssetLocator();
 
         self::assertStringEndsWith(
-            '/src/Resources/public/legal-guarantee/gll/v1.0/eu-text-links.json',
-            $assetLocator->getGllEuTextLinksPath()
+            '/src/Resources/public/legal-guarantee/lgn/v1.0/eu-text-links.json',
+            $assetLocator->getLgnEuTextLinksPath()
         );
         self::assertSame(
             'https://europa.eu/youreurope/garantien',
-            $assetLocator->getGllEuUrlByLanguage('de')
+            $assetLocator->getLgnEuUrlByLanguage('de')
         );
         self::assertSame(
             'https://europa.eu/youreurope/guarantees',
-            $assetLocator->resolveGllEuUrl('zz_ZZ')
+            $assetLocator->resolveLgnEuUrl('zz_ZZ')
         );
         self::assertStringEndsWith(
             '/src/Resources/legal-guarantee/garan/v1.0/eu-text-links.json',

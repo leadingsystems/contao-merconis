@@ -4,35 +4,35 @@ declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\LegalGuarantee\ProductData;
 
-use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\StandardMemberGroupGllMode;
+use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\StandardMemberGroupLgnMode;
 
 final class ProductGuaranteeConfigurationValidator
 {
-    public const MESSAGE_GLL_INVALID_MODE = 'gll_invalid_mode';
+    public const MESSAGE_LGN_INVALID_MODE = 'lgn_invalid_mode';
     public const MESSAGE_GARAN_INVALID_MODE = 'garan_invalid_mode';
     public const MESSAGE_GARAN_DISABLED_MISSING_BRAND = 'garan_disabled_missing_brand';
     public const MESSAGE_GARAN_DISABLED_MISSING_MODEL = 'garan_disabled_missing_model';
     public const MESSAGE_GARAN_DISABLED_MISSING_DURATION = 'garan_disabled_missing_duration';
     public const MESSAGE_GARAN_DISABLED_INVALID_DURATION = 'garan_disabled_invalid_duration';
-    public const MESSAGE_GARAN_DISABLED_GLL_REQUIRED = 'garan_disabled_gll_required';
-    public const MESSAGE_GARAN_DISABLED_GLL_REQUIRED_ALWAYS = 'garan_disabled_gll_required_always';
-    public const MESSAGE_GARAN_OVERRIDE_GLL_REQUIRED = 'garan_override_gll_required';
-    public const MESSAGE_GARAN_DISABLED_GLL_VARIANT_OVERRIDE = 'garan_disabled_gll_variant_override';
+    public const MESSAGE_GARAN_DISABLED_LGN_REQUIRED = 'garan_disabled_lgn_required';
+    public const MESSAGE_GARAN_DISABLED_LGN_REQUIRED_ALWAYS = 'garan_disabled_lgn_required_always';
+    public const MESSAGE_GARAN_OVERRIDE_LGN_REQUIRED = 'garan_override_lgn_required';
+    public const MESSAGE_GARAN_DISABLED_LGN_VARIANT_OVERRIDE = 'garan_disabled_lgn_variant_override';
 
-    public const PRODUCT_GLL_MODES = ['inherit', 'always', 'never'];
+    public const PRODUCT_LGN_MODES = ['inherit', 'always', 'never'];
 
     public function __construct(
         private readonly ProductGuaranteeValidationHelper $validationHelper = new ProductGuaranteeValidationHelper(),
-        private readonly StandardMemberGroupGllMode $standardMemberGroupGllMode = new StandardMemberGroupGllMode(),
+        private readonly StandardMemberGroupLgnMode $standardMemberGroupLgnMode = new StandardMemberGroupLgnMode(),
     ) {
     }
 
     /**
      * Prüft eine Produktzeile aus Import oder Product Management API im Zustand nach dem
-     * Schreiben (Spec 27, Abschnitte 4 und 10). Bezug für "GLL aus" ist der gespeicherte
+     * Schreiben (Spec 27, Abschnitte 4 und 10). Bezug für "LGN aus" ist der gespeicherte
      * Wert der Standard-Benutzergruppe; `$relatedVariants` ist der gespeicherte Stand der
      * Varianten. Der Validator ändert keine Werte; eine leere oder fehlende Angabe für
-     * `gllMode` ergibt `inherit`.
+     * `lgnMode` ergibt `inherit`.
      *
      * @param array<string, mixed> $productData
      * @param list<array<string, mixed>> $relatedVariants
@@ -44,7 +44,7 @@ final class ProductGuaranteeConfigurationValidator
     ): GuaranteeValidationResult
     {
         $normalizedData = $this->normalizeSharedFields($productData);
-        $normalizedData['gllMode'] = $this->normalizeProductGllModeValue($productData['gllMode'] ?? null);
+        $normalizedData['lgnMode'] = $this->normalizeProductLgnModeValue($productData['lgnMode'] ?? null);
         $durationResult = $this->validationHelper->normalizeDurationInput(
             $rawDurationInput ?? ($productData['guaranteeDurationMonths'] ?? null)
         );
@@ -57,13 +57,13 @@ final class ProductGuaranteeConfigurationValidator
         ];
         $messages = $durationResult['messages'];
 
-        $gllModeMessages = $this->validateProductGllMode($productData['gllMode'] ?? null);
-        $gllMessages = [] === $gllModeMessages
-            ? $this->validateProductGllDependency($normalizedData, $relatedVariants)
-            : $gllModeMessages;
+        $lgnModeMessages = $this->validateProductLgnMode($productData['lgnMode'] ?? null);
+        $lgnMessages = [] === $lgnModeMessages
+            ? $this->validateProductLgnDependency($normalizedData, $relatedVariants)
+            : $lgnModeMessages;
 
-        if ($gllMessages !== array()) {
-            $messages = array_merge($messages, $gllMessages);
+        if ($lgnMessages !== array()) {
+            $messages = array_merge($messages, $lgnMessages);
         } elseif ($this->isTruthy($normalizedData['enableGaran'] ?? null)) {
             $messages = array_merge(
                 $messages,
@@ -79,8 +79,8 @@ final class ProductGuaranteeConfigurationValidator
     }
 
     /**
-     * R3: `override` wird abgelehnt, wenn für `gllMode` des Elternprodukts "GLL aus" gilt.
-     * Fehlt `gllMode` in `$productData`, gilt `inherit`.
+     * R3: `override` wird abgelehnt, wenn für `lgnMode` des Elternprodukts "LGN aus" gilt.
+     * Fehlt `lgnMode` in `$productData`, gilt `inherit`.
      *
      * @param array<string, mixed> $variantData
      * @param array<string, mixed> $productData
@@ -108,10 +108,10 @@ final class ProductGuaranteeConfigurationValidator
 
         if (
             'override' === ($normalizedVariantData['garanMode'] ?? 'inherit')
-            && $this->standardMemberGroupGllMode->isGllOffForProduct($productData['gllMode'] ?? null)
+            && $this->standardMemberGroupLgnMode->isLgnOffForProduct($productData['lgnMode'] ?? null)
         ) {
             $messages[] = [
-                'code' => self::MESSAGE_GARAN_OVERRIDE_GLL_REQUIRED,
+                'code' => self::MESSAGE_GARAN_OVERRIDE_LGN_REQUIRED,
                 'parameters' => [],
             ];
         } elseif ('override' === ($normalizedVariantData['garanMode'] ?? 'inherit')) {
@@ -283,11 +283,11 @@ final class ProductGuaranteeConfigurationValidator
      *
      * @return list<array{code: string, parameters: array<int, string>}>
      */
-    private function validateProductGllDependency(array $productData, array $relatedVariants): array
+    private function validateProductLgnDependency(array $productData, array $relatedVariants): array
     {
-        $standardMemberGroupGllMode = $this->standardMemberGroupGllMode->getStoredGllMode();
+        $standardMemberGroupLgnMode = $this->standardMemberGroupLgnMode->getStoredLgnMode();
 
-        if (!$this->standardMemberGroupGllMode->isGllOff($standardMemberGroupGllMode, $productData['gllMode'])) {
+        if (!$this->standardMemberGroupLgnMode->isLgnOff($standardMemberGroupLgnMode, $productData['lgnMode'])) {
             return array();
         }
 
@@ -296,16 +296,16 @@ final class ProductGuaranteeConfigurationValidator
 
         if ($affectedVariantIdentifiers !== array()) {
             $messages[] = [
-                'code' => self::MESSAGE_GARAN_DISABLED_GLL_VARIANT_OVERRIDE,
+                'code' => self::MESSAGE_GARAN_DISABLED_LGN_VARIANT_OVERRIDE,
                 'parameters' => [implode(', ', $affectedVariantIdentifiers)],
             ];
         }
 
         if ($this->isTruthy($productData['enableGaran'] ?? null)) {
             $messages[] = [
-                'code' => 'always' === $this->standardMemberGroupGllMode->getGllModeForEnabledGaran($standardMemberGroupGllMode)
-                    ? self::MESSAGE_GARAN_DISABLED_GLL_REQUIRED_ALWAYS
-                    : self::MESSAGE_GARAN_DISABLED_GLL_REQUIRED,
+                'code' => 'always' === $this->standardMemberGroupLgnMode->getLgnModeForEnabledGaran($standardMemberGroupLgnMode)
+                    ? self::MESSAGE_GARAN_DISABLED_LGN_REQUIRED_ALWAYS
+                    : self::MESSAGE_GARAN_DISABLED_LGN_REQUIRED,
                 'parameters' => [],
             ];
         }
@@ -316,28 +316,28 @@ final class ProductGuaranteeConfigurationValidator
     /**
      * @return list<array{code: string, parameters: array<int, string>}>
      */
-    private function validateProductGllMode(mixed $rawMode): array
+    private function validateProductLgnMode(mixed $rawMode): array
     {
         $rawMode = trim((string) $rawMode);
 
-        if ('' === $rawMode || in_array($rawMode, self::PRODUCT_GLL_MODES, true)) {
+        if ('' === $rawMode || in_array($rawMode, self::PRODUCT_LGN_MODES, true)) {
             return [];
         }
 
         return [[
-            'code' => self::MESSAGE_GLL_INVALID_MODE,
+            'code' => self::MESSAGE_LGN_INVALID_MODE,
             'parameters' => [$rawMode],
         ]];
     }
 
     /**
-     * Ein ungültiger Wert wird abgelehnt (`validateProductGllMode()`) und nie geschrieben.
+     * Ein ungültiger Wert wird abgelehnt (`validateProductLgnMode()`) und nie geschrieben.
      */
-    private function normalizeProductGllModeValue(mixed $value): string
+    private function normalizeProductLgnModeValue(mixed $value): string
     {
         $mode = trim((string) $value);
 
-        return in_array($mode, self::PRODUCT_GLL_MODES, true)
+        return in_array($mode, self::PRODUCT_LGN_MODES, true)
             ? $mode
             : 'inherit';
     }

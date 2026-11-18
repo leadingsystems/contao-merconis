@@ -52,8 +52,8 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductRecommendedProducts']				=	array('Empfohlene Produkte', 'Wählen Sie hier Produkte aus, die in einem entsprechenden CrossSeller dargestellt werden können.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['associatedProducts']								=	array('Verbundene Produkte', 'Wählen Sie hier Produkte aus, die Sie zur Realisierung individueller Funktionen mit diesem Produkt in Verbindung setzen möchten.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductProducer']							= 	array('Hersteller');
-	$GLOBALS['TL_LANG']['tl_ls_shop_product']['gllMode']										=	['Gesetzliche Gewährleistung', 'Steuert die Mitteilung über die gesetzliche Gewährleistung für dieses Produkt.'];
-	$GLOBALS['TL_LANG']['tl_ls_shop_product']['gllModeOptions']									=	[
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lgnMode']										=	['Gesetzliche Gewährleistung', 'Steuert die Mitteilung über die gesetzliche Gewährleistung für dieses Produkt.'];
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lgnModeOptions']									=	[
 		'inherit' => ['Wie Mitgliedergruppe', 'Übernimmt die Einstellung der Mitgliedergruppe des Kunden. Richtig für körperliche Waren und Waren mit digitalen Elementen.'],
 		'always' => ['Immer anzeigen', 'Zeigt die Mitteilung auch in Gruppen, die nur Produkte mit \'Immer anzeigen\' berücksichtigen, nicht in Gruppen ohne Verbraucher. Für Waren in Shops mit überwiegend Dienstleistungen oder digitalen Inhalten.'],
 		'never' => ['Nie anzeigen', 'Für reine digitale Inhalte, SaaS und Dienstleistungen. Ohne die Mitteilung wird auch keine Herstellergarantie angezeigt.']
@@ -63,9 +63,9 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeBrand']									=	['Marke (Brand/Trademark)', 'Der volle Wert wird gespeichert. Bei Überlänge wird der Markenname in der Labeldarstellung mit \'...\' gekürzt. Die Kürzungslänge ist in den Grundeinstellungen konfigurierbar.'];
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeModelIdentifier']						=	['Modell (Model identifier)', 'Der volle Wert wird gespeichert. Bei Überlänge wird die Modellkennung in der Labeldarstellung mit \'...\' gekürzt. Die Kürzungslänge ist in den Grundeinstellungen konfigurierbar.'];
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['legalGuaranteeMessages']							=	[
-		'gllModeChangedForManufacturerGuarantee' => 'Die Einstellung zur gesetzlichen Gewährleistung wurde auf "%s" gestellt, weil die Herstellergarantie eingeschaltet ist und die Mitteilung über die gesetzliche Gewährleistung voraussetzt.',
-		'manufacturerGuaranteeDisabledByGllMode' => 'Die Herstellergarantie wurde ausgeschaltet, weil die Mitteilung über die gesetzliche Gewährleistung mit der gewählten Einstellung in der Standard-Benutzergruppe nicht angezeigt wird. Dauer, Marke und Modell bleiben gespeichert.',
-		'gllModeRejectedByOwnVariantDetails' => 'Gesperrt durch Varianten mit "Eigene Angaben": %s. Bitte zuerst diese Varianten ändern.',
+		'lgnModeChangedForManufacturerGuarantee' => 'Die Einstellung zur gesetzlichen Gewährleistung wurde auf "%s" gestellt, weil die Herstellergarantie eingeschaltet ist und die Mitteilung über die gesetzliche Gewährleistung voraussetzt.',
+		'manufacturerGuaranteeDisabledByLgnMode' => 'Die Herstellergarantie wurde ausgeschaltet, weil die Mitteilung über die gesetzliche Gewährleistung mit der gewählten Einstellung in der Standard-Benutzergruppe nicht angezeigt wird. Dauer, Marke und Modell bleiben gespeichert.',
+		'lgnModeRejectedByOwnVariantDetails' => 'Gesperrt durch Varianten mit "Eigene Angaben": %s. Bitte zuerst diese Varianten ändern.',
 		'openHintProductNeverShown' => 'Die Herstellergarantie dieses Produkts wird nicht ausgegeben, weil die gesetzliche Gewährleistung auf "Nie anzeigen" steht. Bitte die Einstellung zur gesetzlichen Gewährleistung am Produkt ändern.',
 		'openHintStandardGroupOnlyAlwaysShow' => 'Die Herstellergarantie dieses Produkts wird nicht ausgegeben, weil die Standard-Benutzergruppe bei der gesetzlichen Gewährleistung auf "Nur Produkte mit \'Immer anzeigen\'" steht und das Produkt auf "Wie Mitgliedergruppe". Bitte das Produkt auf "Immer anzeigen" stellen; das erledigt bereits ein Speichern des Produkts.',
 		'openHintVariantsWithOwnDetails' => 'Die Herstellergarantie folgender Varianten mit "Eigene Angaben" wird nicht ausgegeben, weil die Mitteilung über die gesetzliche Gewährleistung für dieses Produkt in der Standard-Benutzergruppe nicht angezeigt wird: %s. Bitte die Einstellung zur gesetzlichen Gewährleistung am Produkt ändern.'

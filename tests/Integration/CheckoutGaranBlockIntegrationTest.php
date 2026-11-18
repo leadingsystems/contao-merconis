@@ -9,7 +9,7 @@ use LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\LegalGuaranteeMarkupPr
 use LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\ProductGuaranteeDisplayResolver;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranLabelRenderer;
 use LeadingSystems\MerconisBundle\LegalGuarantee\GaranLabelGrouping;
-use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\MemberGroupGllModeProviderInterface;
+use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\MemberGroupLgnModeProviderInterface;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeLanguageResolver;
 use Merconis\Core\ls_shop_cartX;
@@ -28,8 +28,8 @@ final class CheckoutGaranBlockIntegrationTest extends TestCase
 
         $GLOBALS['objPage'] = (object) ['language' => 'de_DE'];
         $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee'] = [
-            'gllTitle' => 'Gesetzliche Gewährleistung, mindestens zwei Jahre',
-            'gllEuLinkText' => 'EU-Information zur gesetzlichen Gewährleistung',
+            'lgnTitle' => 'Gesetzliche Gewährleistung, mindestens zwei Jahre',
+            'lgnEuLinkText' => 'EU-Information zur gesetzlichen Gewährleistung',
             'garanBlockHeadline' => 'Herstellergarantie für folgende Artikel:',
             'garanEuLinkText' => 'EU-Information zur Herstellergarantie',
             'garanTitlePattern' => 'Herstellergarantie von %s für %s mit %s Jahren',
@@ -42,7 +42,7 @@ final class CheckoutGaranBlockIntegrationTest extends TestCase
         $this->setCartItems([
             $this->createProduct(
                 [
-                    'gllMode' => 'inherit',
+                    'lgnMode' => 'inherit',
                     'enableGaran' => '1',
                     'guaranteeBrand' => 'ACME',
                     'guaranteeModelIdentifier' => 'X100',
@@ -54,7 +54,7 @@ final class CheckoutGaranBlockIntegrationTest extends TestCase
             ),
             $this->createProduct(
                 [
-                    'gllMode' => 'inherit',
+                    'lgnMode' => 'inherit',
                     'enableGaran' => '1',
                     'guaranteeBrand' => 'ACME',
                     'guaranteeModelIdentifier' => 'X100',
@@ -66,7 +66,7 @@ final class CheckoutGaranBlockIntegrationTest extends TestCase
             ),
             $this->createProduct(
                 [
-                    'gllMode' => 'inherit',
+                    'lgnMode' => 'inherit',
                     'enableGaran' => '1',
                     'guaranteeBrand' => 'ACME',
                     'guaranteeModelIdentifier' => 'X100',
@@ -107,7 +107,7 @@ final class CheckoutGaranBlockIntegrationTest extends TestCase
         $this->setCartItems([
             $this->createProduct(
                 [
-                    'gllMode' => 'inherit',
+                    'lgnMode' => 'inherit',
                     'enableGaran' => '1',
                     'guaranteeBrand' => 'ACME',
                     'guaranteeModelIdentifier' => 'X100',
@@ -124,12 +124,12 @@ final class CheckoutGaranBlockIntegrationTest extends TestCase
         self::assertStringNotContainsString('Kissen - ', $markup);
     }
 
-    public function testCheckoutGaranBlockKeepsOnlyPositionsWithGllOutputForMemberGroup(): void
+    public function testCheckoutGaranBlockKeepsOnlyPositionsWithLgnOutputForMemberGroup(): void
     {
         $this->setCartItems([
             $this->createProduct(
                 [
-                    'gllMode' => 'inherit',
+                    'lgnMode' => 'inherit',
                     'enableGaran' => '1',
                     'guaranteeBrand' => 'ACME',
                     'guaranteeModelIdentifier' => 'X100',
@@ -142,7 +142,7 @@ final class CheckoutGaranBlockIntegrationTest extends TestCase
             ),
             $this->createProduct(
                 [
-                    'gllMode' => 'always',
+                    'lgnMode' => 'always',
                     'enableGaran' => '1',
                     'guaranteeBrand' => 'ACME',
                     'guaranteeModelIdentifier' => 'X100',
@@ -162,12 +162,12 @@ final class CheckoutGaranBlockIntegrationTest extends TestCase
         self::assertStringNotContainsString('Kissen', $markup);
     }
 
-    public function testCheckoutGaranBlockIsEmptyWithoutGllOutputForMemberGroup(): void
+    public function testCheckoutGaranBlockIsEmptyWithoutLgnOutputForMemberGroup(): void
     {
         $this->setCartItems([
             $this->createProduct(
                 [
-                    'gllMode' => 'always',
+                    'lgnMode' => 'always',
                     'enableGaran' => '1',
                     'guaranteeBrand' => 'ACME',
                     'guaranteeModelIdentifier' => 'X100',
@@ -184,7 +184,7 @@ final class CheckoutGaranBlockIntegrationTest extends TestCase
         self::assertSame('', $this->createProvider('')->checkoutGaranBlock());
     }
 
-    private function createProvider(string $memberGroupGllMode = 'on'): LegalGuaranteeMarkupProvider
+    private function createProvider(string $memberGroupLgnMode = 'on'): LegalGuaranteeMarkupProvider
     {
         $assetLocator = new OfficialGuaranteeAssetLocator(
             dirname(__DIR__, 2),
@@ -197,14 +197,14 @@ final class CheckoutGaranBlockIntegrationTest extends TestCase
             new GaranLabelGrouping(),
             new LegalGuaranteeMarkupBuilder(),
             new NullLogger(),
-            new class ($memberGroupGllMode) implements MemberGroupGllModeProviderInterface {
-                public function __construct(private readonly string $memberGroupGllMode)
+            new class ($memberGroupLgnMode) implements MemberGroupLgnModeProviderInterface {
+                public function __construct(private readonly string $memberGroupLgnMode)
                 {
                 }
 
-                public function getCurrentMemberGroupGllMode(): string
+                public function getCurrentMemberGroupLgnMode(): string
                 {
-                    return $this->memberGroupGllMode;
+                    return $this->memberGroupLgnMode;
                 }
             },
             [new GaranLabelRenderer($assetLocator, OfficialGuaranteeAssetLocator::GARAN_VERSION)],

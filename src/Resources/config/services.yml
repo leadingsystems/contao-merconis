@@ -72,11 +72,11 @@ services:
       $contaoErrorLogger: '@monolog.logger.contao.error'
       $garanLabelRenderers: !tagged_iterator merconis.legal_guarantee.garan_label_renderer
     public: true
-  LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\CurrentMemberGroupGllModeProvider: ~
-  LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\MemberGroupGllModeProviderInterface:
-    alias: LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\CurrentMemberGroupGllModeProvider
-  LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\StandardMemberGroupGllMode: ~
-  LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\MemberGroupGllModeInspector:
+  LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\CurrentMemberGroupLgnModeProvider: ~
+  LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\MemberGroupLgnModeProviderInterface:
+    alias: LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\CurrentMemberGroupLgnModeProvider
+  LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\StandardMemberGroupLgnMode: ~
+  LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\MemberGroupLgnModeInspector:
     public: true
     arguments:
       $connection: '@doctrine.dbal.default_connection'

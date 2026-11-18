@@ -6,24 +6,24 @@ namespace LeadingSystems\MerconisBundle\Tests\Integration;
 
 use PHPUnit\Framework\TestCase;
 
-final class MemberGroupGllModeLanguageTest extends TestCase
+final class MemberGroupLgnModeLanguageTest extends TestCase
 {
     private const LANGUAGE_BASE_PATH = __DIR__ . '/../../src/Resources/contao/languages/';
 
     /*
-     * Zusammengesetzt, damit eine Repository-Suche nach Resten der entfernten GLL-Übernahme
+     * Zusammengesetzt, damit eine Repository-Suche nach Resten der entfernten LGN-Übernahme
      * leer bleibt.
      */
     private const FORMER_GLL_MIGRATION_CONTROL_FIELD = 'ls_shop_enableGll' . 'MigrationControl';
 
-    private const GLL_MODE_DESCRIPTION_DE = 'Steuert die Anzeige für Mitglieder dieser Gruppe. Eine Änderung passt keine Produkte an.';
-    private const GLL_MODE_DESCRIPTION_EN = 'Controls the display for members of this group. A change does not adjust any products.';
+    private const LGN_MODE_DESCRIPTION_DE = 'Steuert die Anzeige für Mitglieder dieser Gruppe. Eine Änderung passt keine Produkte an.';
+    private const LGN_MODE_DESCRIPTION_EN = 'Controls the display for members of this group. A change does not adjust any products.';
 
     /*
      * Je Wert Beschriftung und Erläuterung im Hilfe-Assistenten nach Spec 27, Abschnitt 3.5
      * (Implementierungsentscheidung 0027); die leere Auswahl hat keine Erläuterung.
      */
-    private const GLL_MODE_OPTIONS_DE = [
+    private const LGN_MODE_OPTIONS_DE = [
         'on' => [
             'Anzeigen',
             "Produkte mit 'Wie Mitgliedergruppe' oder 'Immer anzeigen' zeigen die Mitteilung und, falls eingeschaltet, die Herstellergarantie.",
@@ -37,7 +37,7 @@ final class MemberGroupGllModeLanguageTest extends TestCase
             "Weder Mitteilung noch Herstellergarantie, auch nicht bei 'Immer anzeigen'. Für Gruppen ohne Verbraucher, zum Beispiel Geschäftskunden.",
         ],
     ];
-    private const GLL_MODE_OPTIONS_EN = [
+    private const LGN_MODE_OPTIONS_EN = [
         'on' => [
             'Show',
             "Products set to 'As member group' or 'Always show' show the notice and, if enabled, the manufacturer guarantee.",
@@ -55,8 +55,8 @@ final class MemberGroupGllModeLanguageTest extends TestCase
     private const STANDARD_GROUP_DESCRIPTION_DE = 'Einige Shop-Einstellungen werden für unterschiedliche Kunden- bzw. Mitgliedergruppen separat eingestellt. Definieren Sie hier, welcher dieser Gruppen ein nicht angemeldeter Kunde zugeordnet werden soll. Die Einstellung zur gesetzlichen Gewährleistung dieser Gruppe gilt für alle nicht angemeldeten Besucher und ist der Bezug für die automatische Anpassung am Produkt. Ein Wechsel der Gruppe passt keine Produkte an.';
     private const STANDARD_GROUP_DESCRIPTION_EN = 'Some shop settings are made separately for different user and member groups. Define here to which group a non-registered customer shall be assigned. The legal guarantee setting of this group applies to all visitors who are not logged in and is the reference for the automatic adjustment on the product. Changing the group does not adjust any products.';
 
-    private const GLL_ANNOUNCEMENT_DE = 'Mit Version 5.1.18 wurden die Mitteilung über die gesetzliche Gewährleistung und die Kennzeichnung der Herstellergarantie eingeführt. Legen Sie bei jeder Mitgliedergruppe fest, ob sie angezeigt werden. Bis dahin zeigt der Shop sie nicht an.';
-    private const GLL_ANNOUNCEMENT_EN = 'Version 5.1.18 introduced the notice on the legal guarantee and the label of the manufacturer guarantee. Specify for each member group whether they are shown. Until then, the shop does not show them.';
+    private const LGN_ANNOUNCEMENT_DE = 'Mit Version 5.1.18 wurden die Mitteilung über die gesetzliche Gewährleistung und die Kennzeichnung der Herstellergarantie eingeführt. Legen Sie bei jeder Mitgliedergruppe fest, ob sie angezeigt werden. Bis dahin zeigt der Shop sie nicht an.';
+    private const LGN_ANNOUNCEMENT_EN = 'Version 5.1.18 introduced the notice on the legal guarantee and the label of the manufacturer guarantee. Specify for each member group whether they are shown. Until then, the shop does not show them.';
 
     private mixed $originalTlLang;
 
@@ -82,18 +82,18 @@ final class MemberGroupGllModeLanguageTest extends TestCase
     {
         $memberGroupLanguage = $this->loadLanguageFile('de', 'tl_member_group')['tl_member_group'];
 
-        self::assertSame(['Gesetzliche Gewährleistung', self::GLL_MODE_DESCRIPTION_DE], $memberGroupLanguage['lsShopGllMode']);
-        self::assertSame(self::GLL_MODE_OPTIONS_DE, $memberGroupLanguage['lsShopGllModeOptions']);
-        self::assertSame('Bitte wählen', $memberGroupLanguage['lsShopGllModeBlankOption']);
+        self::assertSame(['Gesetzliche Gewährleistung', self::LGN_MODE_DESCRIPTION_DE], $memberGroupLanguage['lsShopLgnMode']);
+        self::assertSame(self::LGN_MODE_OPTIONS_DE, $memberGroupLanguage['lsShopLgnModeOptions']);
+        self::assertSame('Bitte wählen', $memberGroupLanguage['lsShopLgnModeBlankOption']);
     }
 
     public function testEnglishMemberGroupTextsFollowSpecWording(): void
     {
         $memberGroupLanguage = $this->loadLanguageFile('en', 'tl_member_group')['tl_member_group'];
 
-        self::assertSame(['Legal guarantee notice', self::GLL_MODE_DESCRIPTION_EN], $memberGroupLanguage['lsShopGllMode']);
-        self::assertSame(self::GLL_MODE_OPTIONS_EN, $memberGroupLanguage['lsShopGllModeOptions']);
-        self::assertSame('Please select', $memberGroupLanguage['lsShopGllModeBlankOption']);
+        self::assertSame(['Legal guarantee notice', self::LGN_MODE_DESCRIPTION_EN], $memberGroupLanguage['lsShopLgnMode']);
+        self::assertSame(self::LGN_MODE_OPTIONS_EN, $memberGroupLanguage['lsShopLgnModeOptions']);
+        self::assertSame('Please select', $memberGroupLanguage['lsShopLgnModeBlankOption']);
     }
 
     public function testStandardGroupDescriptionKeepsExistingTextAndAppendsSpecSentence(): void
@@ -128,12 +128,12 @@ final class MemberGroupGllModeLanguageTest extends TestCase
         $defaultLanguageEn = $this->loadLanguageFile('en', 'default');
 
         self::assertSame(
-            self::GLL_ANNOUNCEMENT_DE,
-            $defaultLanguageDe['MSC']['ls_shop']['dashboard']['gllAnnouncement']
+            self::LGN_ANNOUNCEMENT_DE,
+            $defaultLanguageDe['MSC']['ls_shop']['dashboard']['lgnAnnouncement']
         );
         self::assertSame(
-            self::GLL_ANNOUNCEMENT_EN,
-            $defaultLanguageEn['MSC']['ls_shop']['dashboard']['gllAnnouncement']
+            self::LGN_ANNOUNCEMENT_EN,
+            $defaultLanguageEn['MSC']['ls_shop']['dashboard']['lgnAnnouncement']
         );
     }
 

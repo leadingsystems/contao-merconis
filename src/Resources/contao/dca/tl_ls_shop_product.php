@@ -125,7 +125,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			lsShopProductProducer;
 
 			{lsShopGuaranteeLabels_legend},
-			gllMode,
+			lgnMode,
 			enableGaran;
 			
 			{lsShopImages_legend},
@@ -523,17 +523,17 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
             'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 
-		'gllMode' => [
-			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['gllMode'],
+		'lgnMode' => [
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['lgnMode'],
 			'exclude' => true,
 			'default'                 => 'inherit',
 			'inputType'               => 'select',
 			'options'                 => ['inherit', 'always', 'never'],
-			'reference'               => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['gllModeOptions'],
+			'reference'               => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['lgnModeOptions'],
 			'save_callback' => [
 				[
 					'LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\LegalGuaranteeBackendCallbacks',
-					'handleProductGllModeSave'
+					'handleProductLgnModeSave'
 				]
 			],
 			'eval'                    => ['helpwizard' => true, 'tl_class'=>'clr w50'],

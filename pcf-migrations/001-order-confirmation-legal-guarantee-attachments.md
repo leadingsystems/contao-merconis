@@ -10,7 +10,7 @@ dynamischen Anhang. Stattdessen liefert Merconis eine händleranpassbare
 Generator-Datei unter `pcf-migrations/` aus. Erst wenn diese Datei ins
 Contao-Dateisystem kopiert, mit `contao:filesync` registriert und dem
 Nachrichtenmodell der Bestellbestätigung zugeordnet wurde, hängen
-Bestellbestätigungen GLL- und GARAN-PDFs an.
+Bestellbestätigungen LGN- und GARAN-PDFs an.
 
 ## POST-DEPLOY
 

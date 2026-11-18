@@ -6,14 +6,14 @@ namespace LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup;
 
 use Merconis\Core\ls_shop_generalHelper;
 
-final class CurrentMemberGroupGllModeProvider implements MemberGroupGllModeProviderInterface
+final class CurrentMemberGroupLgnModeProvider implements MemberGroupLgnModeProviderInterface
 {
     /**
      * Liest die Gruppeneinstellungen über `getGroupSettings4User()`, damit der Hook
      * `getGroupSettingsForUser` auf die Ausgabe wirkt. Fehlt die Gruppe oder der Wert,
      * ist das Ergebnis `''`; `NULL` wird `''`.
      */
-    public function getCurrentMemberGroupGllMode(): string
+    public function getCurrentMemberGroupLgnMode(): string
     {
         $groupSettings = ls_shop_generalHelper::getGroupSettings4User();
 
@@ -21,6 +21,6 @@ final class CurrentMemberGroupGllModeProvider implements MemberGroupGllModeProvi
             return '';
         }
 
-        return trim((string) ($groupSettings['lsShopGllMode'] ?? ''));
+        return trim((string) ($groupSettings['lsShopLgnMode'] ?? ''));
     }
 }

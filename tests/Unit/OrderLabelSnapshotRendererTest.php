@@ -14,18 +14,18 @@ use PHPUnit\Framework\TestCase;
 
 final class OrderLabelSnapshotRendererTest extends TestCase
 {
-    public function testRenderGllNoticeSvgUsesStoredSnapshotVersionAndLanguage(): void
+    public function testRenderLgnNoticeSvgUsesStoredSnapshotVersionAndLanguage(): void
     {
         $assetLocator = $this->createAssetLocator();
         $renderer = new OrderLabelSnapshotRenderer($assetLocator, []);
 
-        $svg = $renderer->renderGllNoticeSvg([
-            'gllVersion' => OfficialGuaranteeAssetLocator::GLL_VERSION,
-            'gllLanguage' => 'de',
+        $svg = $renderer->renderLgnNoticeSvg([
+            'lgnVersion' => OfficialGuaranteeAssetLocator::LGN_VERSION,
+            'lgnLanguage' => 'de',
         ]);
 
         self::assertSame(
-            (string) file_get_contents($assetLocator->getGllSvgPathByLanguage('de')),
+            (string) file_get_contents($assetLocator->getLgnSvgPathByLanguage('de')),
             $svg
         );
     }

@@ -11,8 +11,8 @@
 	$GLOBALS['TL_LANG']['tl_member_group']['lsShopFormConfirmOrder']									= array('Confirmation of order form', 'Please select the form customers of this customer group shall use to confirm their order here.');
 	$GLOBALS['TL_LANG']['tl_member_group']['lsShopStandardPaymentMethod']								= array('Pre-selected payment method', 'If you want a certain payment method to be selected automatically at completion of the order, you can define this here.');
 	$GLOBALS['TL_LANG']['tl_member_group']['lsShopStandardShippingMethod']								= array('Pre-selected shipping method', 'If you want a certain shipping method to be selected automatically at completion of the order, you can define this here.');
-	$GLOBALS['TL_LANG']['tl_member_group']['lsShopGllMode'] = ['Legal guarantee notice', 'Controls the display for members of this group. A change does not adjust any products.'];
-	$GLOBALS['TL_LANG']['tl_member_group']['lsShopGllModeBlankOption'] = 'Please select';
+	$GLOBALS['TL_LANG']['tl_member_group']['lsShopLgnMode'] = ['Legal guarantee notice', 'Controls the display for members of this group. A change does not adjust any products.'];
+	$GLOBALS['TL_LANG']['tl_member_group']['lsShopLgnModeBlankOption'] = 'Please select';
 	
 	/*
 	 * Legends
@@ -27,7 +27,7 @@
 		'net' => array('Net prices','Select this option if members of this group are supposed to see net prices.')
 	);
 
-	$GLOBALS['TL_LANG']['tl_member_group']['lsShopGllModeOptions'] = [
+	$GLOBALS['TL_LANG']['tl_member_group']['lsShopLgnModeOptions'] = [
 		'on' => ['Show', "Products set to 'As member group' or 'Always show' show the notice and, if enabled, the manufacturer guarantee."],
 		'off' => ["Only products set to 'Always show'", "Only products set to 'Always show' show the notice and the manufacturer guarantee. For shops selling mostly services or digital content."],
 		'blocked' => ['Never show (e.g. business customers)', "Neither notice nor manufacturer guarantee, not even for 'Always show'. For groups without consumers, e.g. business customers."],

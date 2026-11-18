@@ -903,10 +903,10 @@ returns the id of the variant that has currently been selected
                 return $this->_linkToProduct;
                 break;
 
-            case '_gllNotice':
+            case '_lgnNotice':
                 return System::getContainer()
                     ->get(LegalGuaranteeMarkupProvider::class)
-                    ->renderProductGllNotice($this);
+                    ->renderProductLgnNotice($this);
                 break;
 
             case '_garanLabel':

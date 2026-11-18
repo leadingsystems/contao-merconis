@@ -6,18 +6,18 @@ namespace LeadingSystems\MerconisBundle\Tests\Integration;
 
 use PHPUnit\Framework\TestCase;
 
-final class ProductGllModeLanguageTest extends TestCase
+final class ProductLgnModeLanguageTest extends TestCase
 {
     private const LANGUAGE_BASE_PATH = __DIR__ . '/../../src/Resources/contao/languages/';
 
-    private const GLL_MODE_DESCRIPTION_DE = 'Steuert die Mitteilung über die gesetzliche Gewährleistung für dieses Produkt.';
-    private const GLL_MODE_DESCRIPTION_EN = 'Controls the legal guarantee notice for this product.';
+    private const LGN_MODE_DESCRIPTION_DE = 'Steuert die Mitteilung über die gesetzliche Gewährleistung für dieses Produkt.';
+    private const LGN_MODE_DESCRIPTION_EN = 'Controls the legal guarantee notice for this product.';
 
     /*
      * Je Wert Beschriftung und Erläuterung im Hilfe-Assistenten nach Spec 27, Abschnitt 3.1
      * (Implementierungsentscheidung 0027).
      */
-    private const GLL_MODE_OPTIONS_DE = [
+    private const LGN_MODE_OPTIONS_DE = [
         'inherit' => [
             'Wie Mitgliedergruppe',
             'Übernimmt die Einstellung der Mitgliedergruppe des Kunden. Richtig für körperliche Waren und Waren mit digitalen Elementen.',
@@ -31,7 +31,7 @@ final class ProductGllModeLanguageTest extends TestCase
             'Für reine digitale Inhalte, SaaS und Dienstleistungen. Ohne die Mitteilung wird auch keine Herstellergarantie angezeigt.',
         ],
     ];
-    private const GLL_MODE_OPTIONS_EN = [
+    private const LGN_MODE_OPTIONS_EN = [
         'inherit' => [
             'As member group',
             "Uses the setting of the customer's member group. Right for physical goods and goods with digital elements.",
@@ -78,21 +78,21 @@ final class ProductGllModeLanguageTest extends TestCase
         parent::tearDown();
     }
 
-    public function testGermanProductGllModeTextsFollowSpecWording(): void
+    public function testGermanProductLgnModeTextsFollowSpecWording(): void
     {
         $productLanguage = $this->loadLanguageFile('de', 'tl_ls_shop_product')['tl_ls_shop_product'];
 
-        self::assertSame(['Gesetzliche Gewährleistung', self::GLL_MODE_DESCRIPTION_DE], $productLanguage['gllMode']);
-        self::assertSame(self::GLL_MODE_OPTIONS_DE, $productLanguage['gllModeOptions']);
+        self::assertSame(['Gesetzliche Gewährleistung', self::LGN_MODE_DESCRIPTION_DE], $productLanguage['lgnMode']);
+        self::assertSame(self::LGN_MODE_OPTIONS_DE, $productLanguage['lgnModeOptions']);
         self::assertArrayNotHasKey('enableGll', $productLanguage);
     }
 
-    public function testEnglishProductGllModeTextsFollowSpecWording(): void
+    public function testEnglishProductLgnModeTextsFollowSpecWording(): void
     {
         $productLanguage = $this->loadLanguageFile('en', 'tl_ls_shop_product')['tl_ls_shop_product'];
 
-        self::assertSame(['Legal guarantee notice', self::GLL_MODE_DESCRIPTION_EN], $productLanguage['gllMode']);
-        self::assertSame(self::GLL_MODE_OPTIONS_EN, $productLanguage['gllModeOptions']);
+        self::assertSame(['Legal guarantee notice', self::LGN_MODE_DESCRIPTION_EN], $productLanguage['lgnMode']);
+        self::assertSame(self::LGN_MODE_OPTIONS_EN, $productLanguage['lgnModeOptions']);
         self::assertArrayNotHasKey('enableGll', $productLanguage);
     }
 

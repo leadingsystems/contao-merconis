@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\Tests\Unit;
 
-use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\StandardMemberGroupGllMode;
+use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\StandardMemberGroupLgnMode;
 use LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\ProductGuaranteeConfigurationValidator;
 use PHPUnit\Framework\TestCase;
 
@@ -20,8 +20,8 @@ final class LegalGuaranteeHiddenSubpaletteRequestTest extends TestCase
         $this->originalTlConfig = $GLOBALS['TL_CONFIG'] ?? null;
         $GLOBALS['TL_CONFIG']['ls_shop_standardGroup'] = 3;
         $this->validator = new ProductGuaranteeConfigurationValidator(
-            standardMemberGroupGllMode: new StandardMemberGroupGllMode(
-                static fn (int $groupId): array => ['id' => $groupId, 'lsShopGllMode' => 'on']
+            standardMemberGroupLgnMode: new StandardMemberGroupLgnMode(
+                static fn (int $groupId): array => ['id' => $groupId, 'lsShopLgnMode' => 'on']
             )
         );
     }
@@ -40,14 +40,14 @@ final class LegalGuaranteeHiddenSubpaletteRequestTest extends TestCase
     public function testProductKeepsStoredGuaranteeValuesWhenEnableGaranIsTurnedOffBeforeSave(): void
     {
         $currentProductData = [
-            'gllMode' => 'inherit',
+            'lgnMode' => 'inherit',
             'enableGaran' => '1',
             'guaranteeDurationMonths' => '30',
             'guaranteeBrand' => 'Stored brand',
             'guaranteeModelIdentifier' => 'Stored mdl',
         ];
         $submittedRequestData = [
-            'gllMode' => 'inherit',
+            'lgnMode' => 'inherit',
             'enableGaran' => '',
         ];
 
@@ -69,7 +69,7 @@ final class LegalGuaranteeHiddenSubpaletteRequestTest extends TestCase
             'guaranteeModelIdentifier' => 'Stored mdl',
         ];
         $currentProductData = [
-            'gllMode' => 'inherit',
+            'lgnMode' => 'inherit',
             'enableGaran' => '1',
             'guaranteeDurationMonths' => '30',
             'guaranteeBrand' => 'Product brand',
@@ -98,7 +98,7 @@ final class LegalGuaranteeHiddenSubpaletteRequestTest extends TestCase
     {
         $enabledResult = $this->validator->validateProduct(
             [
-                'gllMode' => 'inherit',
+                'lgnMode' => 'inherit',
                 'enableGaran' => '1',
                 'guaranteeDurationMonths' => '',
                 'guaranteeBrand' => '',
@@ -107,7 +107,7 @@ final class LegalGuaranteeHiddenSubpaletteRequestTest extends TestCase
         );
         $disabledResult = $this->validator->validateProduct(
             [
-                'gllMode' => 'inherit',
+                'lgnMode' => 'inherit',
                 'enableGaran' => '',
                 'guaranteeDurationMonths' => '',
                 'guaranteeBrand' => '',
@@ -129,7 +129,7 @@ final class LegalGuaranteeHiddenSubpaletteRequestTest extends TestCase
     public function testVariantRequiresGuaranteeFieldsOnlyWhenModeIsOverride(): void
     {
         $currentProductData = [
-            'gllMode' => 'inherit',
+            'lgnMode' => 'inherit',
             'enableGaran' => '',
             'guaranteeDurationMonths' => '',
             'guaranteeBrand' => '',

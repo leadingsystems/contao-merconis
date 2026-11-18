@@ -93,7 +93,7 @@ final class MpdfGaranPdfWriteTest extends TestCase
             self::assertSame($scenario['expectedFormXObjectCount'], $garanInspector->getFormXObjectCount(), $label);
             self::assertSame(1, $garanInspector->countLargeFormXObjects(10000), $label);
             self::assertGreaterThanOrEqual(1.0, $garanInspector->getMinimumTextFontSize(), $label);
-            self::assertCommonPdfProperties($inspectionResult['garanPath'], $inspectionResult['gllPath']);
+            self::assertCommonPdfProperties($inspectionResult['garanPath'], $inspectionResult['lgnPath']);
         }
     }
 
@@ -113,7 +113,7 @@ final class MpdfGaranPdfWriteTest extends TestCase
         self::assertSame(3, $garanInspector->getFormXObjectCount());
         self::assertSame(1, $garanInspector->countLargeFormXObjects(10000));
         self::assertGreaterThanOrEqual(1.0, $garanInspector->getMinimumTextFontSize());
-        self::assertCommonPdfProperties($inspectionResult['garanPath'], $inspectionResult['gllPath']);
+        self::assertCommonPdfProperties($inspectionResult['garanPath'], $inspectionResult['lgnPath']);
 
         if (getenv('LEGAL_GUARANTEE_PHPUNIT_FORCE_FAILURE') === '1') {
             self::fail('Intentional failure to verify snapshot restoration.');
@@ -407,7 +407,7 @@ SQL,
      * @return array{
      *   garanInspector: LegalGuaranteePdfDictionaryInspector,
      *   garanPath: string,
-     *   gllPath: string
+     *   lgnPath: string
      * }
      */
     private function inspectGeneratedAttachments(int $orderId): array
@@ -417,22 +417,22 @@ SQL,
             $relativePaths,
             static fn (string $relativePath): bool => str_contains($relativePath, '/garantielabels/')
         ));
-        $gllPaths = array_values(array_filter(
+        $lgnPaths = array_values(array_filter(
             $relativePaths,
-            static fn (string $relativePath): bool => str_contains($relativePath, '/legal-guarantee/gll/')
+            static fn (string $relativePath): bool => str_contains($relativePath, '/legal-guarantee/lgn/')
         ));
 
         self::assertCount(1, $garanPaths);
-        self::assertCount(1, $gllPaths);
+        self::assertCount(1, $lgnPaths);
 
         return [
             'garanInspector' => new LegalGuaranteePdfDictionaryInspector($this->resolveProjectPath($garanPaths[0])),
             'garanPath' => $garanPaths[0],
-            'gllPath' => $gllPaths[0],
+            'lgnPath' => $lgnPaths[0],
         ];
     }
 
-    private function assertCommonPdfProperties(string $garanPath, string $gllPath): void
+    private function assertCommonPdfProperties(string $garanPath, string $lgnPath): void
     {
         $garanInspector = new LegalGuaranteePdfDictionaryInspector($this->resolveProjectPath($garanPath));
         $garanMediaBoxes = $garanInspector->getPageMediaBoxesInMillimetres();
@@ -449,11 +449,11 @@ SQL,
             $garanInspector->getLinkUris()
         );
 
-        $gllInspector = new LegalGuaranteePdfDictionaryInspector($this->resolveProjectPath($gllPath));
-        self::assertCount(1, $gllInspector->getPageMediaBoxesInMillimetres());
+        $lgnInspector = new LegalGuaranteePdfDictionaryInspector($this->resolveProjectPath($lgnPath));
+        self::assertCount(1, $lgnInspector->getPageMediaBoxesInMillimetres());
 
-        if (!str_ends_with($gllPath, '-en.pdf')) {
-            self::assertNotEmpty($gllInspector->getLinkUris());
+        if (!str_ends_with($lgnPath, '-en.pdf')) {
+            self::assertNotEmpty($lgnInspector->getLinkUris());
         }
     }
 

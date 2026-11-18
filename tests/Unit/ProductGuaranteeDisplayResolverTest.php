@@ -16,16 +16,16 @@ final class ProductGuaranteeDisplayResolverTest extends TestCase
      *
      * @return iterable<string, array{0: string|null, 1: string, 2: bool}>
      */
-    public static function memberGroupAndProductGllModeProvider(): iterable
+    public static function memberGroupAndProductLgnModeProvider(): iterable
     {
-        $expectedShowGllByMemberGroupGllMode = [
+        $expectedShowLgnByMemberGroupLgnMode = [
             'on' => ['inherit' => true, 'always' => true, 'never' => false],
             'off' => ['inherit' => false, 'always' => true, 'never' => false],
             'blocked' => ['inherit' => false, 'always' => false, 'never' => false],
             'empty' => ['inherit' => false, 'always' => false, 'never' => false],
             'null' => ['inherit' => false, 'always' => false, 'never' => false],
         ];
-        $memberGroupGllModesByCaseName = [
+        $memberGroupLgnModesByCaseName = [
             'on' => 'on',
             'off' => 'off',
             'blocked' => 'blocked',
@@ -33,44 +33,44 @@ final class ProductGuaranteeDisplayResolverTest extends TestCase
             'null' => null,
         ];
 
-        foreach ($expectedShowGllByMemberGroupGllMode as $memberGroupCaseName => $expectedShowGllByProductGllMode) {
-            foreach ($expectedShowGllByProductGllMode as $productGllMode => $expectedShowGll) {
-                yield sprintf('group %s, product %s', $memberGroupCaseName, $productGllMode) => [
-                    $memberGroupGllModesByCaseName[$memberGroupCaseName],
-                    $productGllMode,
-                    $expectedShowGll,
+        foreach ($expectedShowLgnByMemberGroupLgnMode as $memberGroupCaseName => $expectedShowLgnByProductLgnMode) {
+            foreach ($expectedShowLgnByProductLgnMode as $productLgnMode => $expectedShowLgn) {
+                yield sprintf('group %s, product %s', $memberGroupCaseName, $productLgnMode) => [
+                    $memberGroupLgnModesByCaseName[$memberGroupCaseName],
+                    $productLgnMode,
+                    $expectedShowLgn,
                 ];
             }
         }
     }
 
-    #[DataProvider('memberGroupAndProductGllModeProvider')]
-    public function testResolveFollowsMemberGroupAndProductGllModeForProduct(
-        ?string $memberGroupGllMode,
-        string $productGllMode,
-        bool $expectedShowGll
+    #[DataProvider('memberGroupAndProductLgnModeProvider')]
+    public function testResolveFollowsMemberGroupAndProductLgnModeForProduct(
+        ?string $memberGroupLgnMode,
+        string $productLgnMode,
+        bool $expectedShowLgn
     ): void {
         $result = (new ProductGuaranteeDisplayResolver())->resolve(
-            $memberGroupGllMode,
-            $this->createCompleteGaranProductData($productGllMode)
+            $memberGroupLgnMode,
+            $this->createCompleteGaranProductData($productLgnMode)
         );
 
-        self::assertSame($expectedShowGll, $result['showGll']);
-        self::assertSame($expectedShowGll, $result['showGaran']);
-        self::assertSame($expectedShowGll ? 'ACME' : null, $result['garan']['brand'] ?? null);
+        self::assertSame($expectedShowLgn, $result['showLgn']);
+        self::assertSame($expectedShowLgn, $result['showGaran']);
+        self::assertSame($expectedShowLgn ? 'ACME' : null, $result['garan']['brand'] ?? null);
     }
 
-    #[DataProvider('memberGroupAndProductGllModeProvider')]
-    public function testResolveUsesParentProductGllModeForVariant(
-        ?string $memberGroupGllMode,
-        string $productGllMode,
-        bool $expectedShowGll
+    #[DataProvider('memberGroupAndProductLgnModeProvider')]
+    public function testResolveUsesParentProductLgnModeForVariant(
+        ?string $memberGroupLgnMode,
+        string $productLgnMode,
+        bool $expectedShowLgn
     ): void {
         $result = (new ProductGuaranteeDisplayResolver())->resolve(
-            $memberGroupGllMode,
-            $this->createCompleteGaranProductData($productGllMode),
+            $memberGroupLgnMode,
+            $this->createCompleteGaranProductData($productLgnMode),
             [
-                'gllMode' => 'never' === $productGllMode ? 'always' : 'never',
+                'lgnMode' => 'never' === $productLgnMode ? 'always' : 'never',
                 'garanMode' => 'override',
                 'guaranteeBrand' => 'Variant Brand',
                 'guaranteeModelIdentifier' => 'Variant Model',
@@ -78,15 +78,15 @@ final class ProductGuaranteeDisplayResolverTest extends TestCase
             ]
         );
 
-        self::assertSame($expectedShowGll, $result['showGll']);
-        self::assertSame($expectedShowGll, $result['showGaran']);
-        self::assertSame($expectedShowGll ? 'Variant Brand' : null, $result['garan']['brand'] ?? null);
+        self::assertSame($expectedShowLgn, $result['showLgn']);
+        self::assertSame($expectedShowLgn, $result['showGaran']);
+        self::assertSame($expectedShowLgn ? 'Variant Brand' : null, $result['garan']['brand'] ?? null);
     }
 
     /**
      * @return iterable<string, array{0: string|null, 1: mixed}>
      */
-    public static function unknownGllModeProvider(): iterable
+    public static function unknownLgnModeProvider(): iterable
     {
         yield 'unknown member group value' => ['yes', 'always'];
         yield 'unknown product value' => ['on', 'sometimes'];
@@ -95,21 +95,21 @@ final class ProductGuaranteeDisplayResolverTest extends TestCase
         yield 'legacy enableGll value' => ['on', '1'];
     }
 
-    #[DataProvider('unknownGllModeProvider')]
-    public function testResolveSuppressesOutputForUnknownGllModeValues(
-        ?string $memberGroupGllMode,
-        mixed $productGllMode
+    #[DataProvider('unknownLgnModeProvider')]
+    public function testResolveSuppressesOutputForUnknownLgnModeValues(
+        ?string $memberGroupLgnMode,
+        mixed $productLgnMode
     ): void {
         $productData = $this->createCompleteGaranProductData('inherit');
-        unset($productData['gllMode']);
+        unset($productData['lgnMode']);
 
-        if (null !== $productGllMode) {
-            $productData['gllMode'] = $productGllMode;
+        if (null !== $productLgnMode) {
+            $productData['lgnMode'] = $productLgnMode;
         }
 
-        $result = (new ProductGuaranteeDisplayResolver())->resolve($memberGroupGllMode, $productData);
+        $result = (new ProductGuaranteeDisplayResolver())->resolve($memberGroupLgnMode, $productData);
 
-        self::assertFalse($result['showGll']);
+        self::assertFalse($result['showLgn']);
         self::assertFalse($result['showGaran']);
         self::assertNull($result['garan']);
     }
@@ -121,18 +121,18 @@ final class ProductGuaranteeDisplayResolverTest extends TestCase
 
         $result = (new ProductGuaranteeDisplayResolver())->resolve('on', $productData);
 
-        self::assertFalse($result['showGll']);
+        self::assertFalse($result['showLgn']);
         self::assertFalse($result['showGaran']);
     }
 
-    public function testResolveShowsGllWithoutGaranWhenGaranIsDisabled(): void
+    public function testResolveShowsLgnWithoutGaranWhenGaranIsDisabled(): void
     {
         $productData = $this->createCompleteGaranProductData('inherit');
         $productData['enableGaran'] = '';
 
         $result = (new ProductGuaranteeDisplayResolver())->resolve('on', $productData);
 
-        self::assertTrue($result['showGll']);
+        self::assertTrue($result['showLgn']);
         self::assertFalse($result['showGaran']);
         self::assertNull($result['garan']);
     }
@@ -142,14 +142,14 @@ final class ProductGuaranteeDisplayResolverTest extends TestCase
         $resolver = new ProductGuaranteeDisplayResolver();
 
         $result = $resolver->resolve('on', [
-            'gllMode' => 'inherit',
+            'lgnMode' => 'inherit',
             'enableGaran' => '1',
             'guaranteeBrand' => '  ACME &amp; Co.  ',
             'guaranteeModelIdentifier' => '  Model &#34;42&#34;  ',
             'guaranteeDurationMonths' => '54',
         ]);
 
-        self::assertTrue($result['showGll']);
+        self::assertTrue($result['showLgn']);
         self::assertTrue($result['showGaran']);
         self::assertSame('ACME &amp; Co.', $result['garan']['brand']);
         self::assertSame('Model &#34;42&#34;', $result['garan']['modelIdentifier']);
@@ -163,7 +163,7 @@ final class ProductGuaranteeDisplayResolverTest extends TestCase
         $result = $resolver->resolve(
             'on',
             [
-                'gllMode' => 'inherit',
+                'lgnMode' => 'inherit',
                 'enableGaran' => '1',
                 'guaranteeBrand' => 'Parent Brand',
                 'guaranteeModelIdentifier' => 'Parent Model',
@@ -190,7 +190,7 @@ final class ProductGuaranteeDisplayResolverTest extends TestCase
         $result = $resolver->resolve(
             'on',
             [
-                'gllMode' => 'inherit',
+                'lgnMode' => 'inherit',
                 'enableGaran' => '1',
                 'guaranteeBrand' => 'Parent Brand',
                 'guaranteeModelIdentifier' => 'Parent Model',
@@ -217,7 +217,7 @@ final class ProductGuaranteeDisplayResolverTest extends TestCase
         $result = $resolver->resolve(
             'on',
             [
-                'gllMode' => 'inherit',
+                'lgnMode' => 'inherit',
                 'enableGaran' => '1',
                 'guaranteeBrand' => 'Parent Brand',
                 'guaranteeModelIdentifier' => 'Parent Model',
@@ -231,7 +231,7 @@ final class ProductGuaranteeDisplayResolverTest extends TestCase
             ],
         );
 
-        self::assertTrue($result['showGll']);
+        self::assertTrue($result['showLgn']);
         self::assertFalse($result['showGaran']);
         self::assertNull($result['garan']);
     }
@@ -241,14 +241,14 @@ final class ProductGuaranteeDisplayResolverTest extends TestCase
         $resolver = new ProductGuaranteeDisplayResolver();
 
         $result = $resolver->resolve('on', [
-            'gllMode' => 'inherit',
+            'lgnMode' => 'inherit',
             'enableGaran' => '1',
             'guaranteeBrand' => '',
             'guaranteeModelIdentifier' => 'Model 42',
             'guaranteeDurationMonths' => '54',
         ]);
 
-        self::assertTrue($result['showGll']);
+        self::assertTrue($result['showLgn']);
         self::assertFalse($result['showGaran']);
         self::assertNull($result['garan']);
     }
@@ -260,7 +260,7 @@ final class ProductGuaranteeDisplayResolverTest extends TestCase
         $result = $resolver->resolve(
             'off',
             new ArrayIterator([
-                'gllMode' => 'always',
+                'lgnMode' => 'always',
                 'enableGaran' => '1',
                 'guaranteeBrand' => 'Parent Brand',
                 'guaranteeModelIdentifier' => 'Parent Model',
@@ -274,7 +274,7 @@ final class ProductGuaranteeDisplayResolverTest extends TestCase
             ])
         );
 
-        self::assertTrue($result['showGll']);
+        self::assertTrue($result['showLgn']);
         self::assertTrue($result['showGaran']);
         self::assertSame('Variant Brand', $result['garan']['brand']);
         self::assertSame('Variant Model', $result['garan']['modelIdentifier']);
@@ -284,10 +284,10 @@ final class ProductGuaranteeDisplayResolverTest extends TestCase
     /**
      * @return array<string, string>
      */
-    private function createCompleteGaranProductData(string $productGllMode): array
+    private function createCompleteGaranProductData(string $productLgnMode): array
     {
         return [
-            'gllMode' => $productGllMode,
+            'lgnMode' => $productLgnMode,
             'enableGaran' => '1',
             'guaranteeBrand' => 'ACME',
             'guaranteeModelIdentifier' => 'X100',

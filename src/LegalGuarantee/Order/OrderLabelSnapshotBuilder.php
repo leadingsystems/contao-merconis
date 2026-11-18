@@ -5,17 +5,17 @@ declare(strict_types=1);
 namespace LeadingSystems\MerconisBundle\LegalGuarantee\Order;
 
 use LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\ProductGuaranteeDisplayResolver;
-use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\MemberGroupGllModeProviderInterface;
+use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\MemberGroupLgnModeProviderInterface;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
 
 final class OrderLabelSnapshotBuilder
 {
-    public const REQUIRES_GLL_ORDER_SNAPSHOT_KEY = '_requiresGllOrderSnapshot';
+    public const REQUIRES_LGN_ORDER_SNAPSHOT_KEY = '_requiresLgnOrderSnapshot';
 
     public function __construct(
         private readonly ProductGuaranteeDisplayResolver $displayResolver,
         private readonly OfficialGuaranteeAssetLocator $assetLocator,
-        private readonly MemberGroupGllModeProviderInterface $memberGroupGllModeProvider,
+        private readonly MemberGroupLgnModeProviderInterface $memberGroupLgnModeProvider,
     ) {
     }
 
@@ -31,14 +31,14 @@ final class OrderLabelSnapshotBuilder
     public function buildItemSnapshot(iterable $productData, ?iterable $variantData = null): array
     {
         $displayData = $this->displayResolver->resolve(
-            $this->memberGroupGllModeProvider->getCurrentMemberGroupGllMode(),
+            $this->memberGroupLgnModeProvider->getCurrentMemberGroupLgnMode(),
             $productData,
             $variantData
         );
         $garanData = $displayData['garan'];
 
         return [
-            self::REQUIRES_GLL_ORDER_SNAPSHOT_KEY => $displayData['showGll'] ? '1' : '',
+            self::REQUIRES_LGN_ORDER_SNAPSHOT_KEY => $displayData['showLgn'] ? '1' : '',
             'garanVersion' => $displayData['showGaran']
                 ? OfficialGuaranteeAssetLocator::GARAN_VERSION
                 : '',
@@ -75,16 +75,16 @@ final class OrderLabelSnapshotBuilder
     {
         $customerLanguage = trim((string) ($order['customerLanguage'] ?? ''));
 
-        if ('' === $customerLanguage || !$this->requiresGllOrderSnapshot($order['items'] ?? [])) {
+        if ('' === $customerLanguage || !$this->requiresLgnOrderSnapshot($order['items'] ?? [])) {
             return [
-                'gllVersion' => '',
-                'gllLanguage' => '',
+                'lgnVersion' => '',
+                'lgnLanguage' => '',
             ];
         }
 
         return [
-            'gllVersion' => OfficialGuaranteeAssetLocator::GLL_VERSION,
-            'gllLanguage' => $this->assetLocator->resolveGllSvgLanguage($customerLanguage),
+            'lgnVersion' => OfficialGuaranteeAssetLocator::LGN_VERSION,
+            'lgnLanguage' => $this->assetLocator->resolveLgnSvgLanguage($customerLanguage),
         ];
     }
 
@@ -101,7 +101,7 @@ final class OrderLabelSnapshotBuilder
     /**
      * @param mixed $items
      */
-    private function requiresGllOrderSnapshot(mixed $items): bool
+    private function requiresLgnOrderSnapshot(mixed $items): bool
     {
         if (!is_iterable($items)) {
             return false;
@@ -112,7 +112,7 @@ final class OrderLabelSnapshotBuilder
                 continue;
             }
 
-            if (!empty($item[self::REQUIRES_GLL_ORDER_SNAPSHOT_KEY])) {
+            if (!empty($item[self::REQUIRES_LGN_ORDER_SNAPSHOT_KEY])) {
                 return true;
             }
         }

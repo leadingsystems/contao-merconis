@@ -10,7 +10,7 @@ use LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\LegalGuaranteeMarkupPr
 use LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\ProductGuaranteeDisplayResolver;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\GaranLabelRendererInterface;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranLabelRenderer;
-use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\MemberGroupGllModeProviderInterface;
+use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\MemberGroupLgnModeProviderInterface;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeLanguageResolver;
 use Merconis\Core\ls_shop_cartX;
@@ -32,8 +32,8 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
         parent::setUp();
 
         $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee'] = [
-            'gllTitle' => 'Gesetzliche Gewährleistung, mindestens zwei Jahre',
-            'gllEuLinkText' => 'EU-Information zur gesetzlichen Gewährleistung',
+            'lgnTitle' => 'Gesetzliche Gewährleistung, mindestens zwei Jahre',
+            'lgnEuLinkText' => 'EU-Information zur gesetzlichen Gewährleistung',
             'garanBlockHeadline' => 'Herstellergarantie für folgende Artikel:',
             'garanEuLinkText' => 'EU-Information zur Herstellergarantie',
             'garanTitlePattern' => 'Herstellergarantie von %s für %s mit %s Jahren',
@@ -41,11 +41,11 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
         $GLOBALS['TL_CSS'] = [];
     }
 
-    public function testRenderCurrentLanguageGllNoticeUsesResolvedLanguageAndAccessibilityTitle(): void
+    public function testRenderCurrentLanguageLgnNoticeUsesResolvedLanguageAndAccessibilityTitle(): void
     {
         $GLOBALS['objPage'] = (object) ['language' => 'de_DE'];
 
-        $markup = $this->createProvider()->renderCurrentLanguageGllNotice();
+        $markup = $this->createProvider()->renderCurrentLanguageLgnNotice();
 
         self::assertStringContainsString('lang="de"', $markup);
         self::assertStringContainsString('Gesetzliche Gewährleistung, mindestens zwei Jahre', $markup);
@@ -59,18 +59,18 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
         );
     }
 
-    public function testRenderCurrentLanguageGllNoticeFallsBackToEnglishForUnknownLocale(): void
+    public function testRenderCurrentLanguageLgnNoticeFallsBackToEnglishForUnknownLocale(): void
     {
         $GLOBALS['objPage'] = (object) ['language' => 'zz_ZZ'];
         $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee'] = [
-            'gllTitle' => 'Legal guarantee, at least two years',
-            'gllEuLinkText' => 'EU information about the legal guarantee',
+            'lgnTitle' => 'Legal guarantee, at least two years',
+            'lgnEuLinkText' => 'EU information about the legal guarantee',
             'garanBlockHeadline' => 'Manufacturer\'s commercial guarantee for the following items:',
             'garanEuLinkText' => 'EU information about the manufacturer\'s commercial guarantee',
             'garanTitlePattern' => 'Manufacturer\'s commercial guarantee by %s for %s with %s years',
         ];
 
-        $markup = $this->createProvider()->renderCurrentLanguageGllNotice();
+        $markup = $this->createProvider()->renderCurrentLanguageLgnNotice();
 
         self::assertStringContainsString('lang="en"', $markup);
         self::assertStringContainsString('Legal guarantee, at least two years', $markup);
@@ -99,37 +99,37 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
         self::assertSame('Herstellergarantie von ACME für MX-42 mit 2,5 Jahren', $formattedHalfYear);
     }
 
-    public function testCheckoutGllNoticeReturnsEmptyStringWithoutEligibleCartItems(): void
+    public function testCheckoutLgnNoticeReturnsEmptyStringWithoutEligibleCartItems(): void
     {
         $GLOBALS['objPage'] = (object) ['language' => 'de_DE'];
         $this->setCartItems([
             $this->createProduct([
-                'gllMode' => 'never',
+                'lgnMode' => 'never',
                 'enableGaran' => '',
             ]),
         ]);
 
-        $markup = $this->createProvider()->checkoutGllNotice();
+        $markup = $this->createProvider()->checkoutLgnNotice();
 
         self::assertSame('', $markup);
         self::assertSame([], $GLOBALS['TL_CSS']);
     }
 
-    public function testCheckoutGllNoticeRendersLabelMarkupForFirstEligibleCartItem(): void
+    public function testCheckoutLgnNoticeRendersLabelMarkupForFirstEligibleCartItem(): void
     {
         $GLOBALS['objPage'] = (object) ['language' => 'de_DE'];
         $this->setCartItems([
             $this->createProduct([
-                'gllMode' => 'inherit',
+                'lgnMode' => 'inherit',
                 'enableGaran' => '',
             ]),
             $this->createProduct([
-                'gllMode' => 'inherit',
+                'lgnMode' => 'inherit',
                 'enableGaran' => '',
             ]),
         ]);
 
-        $markup = $this->createProvider()->checkoutGllNotice();
+        $markup = $this->createProvider()->checkoutLgnNotice();
 
         self::assertStringContainsString('merconis-legal-guarantee-label', $markup);
         self::assertStringContainsString('lang="de"', $markup);
@@ -148,7 +148,7 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
         $this->setCartItems([
             $this->createProduct(
                 [
-                    'gllMode' => 'inherit',
+                    'lgnMode' => 'inherit',
                     'enableGaran' => '1',
                     'guaranteeBrand' => 'ACME',
                     'guaranteeModelIdentifier' => 'X100',
@@ -160,7 +160,7 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
             ),
             $this->createProduct(
                 [
-                    'gllMode' => 'inherit',
+                    'lgnMode' => 'inherit',
                     'enableGaran' => '1',
                     'guaranteeBrand' => 'ACME',
                     'guaranteeModelIdentifier' => 'X100',
@@ -172,7 +172,7 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
             ),
             $this->createProduct(
                 [
-                    'gllMode' => 'inherit',
+                    'lgnMode' => 'inherit',
                     'enableGaran' => '1',
                     'guaranteeBrand' => 'ACME',
                     'guaranteeModelIdentifier' => 'X100',
@@ -203,7 +203,7 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
     public function testRenderProductGaranLabelUsesRendererMatchingCurrentVersion(): void
     {
         $product = $this->createProduct([
-            'gllMode' => 'inherit',
+            'lgnMode' => 'inherit',
             'enableGaran' => '1',
             'guaranteeBrand' => 'ACME',
             'guaranteeModelIdentifier' => 'MX-42',
@@ -258,7 +258,7 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
         $GLOBALS['objPage'] = (object) ['language' => 'de_DE'];
         $this->setCartItems([
             $this->createProduct([
-                'gllMode' => 'inherit',
+                'lgnMode' => 'inherit',
                 'enableGaran' => '1',
                 'guaranteeBrand' => 'ACME',
                 'guaranteeModelIdentifier' => 'X100',
@@ -277,14 +277,14 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
         $GLOBALS['objPage'] = (object) ['language' => 'de_DE'];
         $this->setCartItems([
             $this->createProduct([
-                'gllMode' => 'inherit',
+                'lgnMode' => 'inherit',
                 'enableGaran' => '1',
                 'guaranteeBrand' => 'FAIL',
                 'guaranteeModelIdentifier' => 'X100',
                 'guaranteeDurationMonths' => '36',
             ], 10, 'Defekt', null, 'ART-500'),
             $this->createProduct([
-                'gllMode' => 'inherit',
+                'lgnMode' => 'inherit',
                 'enableGaran' => '1',
                 'guaranteeBrand' => 'OK',
                 'guaranteeModelIdentifier' => 'X100',
@@ -327,7 +327,7 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
         $GLOBALS['objPage'] = (object) ['language' => 'de_DE'];
         $this->setCartItems([
             $this->createProduct([
-                'gllMode' => 'inherit',
+                'lgnMode' => 'inherit',
                 'enableGaran' => '1',
                 'guaranteeBrand' => 'FAIL',
                 'guaranteeModelIdentifier' => 'X100',
@@ -355,7 +355,7 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
     /**
      * @return iterable<string, array{0: string, 1: string, 2: bool}>
      */
-    public static function memberGroupAndProductGllModeProvider(): iterable
+    public static function memberGroupAndProductLgnModeProvider(): iterable
     {
         yield 'group on, product inherit' => ['on', 'inherit', true];
         yield 'group on, product never' => ['on', 'never', false];
@@ -365,41 +365,41 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
         yield 'group empty, product always' => ['', 'always', false];
     }
 
-    #[DataProvider('memberGroupAndProductGllModeProvider')]
-    public function testProductDetailOutputFollowsMemberGroupGllModeFromProvider(
-        string $memberGroupGllMode,
-        string $productGllMode,
+    #[DataProvider('memberGroupAndProductLgnModeProvider')]
+    public function testProductDetailOutputFollowsMemberGroupLgnModeFromProvider(
+        string $memberGroupLgnMode,
+        string $productLgnMode,
         bool $expectedOutput
     ): void {
         $GLOBALS['objPage'] = (object) ['language' => 'de_DE'];
-        $product = $this->createProduct($this->createCompleteGaranMainData($productGllMode));
-        $provider = $this->createProvider(memberGroupGllMode: $memberGroupGllMode);
+        $product = $this->createProduct($this->createCompleteGaranMainData($productLgnMode));
+        $provider = $this->createProvider(memberGroupLgnMode: $memberGroupLgnMode);
 
-        $gllMarkup = $provider->renderProductGllNotice($product);
+        $lgnMarkup = $provider->renderProductLgnNotice($product);
         $garanMarkup = $provider->renderProductGaranLabel($product);
 
-        self::assertSame($expectedOutput, '' !== $gllMarkup);
+        self::assertSame($expectedOutput, '' !== $lgnMarkup);
         self::assertSame($expectedOutput, '' !== $garanMarkup);
-        self::assertSame($expectedOutput ? 1 : 0, substr_count($gllMarkup . $garanMarkup, 'europa.eu/youreurope/garantien'));
-        self::assertSame($expectedOutput ? 1 : 0, substr_count($gllMarkup . $garanMarkup, 'commercial-guarantee-durability'));
+        self::assertSame($expectedOutput ? 1 : 0, substr_count($lgnMarkup . $garanMarkup, 'europa.eu/youreurope/garantien'));
+        self::assertSame($expectedOutput ? 1 : 0, substr_count($lgnMarkup . $garanMarkup, 'commercial-guarantee-durability'));
     }
 
-    #[DataProvider('memberGroupAndProductGllModeProvider')]
-    public function testLastOrderPageOutputFollowsMemberGroupGllModeFromProvider(
-        string $memberGroupGllMode,
-        string $productGllMode,
+    #[DataProvider('memberGroupAndProductLgnModeProvider')]
+    public function testLastOrderPageOutputFollowsMemberGroupLgnModeFromProvider(
+        string $memberGroupLgnMode,
+        string $productLgnMode,
         bool $expectedOutput
     ): void {
         $GLOBALS['objPage'] = (object) ['language' => 'de_DE'];
         $this->setCartItems([
-            $this->createProduct($this->createCompleteGaranMainData($productGllMode), 10, 'Kissen', null, 'ART-100'),
+            $this->createProduct($this->createCompleteGaranMainData($productLgnMode), 10, 'Kissen', null, 'ART-100'),
         ]);
-        $provider = $this->createProvider(memberGroupGllMode: $memberGroupGllMode);
+        $provider = $this->createProvider(memberGroupLgnMode: $memberGroupLgnMode);
 
-        $gllMarkup = $provider->checkoutGllNotice();
+        $lgnMarkup = $provider->checkoutLgnNotice();
         $garanMarkup = $provider->checkoutGaranBlock();
 
-        self::assertSame($expectedOutput, '' !== $gllMarkup);
+        self::assertSame($expectedOutput, '' !== $lgnMarkup);
         self::assertSame($expectedOutput, '' !== $garanMarkup);
         self::assertSame($expectedOutput, str_contains($garanMarkup, 'Kissen - ART-100'));
     }
@@ -407,20 +407,20 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
     public function testProductDetailOutputAsksProviderForEveryRendering(): void
     {
         $GLOBALS['objPage'] = (object) ['language' => 'de_DE'];
-        $memberGroupGllModeProvider = new class implements MemberGroupGllModeProviderInterface {
+        $memberGroupLgnModeProvider = new class implements MemberGroupLgnModeProviderInterface {
             /** @var list<string> */
             public array $returnValues = ['off', 'on'];
 
-            public function getCurrentMemberGroupGllMode(): string
+            public function getCurrentMemberGroupLgnMode(): string
             {
                 return array_shift($this->returnValues) ?? '';
             }
         };
         $product = $this->createProduct($this->createCompleteGaranMainData('inherit'));
-        $provider = $this->createProviderWithMemberGroupGllModeProvider($memberGroupGllModeProvider);
+        $provider = $this->createProviderWithMemberGroupLgnModeProvider($memberGroupLgnModeProvider);
 
-        self::assertSame('', $provider->renderProductGllNotice($product));
-        self::assertNotSame('', $provider->renderProductGllNotice($product));
+        self::assertSame('', $provider->renderProductLgnNotice($product));
+        self::assertNotSame('', $provider->renderProductLgnNotice($product));
     }
 
     /**
@@ -430,18 +430,18 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
         ?string $projectDir = null,
         ?iterable $garanLabelRenderers = null,
         ?LoggerInterface $contaoErrorLogger = null,
-        string $memberGroupGllMode = 'on'
+        string $memberGroupLgnMode = 'on'
     ): LegalGuaranteeMarkupProvider
     {
-        return $this->createProviderWithMemberGroupGllModeProvider(
-            new class ($memberGroupGllMode) implements MemberGroupGllModeProviderInterface {
-                public function __construct(private readonly string $memberGroupGllMode)
+        return $this->createProviderWithMemberGroupLgnModeProvider(
+            new class ($memberGroupLgnMode) implements MemberGroupLgnModeProviderInterface {
+                public function __construct(private readonly string $memberGroupLgnMode)
                 {
                 }
 
-                public function getCurrentMemberGroupGllMode(): string
+                public function getCurrentMemberGroupLgnMode(): string
                 {
-                    return $this->memberGroupGllMode;
+                    return $this->memberGroupLgnMode;
                 }
             },
             $projectDir,
@@ -453,8 +453,8 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
     /**
      * @param iterable<GaranLabelRendererInterface>|null $garanLabelRenderers
      */
-    private function createProviderWithMemberGroupGllModeProvider(
-        MemberGroupGllModeProviderInterface $memberGroupGllModeProvider,
+    private function createProviderWithMemberGroupLgnModeProvider(
+        MemberGroupLgnModeProviderInterface $memberGroupLgnModeProvider,
         ?string $projectDir = null,
         ?iterable $garanLabelRenderers = null,
         ?LoggerInterface $contaoErrorLogger = null
@@ -471,7 +471,7 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
             new GaranLabelGrouping(),
             new LegalGuaranteeMarkupBuilder(),
             $contaoErrorLogger ?? new NullLogger(),
-            $memberGroupGllModeProvider,
+            $memberGroupLgnModeProvider,
             $garanLabelRenderers ?? [new GaranLabelRenderer($assetLocator, OfficialGuaranteeAssetLocator::GARAN_VERSION)],
         );
     }
@@ -479,10 +479,10 @@ final class LegalGuaranteeMarkupProviderTest extends TestCase
     /**
      * @return array<string, string>
      */
-    private function createCompleteGaranMainData(string $productGllMode): array
+    private function createCompleteGaranMainData(string $productLgnMode): array
     {
         return [
-            'gllMode' => $productGllMode,
+            'lgnMode' => $productLgnMode,
             'enableGaran' => '1',
             'guaranteeBrand' => 'ACME',
             'guaranteeModelIdentifier' => 'X100',

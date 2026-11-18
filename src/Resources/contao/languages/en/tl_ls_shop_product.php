@@ -52,8 +52,8 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductRecommendedProducts']				=	array('Recommended products', 'Select products here that can be displayed in a corresponding CrossSeller.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['associatedProducts']								=	array('Associated products', 'Select products here that you want to associate with this product with regard to implementing individual functions.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductProducer']							= 	array('Manufacturer');
-	$GLOBALS['TL_LANG']['tl_ls_shop_product']['gllMode']										=	['Legal guarantee notice', 'Controls the legal guarantee notice for this product.'];
-	$GLOBALS['TL_LANG']['tl_ls_shop_product']['gllModeOptions']									=	[
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lgnMode']										=	['Legal guarantee notice', 'Controls the legal guarantee notice for this product.'];
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lgnModeOptions']									=	[
 		'inherit' => ['As member group', 'Uses the setting of the customer\'s member group. Right for physical goods and goods with digital elements.'],
 		'always' => ['Always show', 'Also shows the notice in groups that only include products set to \'Always show\', not in groups without consumers. For goods in shops selling mostly services or digital content.'],
 		'never' => ['Never show', 'For purely digital content, SaaS and services. Without the notice, no manufacturer guarantee is shown either.']
@@ -63,9 +63,9 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeBrand']									=	['Brand/Trademark', 'The full value is stored. If too long, the brand name is truncated with \'...\' in the label display. The truncation length is configurable in the shop settings.'];
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeModelIdentifier']						=	['Model identifier', 'The full value is stored. If too long, the model identifier is truncated with \'...\' in the label display. The truncation length is configurable in the shop settings.'];
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['legalGuaranteeMessages']							=	[
-		'gllModeChangedForManufacturerGuarantee' => 'The legal guarantee notice setting was changed to "%s" because the manufacturer guarantee is enabled and requires the legal guarantee notice.',
-		'manufacturerGuaranteeDisabledByGllMode' => 'The manufacturer guarantee was disabled because, with the selected setting, the legal guarantee notice is not shown for the standard user group. Duration, brand and model remain saved.',
-		'gllModeRejectedByOwnVariantDetails' => 'Blocked by variants with "Own details": %s. Please change these variants first.',
+		'lgnModeChangedForManufacturerGuarantee' => 'The legal guarantee notice setting was changed to "%s" because the manufacturer guarantee is enabled and requires the legal guarantee notice.',
+		'manufacturerGuaranteeDisabledByLgnMode' => 'The manufacturer guarantee was disabled because, with the selected setting, the legal guarantee notice is not shown for the standard user group. Duration, brand and model remain saved.',
+		'lgnModeRejectedByOwnVariantDetails' => 'Blocked by variants with "Own details": %s. Please change these variants first.',
 		'openHintProductNeverShown' => 'The manufacturer guarantee of this product is not shown because the legal guarantee notice is set to "Never show". Please change the legal guarantee notice setting of the product.',
 		'openHintStandardGroupOnlyAlwaysShow' => 'The manufacturer guarantee of this product is not shown because the standard user group is set to "Only products set to \'Always show\'" for the legal guarantee notice and the product is set to "As member group". Please set the product to "Always show"; saving the product already does this.',
 		'openHintVariantsWithOwnDetails' => 'The manufacturer guarantee of the following variants with "Own details" is not shown because the legal guarantee notice of this product is not shown for the standard user group: %s. Please change the legal guarantee notice setting of the product.'

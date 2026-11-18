@@ -26,7 +26,7 @@ final class LegalGuaranteeOrderSnapshotWiringTest extends TestCase
         );
     }
 
-    public function testOrdersDcaContainsGllSnapshotFields(): void
+    public function testOrdersDcaContainsLgnSnapshotFields(): void
     {
         require self::DCA_BASE_PATH . 'tl_ls_shop_orders.php';
 
@@ -34,11 +34,11 @@ final class LegalGuaranteeOrderSnapshotWiringTest extends TestCase
 
         self::assertSame(
             "varchar(16) NOT NULL default ''",
-            $tableConfig['fields']['gllVersion']['sql']
+            $tableConfig['fields']['lgnVersion']['sql']
         );
         self::assertSame(
             "varchar(8) NOT NULL default ''",
-            $tableConfig['fields']['gllLanguage']['sql']
+            $tableConfig['fields']['lgnLanguage']['sql']
         );
     }
 
@@ -70,14 +70,14 @@ final class LegalGuaranteeOrderSnapshotWiringTest extends TestCase
     {
         $checkoutContents = (string) file_get_contents(self::CHECKOUT_PATH);
 
-        self::assertStringContainsString('`gllVersion` = ?', $checkoutContents);
-        self::assertStringContainsString('`gllLanguage` = ?', $checkoutContents);
+        self::assertStringContainsString('`lgnVersion` = ?', $checkoutContents);
+        self::assertStringContainsString('`lgnLanguage` = ?', $checkoutContents);
         self::assertStringContainsString('`garanVersion` = ?', $checkoutContents);
         self::assertStringContainsString('`garanBrand` = ?', $checkoutContents);
         self::assertStringContainsString('`garanModelIdentifier` = ?', $checkoutContents);
         self::assertStringContainsString('`garanDurationMonths` = ?', $checkoutContents);
-        self::assertStringContainsString("'gllVersion' => ''", $checkoutContents);
-        self::assertStringContainsString("'gllLanguage' => ''", $checkoutContents);
+        self::assertStringContainsString("'lgnVersion' => ''", $checkoutContents);
+        self::assertStringContainsString("'lgnLanguage' => ''", $checkoutContents);
     }
 
     public function testCheckoutBuildsSnapshotsDirectlyAndKeepsHookExtensionPoints(): void

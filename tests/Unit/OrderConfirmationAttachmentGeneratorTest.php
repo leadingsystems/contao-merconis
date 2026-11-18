@@ -24,11 +24,11 @@ final class OrderConfirmationAttachmentGeneratorTest extends TestCase
     {
         $projectDir = $this->createTempProjectDir();
         $bundleProjectDir = $projectDir . '/vendor/leadingsystems/contao-merconis';
-        $gllDirectory = $bundleProjectDir . '/src/Resources/public/legal-guarantee/gll/v1.0';
+        $lgnDirectory = $bundleProjectDir . '/src/Resources/public/legal-guarantee/lgn/v1.0';
         $garanDirectory = $bundleProjectDir . '/src/Resources/legal-guarantee/garan/v1.0';
-        mkdir($gllDirectory, 0777, true);
+        mkdir($lgnDirectory, 0777, true);
         mkdir($garanDirectory, 0777, true);
-        file_put_contents($gllDirectory . '/legal-guarantee-notice-en.pdf', 'pdf');
+        file_put_contents($lgnDirectory . '/legal-guarantee-notice-en.pdf', 'pdf');
         file_put_contents(
             $garanDirectory . '/eu-text-links.json',
             '{"url":"https://europa.example.test/garan"}'
@@ -125,8 +125,8 @@ final class OrderConfirmationAttachmentGeneratorTest extends TestCase
         $attachments = $generator->generateAttachments([
             'orderNr' => 'ORDER-77',
             'orderDateUnixTimestamp' => 1_794_441_600,
-            'gllVersion' => 'v1.0',
-            'gllLanguage' => 'en',
+            'lgnVersion' => 'v1.0',
+            'lgnLanguage' => 'en',
             'items' => [
                 [
                     'productVariantID' => '10-100',
@@ -172,7 +172,7 @@ final class OrderConfirmationAttachmentGeneratorTest extends TestCase
 
         self::assertSame(
             [
-                'bundles/leadingsystemsmerconis/legal-guarantee/gll/v1.0/legal-guarantee-notice-en.pdf',
+                'bundles/leadingsystemsmerconis/legal-guarantee/lgn/v1.0/legal-guarantee-notice-en.pdf',
                 'files/merconisfiles/dynamicAttachmentFiles/generatedFiles/garantielabels/2026/11/12/garan-labels-ORDER-77.pdf',
             ],
             $attachments['relativePaths']
@@ -200,14 +200,14 @@ final class OrderConfirmationAttachmentGeneratorTest extends TestCase
         self::assertStringContainsString('could not be generated', $writer->pages[1]['noticeText']);
     }
 
-    public function testGenerateAttachmentsBuildsPublicGllPathFromResolvedPdfLanguage(): void
+    public function testGenerateAttachmentsBuildsPublicLgnPathFromResolvedPdfLanguage(): void
     {
         $projectDir = $this->createTempProjectDir();
         $bundleProjectDir = $projectDir . '/vendor/leadingsystems/contao-merconis';
-        $gllDirectory = $bundleProjectDir . '/src/Resources/public/legal-guarantee/gll/v1.0';
-        mkdir($gllDirectory, 0777, true);
-        file_put_contents($gllDirectory . '/legal-guarantee-notice-de.pdf', 'pdf');
-        file_put_contents($gllDirectory . '/legal-guarantee-notice-en.pdf', 'pdf');
+        $lgnDirectory = $bundleProjectDir . '/src/Resources/public/legal-guarantee/lgn/v1.0';
+        mkdir($lgnDirectory, 0777, true);
+        file_put_contents($lgnDirectory . '/legal-guarantee-notice-de.pdf', 'pdf');
+        file_put_contents($lgnDirectory . '/legal-guarantee-notice-en.pdf', 'pdf');
 
         $snapshotRenderer = new OrderLabelSnapshotRenderer(
             new OfficialGuaranteeAssetLocator(
@@ -245,28 +245,28 @@ final class OrderConfirmationAttachmentGeneratorTest extends TestCase
         );
 
         self::assertSame(
-            ['bundles/leadingsystemsmerconis/legal-guarantee/gll/v1.0/legal-guarantee-notice-de.pdf'],
+            ['bundles/leadingsystemsmerconis/legal-guarantee/lgn/v1.0/legal-guarantee-notice-de.pdf'],
             $generator->generateAttachments([
-                'gllVersion' => 'v1.0',
-                'gllLanguage' => 'de_AT',
+                'lgnVersion' => 'v1.0',
+                'lgnLanguage' => 'de_AT',
                 'items' => [],
             ])['relativePaths']
         );
         self::assertSame(
-            ['bundles/leadingsystemsmerconis/legal-guarantee/gll/v1.0/legal-guarantee-notice-en.pdf'],
+            ['bundles/leadingsystemsmerconis/legal-guarantee/lgn/v1.0/legal-guarantee-notice-en.pdf'],
             $generator->generateAttachments([
-                'gllVersion' => 'v1.0',
-                'gllLanguage' => 'zz_ZZ',
+                'lgnVersion' => 'v1.0',
+                'lgnLanguage' => 'zz_ZZ',
                 'items' => [],
             ])['relativePaths']
         );
     }
 
-    public function testGenerateAttachmentsSkipsGllWhenNoPdfExistsForResolvedLanguage(): void
+    public function testGenerateAttachmentsSkipsLgnWhenNoPdfExistsForResolvedLanguage(): void
     {
         $projectDir = $this->createTempProjectDir();
         $bundleProjectDir = $projectDir . '/vendor/leadingsystems/contao-merconis';
-        mkdir($bundleProjectDir . '/src/Resources/public/legal-guarantee/gll/v1.0', 0777, true);
+        mkdir($bundleProjectDir . '/src/Resources/public/legal-guarantee/lgn/v1.0', 0777, true);
 
         $generator = new OrderConfirmationAttachmentGenerator(
             new OrderLabelSnapshotRenderer(
@@ -304,8 +304,8 @@ final class OrderConfirmationAttachmentGeneratorTest extends TestCase
         self::assertSame(
             [],
             $generator->generateAttachments([
-                'gllVersion' => 'v1.0',
-                'gllLanguage' => 'de_AT',
+                'lgnVersion' => 'v1.0',
+                'lgnLanguage' => 'de_AT',
                 'items' => [],
             ])['relativePaths']
         );

@@ -8,11 +8,11 @@ use Closure;
 use Merconis\Core\ls_shop_generalHelper;
 
 /**
- * Bezug der Regeln R1 bis R4 (Spec 27, Abschnitt 4): der gespeicherte Wert `lsShopGllMode`
- * der Standard-Benutzergruppe und die Entscheidung "GLL aus" für einen `gllMode`-Wert.
+ * Bezug der Regeln R1 bis R4 (Spec 27, Abschnitt 4): der gespeicherte Wert `lsShopLgnMode`
+ * der Standard-Benutzergruppe und die Entscheidung "LGN aus" für einen `lgnMode`-Wert.
  * Die Entscheidung kommt ohne Contao-Kontext aus; nur das Lesen des Gruppenwerts braucht ihn.
  */
-final class StandardMemberGroupGllMode
+final class StandardMemberGroupLgnMode
 {
     /**
      * @param Closure(int): mixed|null $groupSettingsReader Liest die Einstellungen der Gruppe
@@ -25,13 +25,13 @@ final class StandardMemberGroupGllMode
     }
 
     /**
-     * Liefert den gespeicherten Wert `lsShopGllMode` der Gruppe aus
+     * Liefert den gespeicherten Wert `lsShopLgnMode` der Gruppe aus
      * `$GLOBALS['TL_CONFIG']['ls_shop_standardGroup']`. Gelesen wird über
      * `getGroupSettings()`, nicht über `getGroupSettings4User()`; der Hook
      * `getGroupSettingsForUser` wirkt deshalb nicht. Fehlt die Standard-Benutzergruppe,
      * die Gruppe oder der Wert, ist das Ergebnis `''`; `NULL` wird `''`.
      */
-    public function getStoredGllMode(): string
+    public function getStoredLgnMode(): string
     {
         $standardMemberGroupId = (int) ($GLOBALS['TL_CONFIG']['ls_shop_standardGroup'] ?? 0);
 
@@ -46,49 +46,49 @@ final class StandardMemberGroupGllMode
             return '';
         }
 
-        return trim((string) ($groupSettings['lsShopGllMode'] ?? ''));
+        return trim((string) ($groupSettings['lsShopLgnMode'] ?? ''));
     }
 
     /**
-     * Entscheidet "GLL aus" für einen `gllMode`-Wert mit dem gespeicherten Wert der
+     * Entscheidet "LGN aus" für einen `lgnMode`-Wert mit dem gespeicherten Wert der
      * Standard-Benutzergruppe.
      */
-    public function isGllOffForProduct(mixed $productGllMode): bool
+    public function isLgnOffForProduct(mixed $productLgnMode): bool
     {
-        return $this->isGllOff($this->getStoredGllMode(), $productGllMode);
+        return $this->isLgnOff($this->getStoredLgnMode(), $productLgnMode);
     }
 
     /**
      * Tabelle aus Spec 27, Abschnitt 4: Gruppe `off` bei `inherit` oder `never`; jeder andere
      * Gruppenwert (`on`, `blocked`, leer) nur bei `never`.
      */
-    public function isGllOff(string $standardMemberGroupGllMode, mixed $productGllMode): bool
+    public function isLgnOff(string $standardMemberGroupLgnMode, mixed $productLgnMode): bool
     {
-        $normalizedProductGllMode = $this->normalizeProductGllMode($productGllMode);
+        $normalizedProductLgnMode = $this->normalizeProductLgnMode($productLgnMode);
 
-        if ('off' === trim($standardMemberGroupGllMode)) {
-            return in_array($normalizedProductGllMode, ['inherit', 'never'], true);
+        if ('off' === trim($standardMemberGroupLgnMode)) {
+            return in_array($normalizedProductLgnMode, ['inherit', 'never'], true);
         }
 
-        return 'never' === $normalizedProductGllMode;
+        return 'never' === $normalizedProductLgnMode;
     }
 
     /**
-     * Wert, den R1 für `gllMode` setzt: `always` bei Standard-Benutzergruppe `off`, sonst
+     * Wert, den R1 für `lgnMode` setzt: `always` bei Standard-Benutzergruppe `off`, sonst
      * `inherit`.
      */
-    public function getGllModeForEnabledGaran(string $standardMemberGroupGllMode): string
+    public function getLgnModeForEnabledGaran(string $standardMemberGroupLgnMode): string
     {
-        return 'off' === trim($standardMemberGroupGllMode) ? 'always' : 'inherit';
+        return 'off' === trim($standardMemberGroupLgnMode) ? 'always' : 'inherit';
     }
 
     /**
      * Ein fehlender oder leerer Produktwert gilt als `inherit` (Spec 27, Abschnitt 10).
      */
-    public function normalizeProductGllMode(mixed $productGllMode): string
+    public function normalizeProductLgnMode(mixed $productLgnMode): string
     {
-        $normalizedProductGllMode = trim((string) $productGllMode);
+        $normalizedProductLgnMode = trim((string) $productLgnMode);
 
-        return '' === $normalizedProductGllMode ? 'inherit' : $normalizedProductGllMode;
+        return '' === $normalizedProductLgnMode ? 'inherit' : $normalizedProductLgnMode;
     }
 }

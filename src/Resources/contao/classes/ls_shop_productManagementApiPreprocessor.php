@@ -89,8 +89,8 @@ class ls_shop_productManagementApiPreprocessor
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
-				'gllMode' => [
-					'preprocessor' => 'preprocess_gllMode',
+				'lgnMode' => [
+					'preprocessor' => 'preprocess_lgnMode',
 					'description' => '',
 					'fieldType' => 'input_output'
 				],
@@ -985,7 +985,7 @@ class ls_shop_productManagementApiPreprocessor
 	 * Accepted input: as expected
 	 * Normalization: the input string will be trimmed; an empty string or a missing value becomes 'inherit'
 	 */
-	protected static function preprocess_gllMode($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+	protected static function preprocess_lgnMode($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
 		if ($arr_row['type'] !== 'product') {
 			return '';
 		}
@@ -996,8 +996,8 @@ class ls_shop_productManagementApiPreprocessor
 			return 'inherit';
 		}
 
-		if (!in_array($str_output, ProductGuaranteeConfigurationValidator::PRODUCT_GLL_MODES, true)) {
-			self::throwLegalGuaranteeException(ProductGuaranteeConfigurationValidator::MESSAGE_GLL_INVALID_MODE, $str_output);
+		if (!in_array($str_output, ProductGuaranteeConfigurationValidator::PRODUCT_LGN_MODES, true)) {
+			self::throwLegalGuaranteeException(ProductGuaranteeConfigurationValidator::MESSAGE_LGN_INVALID_MODE, $str_output);
 		}
 
 		return $str_output;

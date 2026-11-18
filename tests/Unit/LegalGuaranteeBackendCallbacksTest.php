@@ -11,7 +11,7 @@ use Contao\Input;
 use Contao\Message;
 use Contao\System;
 use Doctrine\DBAL\Connection;
-use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\StandardMemberGroupGllMode;
+use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\StandardMemberGroupLgnMode;
 use LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\LegalGuaranteeBackendCallbacks;
 use LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\ProductGuaranteeConfigurationValidator;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -52,7 +52,7 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
         $this->resetPendingProductInfoMessages();
         $this->primeMessageContainer();
 
-        $GLOBALS['TL_LANG']['tl_ls_shop_product']['gllModeOptions'] = [
+        $GLOBALS['TL_LANG']['tl_ls_shop_product']['lgnModeOptions'] = [
             'inherit' => ['Wie Mitgliedergruppe', 'Erläuterung zu Wie Mitgliedergruppe.'],
             'always' => ['Immer anzeigen', 'Erläuterung zu Immer anzeigen.'],
             'never' => ['Nie anzeigen', 'Erläuterung zu Nie anzeigen.'],
@@ -61,9 +61,9 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
             'garan_disabled_invalid_duration' => 'Produkt: Ungültige Dauer %s.',
         ];
         $GLOBALS['TL_LANG']['tl_ls_shop_product']['legalGuaranteeMessages'] = [
-            'gllModeChangedForManufacturerGuarantee' => self::R1_MESSAGE,
-            'manufacturerGuaranteeDisabledByGllMode' => self::R2_MESSAGE,
-            'gllModeRejectedByOwnVariantDetails' => self::R4_MESSAGE,
+            'lgnModeChangedForManufacturerGuarantee' => self::R1_MESSAGE,
+            'manufacturerGuaranteeDisabledByLgnMode' => self::R2_MESSAGE,
+            'lgnModeRejectedByOwnVariantDetails' => self::R4_MESSAGE,
             'openHintProductNeverShown' => self::OPEN_NEVER_MESSAGE,
             'openHintStandardGroupOnlyAlwaysShow' => self::OPEN_GROUP_OFF_MESSAGE,
             'openHintVariantsWithOwnDetails' => self::OPEN_VARIANTS_MESSAGE,
@@ -97,7 +97,7 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
     /**
      * @return iterable<string, array{string|null}>
      */
-    public static function standardMemberGroupGllModeProvider(): iterable
+    public static function standardMemberGroupLgnModeProvider(): iterable
     {
         yield 'Gruppe on' => ['on'];
         yield 'Gruppe off' => ['off'];
@@ -107,8 +107,8 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
     }
 
     /**
-     * R1 bei einem Speichern ohne geänderte Felder: `gllMode` und `enableGaran` stehen nicht
-     * im Request außer `gllMode` selbst mit dem gespeicherten Wert.
+     * R1 bei einem Speichern ohne geänderte Felder: `lgnMode` und `enableGaran` stehen nicht
+     * im Request außer `lgnMode` selbst mit dem gespeicherten Wert.
      *
      * @return iterable<string, array{string|null, string, string}>
      */
@@ -123,25 +123,25 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
     }
 
     #[DataProvider('r1Provider')]
-    public function testR1SetsGllModeOnSaveWithoutChangedFields(
-        ?string $standardMemberGroupGllMode,
-        string $storedGllMode,
-        string $expectedGllMode
+    public function testR1SetsLgnModeOnSaveWithoutChangedFields(
+        ?string $standardMemberGroupLgnMode,
+        string $storedLgnMode,
+        string $expectedLgnMode
     ): void {
         $callbacks = $this->createCallbacks(
-            $standardMemberGroupGllMode,
-            products: [7 => $this->createProduct($storedGllMode, '1')]
+            $standardMemberGroupLgnMode,
+            products: [7 => $this->createProduct($storedLgnMode, '1')]
         );
 
-        self::assertSame($expectedGllMode, $callbacks->handleProductGllModeSave($storedGllMode, $this->createDataContainer(7)));
+        self::assertSame($expectedLgnMode, $callbacks->handleProductLgnModeSave($storedLgnMode, $this->createDataContainer(7)));
 
         $callbacks->addProductSubmitInfoMessages($this->createDataContainer(7));
 
-        [$expectedGllModeLabel, $expectedGllModeExplanation] = $GLOBALS['TL_LANG']['tl_ls_shop_product']['gllModeOptions'][$expectedGllMode];
+        [$expectedLgnModeLabel, $expectedLgnModeExplanation] = $GLOBALS['TL_LANG']['tl_ls_shop_product']['lgnModeOptions'][$expectedLgnMode];
         $generatedMessages = Message::generateUnwrapped('BE');
 
-        self::assertStringContainsString(sprintf(self::R1_MESSAGE, $expectedGllModeLabel), $generatedMessages);
-        self::assertStringNotContainsString($expectedGllModeExplanation, $generatedMessages);
+        self::assertStringContainsString(sprintf(self::R1_MESSAGE, $expectedLgnModeLabel), $generatedMessages);
+        self::assertStringNotContainsString($expectedLgnModeExplanation, $generatedMessages);
         self::assertStringNotContainsString('Array', $generatedMessages);
     }
 
@@ -159,21 +159,21 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
 
     #[DataProvider('r1MessageLabelProvider')]
     public function testR1MessageUsesLabelAndNotExplanation(
-        string $standardMemberGroupGllMode,
-        string $storedGllMode,
-        string $expectedGllModeLabel
+        string $standardMemberGroupLgnMode,
+        string $storedLgnMode,
+        string $expectedLgnModeLabel
     ): void {
         $callbacks = $this->createCallbacks(
-            $standardMemberGroupGllMode,
-            products: [7 => $this->createProduct($storedGllMode, '1')]
+            $standardMemberGroupLgnMode,
+            products: [7 => $this->createProduct($storedLgnMode, '1')]
         );
 
-        $callbacks->handleProductGllModeSave($storedGllMode, $this->createDataContainer(7));
+        $callbacks->handleProductLgnModeSave($storedLgnMode, $this->createDataContainer(7));
         $callbacks->addProductSubmitInfoMessages($this->createDataContainer(7));
 
         $generatedMessages = Message::generateUnwrapped('BE');
 
-        self::assertStringContainsString(sprintf(self::R1_MESSAGE, $expectedGllModeLabel), $generatedMessages);
+        self::assertStringContainsString(sprintf(self::R1_MESSAGE, $expectedLgnModeLabel), $generatedMessages);
         self::assertStringNotContainsString('Erläuterung zu', $generatedMessages);
     }
 
@@ -192,29 +192,29 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
     }
 
     #[DataProvider('r1NotApplicableProvider')]
-    public function testR1KeepsGllModeWhenGllIsNotOff(?string $standardMemberGroupGllMode, string $storedGllMode): void
+    public function testR1KeepsLgnModeWhenLgnIsNotOff(?string $standardMemberGroupLgnMode, string $storedLgnMode): void
     {
         $callbacks = $this->createCallbacks(
-            $standardMemberGroupGllMode,
-            products: [7 => $this->createProduct($storedGllMode, '1')]
+            $standardMemberGroupLgnMode,
+            products: [7 => $this->createProduct($storedLgnMode, '1')]
         );
 
-        self::assertSame($storedGllMode, $callbacks->handleProductGllModeSave($storedGllMode, $this->createDataContainer(7)));
+        self::assertSame($storedLgnMode, $callbacks->handleProductLgnModeSave($storedLgnMode, $this->createDataContainer(7)));
 
         $callbacks->addProductSubmitInfoMessages($this->createDataContainer(7));
 
         self::assertSame('', Message::generateUnwrapped('BE'));
     }
 
-    #[DataProvider('standardMemberGroupGllModeProvider')]
-    public function testR1KeepsGllModeWhenEnableGaranIsOff(?string $standardMemberGroupGllMode): void
+    #[DataProvider('standardMemberGroupLgnModeProvider')]
+    public function testR1KeepsLgnModeWhenEnableGaranIsOff(?string $standardMemberGroupLgnMode): void
     {
         $callbacks = $this->createCallbacks(
-            $standardMemberGroupGllMode,
+            $standardMemberGroupLgnMode,
             products: [7 => $this->createProduct('never', '')]
         );
 
-        self::assertSame('never', $callbacks->handleProductGllModeSave('never', $this->createDataContainer(7)));
+        self::assertSame('never', $callbacks->handleProductLgnModeSave('never', $this->createDataContainer(7)));
     }
 
     public function testR1UsesPostedEnableGaranBeforeStoredValue(): void
@@ -223,7 +223,7 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
 
         $callbacks = $this->createCallbacks('on', products: [7 => $this->createProduct('never', '')]);
 
-        self::assertSame('inherit', $callbacks->handleProductGllModeSave('never', $this->createDataContainer(7)));
+        self::assertSame('inherit', $callbacks->handleProductLgnModeSave('never', $this->createDataContainer(7)));
     }
 
     public function testR1DoesNotApplyWhenEnableGaranIsPostedOff(): void
@@ -232,7 +232,7 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
 
         $callbacks = $this->createCallbacks('off', products: [7 => $this->createProduct('inherit', '1')]);
 
-        self::assertSame('inherit', $callbacks->handleProductGllModeSave('inherit', $this->createDataContainer(7)));
+        self::assertSame('inherit', $callbacks->handleProductLgnModeSave('inherit', $this->createDataContainer(7)));
     }
 
     public function testR1ReadsEditAllSuffixForEnableGaran(): void
@@ -241,11 +241,11 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
 
         $callbacks = $this->createCallbacks('off', products: [42 => $this->createProduct('inherit', '')]);
 
-        self::assertSame('always', $callbacks->handleProductGllModeSave('inherit', $this->createDataContainer(42)));
+        self::assertSame('always', $callbacks->handleProductLgnModeSave('inherit', $this->createDataContainer(42)));
     }
 
     /**
-     * Ändert der Nutzer `gllMode` und gilt danach "GLL aus", setzt der `save_callback` nichts
+     * Ändert der Nutzer `lgnMode` und gilt danach "LGN aus", setzt der `save_callback` nichts
      * (kein R1); R2 schaltet im `onbeforesubmit_callback` die Herstellergarantie aus.
      *
      * @return iterable<string, array{string|null, string, string}>
@@ -264,23 +264,23 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
     }
 
     #[DataProvider('r2Provider')]
-    public function testR2DisablesGaranInsteadOfR1WhenUserChangesGllMode(
-        ?string $standardMemberGroupGllMode,
-        string $storedGllMode,
-        string $submittedGllMode
+    public function testR2DisablesGaranInsteadOfR1WhenUserChangesLgnMode(
+        ?string $standardMemberGroupLgnMode,
+        string $storedLgnMode,
+        string $submittedLgnMode
     ): void {
         $callbacks = $this->createCallbacks(
-            $standardMemberGroupGllMode,
-            products: [7 => $this->createProduct($storedGllMode, '1')]
+            $standardMemberGroupLgnMode,
+            products: [7 => $this->createProduct($storedLgnMode, '1')]
         );
 
         self::assertSame(
-            $submittedGllMode,
-            $callbacks->handleProductGllModeSave($submittedGllMode, $this->createDataContainer(7))
+            $submittedLgnMode,
+            $callbacks->handleProductLgnModeSave($submittedLgnMode, $this->createDataContainer(7))
         );
 
         $values = $callbacks->handleProductBeforeSubmit(
-            ['gllMode' => $submittedGllMode, 'tstamp' => 1],
+            ['lgnMode' => $submittedLgnMode, 'tstamp' => 1],
             $this->createDataContainer(7)
         );
 
@@ -296,16 +296,16 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
         self::assertStringNotContainsString('gestellt', $messages);
     }
 
-    #[DataProvider('standardMemberGroupGllModeProvider')]
-    public function testR2DisablesGaranEnabledInSameEdit(?string $standardMemberGroupGllMode): void
+    #[DataProvider('standardMemberGroupLgnModeProvider')]
+    public function testR2DisablesGaranEnabledInSameEdit(?string $standardMemberGroupLgnMode): void
     {
         $callbacks = $this->createCallbacks(
-            $standardMemberGroupGllMode,
+            $standardMemberGroupLgnMode,
             products: [7 => $this->createProduct('inherit', '')]
         );
 
         $values = $callbacks->handleProductBeforeSubmit(
-            ['gllMode' => 'never', 'enableGaran' => '1', 'guaranteeBrand' => 'ACME'],
+            ['lgnMode' => 'never', 'enableGaran' => '1', 'guaranteeBrand' => 'ACME'],
             $this->createDataContainer(7)
         );
 
@@ -313,24 +313,24 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
         self::assertSame('ACME', $values['guaranteeBrand']);
     }
 
-    #[DataProvider('standardMemberGroupGllModeProvider')]
-    public function testR2KeepsGaranWhenChangedGllModeIsNotOff(?string $standardMemberGroupGllMode): void
+    #[DataProvider('standardMemberGroupLgnModeProvider')]
+    public function testR2KeepsGaranWhenChangedLgnModeIsNotOff(?string $standardMemberGroupLgnMode): void
     {
         $callbacks = $this->createCallbacks(
-            $standardMemberGroupGllMode,
+            $standardMemberGroupLgnMode,
             products: [7 => $this->createProduct('never', '1')]
         );
 
-        $values = $callbacks->handleProductBeforeSubmit(['gllMode' => 'always'], $this->createDataContainer(7));
+        $values = $callbacks->handleProductBeforeSubmit(['lgnMode' => 'always'], $this->createDataContainer(7));
 
-        self::assertSame(['gllMode' => 'always'], $values);
+        self::assertSame(['lgnMode' => 'always'], $values);
     }
 
-    #[DataProvider('standardMemberGroupGllModeProvider')]
-    public function testTogglingOnlyEnableGaranChangesNothing(?string $standardMemberGroupGllMode): void
+    #[DataProvider('standardMemberGroupLgnModeProvider')]
+    public function testTogglingOnlyEnableGaranChangesNothing(?string $standardMemberGroupLgnMode): void
     {
         $callbacks = $this->createCallbacks(
-            $standardMemberGroupGllMode,
+            $standardMemberGroupLgnMode,
             products: [7 => $this->createProduct('never', '')]
         );
 
@@ -355,19 +355,19 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
     }
 
     #[DataProvider('r4Provider')]
-    public function testR4RejectsChangedGllModeAndNamesOverrideVariants(
-        ?string $standardMemberGroupGllMode,
-        string $storedGllMode,
-        string $submittedGllMode
+    public function testR4RejectsChangedLgnModeAndNamesOverrideVariants(
+        ?string $standardMemberGroupLgnMode,
+        string $storedLgnMode,
+        string $submittedLgnMode
     ): void {
         $callbacks = $this->createCallbacks(
-            $standardMemberGroupGllMode,
-            products: [7 => $this->createProduct($storedGllMode, '1')],
+            $standardMemberGroupLgnMode,
+            products: [7 => $this->createProduct($storedLgnMode, '1')],
             relatedVariants: [7 => $this->createRelatedVariants()]
         );
 
         try {
-            $callbacks->handleProductGllModeSave($submittedGllMode, $this->createDataContainer(7));
+            $callbacks->handleProductLgnModeSave($submittedLgnMode, $this->createDataContainer(7));
             self::fail('R4 hat nicht abgelehnt.');
         } catch (\Exception $exception) {
             self::assertSame(sprintf(self::R4_MESSAGE, 'VAR-001, Variante B'), $exception->getMessage());
@@ -378,28 +378,28 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
         self::assertSame('', Message::generateUnwrapped('BE'));
     }
 
-    #[DataProvider('standardMemberGroupGllModeProvider')]
-    public function testR4DoesNotRejectUnchangedGllMode(?string $standardMemberGroupGllMode): void
+    #[DataProvider('standardMemberGroupLgnModeProvider')]
+    public function testR4DoesNotRejectUnchangedLgnMode(?string $standardMemberGroupLgnMode): void
     {
         $callbacks = $this->createCallbacks(
-            $standardMemberGroupGllMode,
+            $standardMemberGroupLgnMode,
             products: [7 => $this->createProduct('never', '')],
             relatedVariants: [7 => $this->createRelatedVariants()]
         );
 
-        self::assertSame('never', $callbacks->handleProductGllModeSave('never', $this->createDataContainer(7)));
+        self::assertSame('never', $callbacks->handleProductLgnModeSave('never', $this->createDataContainer(7)));
     }
 
-    #[DataProvider('standardMemberGroupGllModeProvider')]
-    public function testR4DoesNotRejectChangeWhenGllIsNotOffAfterwards(?string $standardMemberGroupGllMode): void
+    #[DataProvider('standardMemberGroupLgnModeProvider')]
+    public function testR4DoesNotRejectChangeWhenLgnIsNotOffAfterwards(?string $standardMemberGroupLgnMode): void
     {
         $callbacks = $this->createCallbacks(
-            $standardMemberGroupGllMode,
+            $standardMemberGroupLgnMode,
             products: [7 => $this->createProduct('never', '1')],
             relatedVariants: [7 => $this->createRelatedVariants()]
         );
 
-        self::assertSame('always', $callbacks->handleProductGllModeSave('always', $this->createDataContainer(7)));
+        self::assertSame('always', $callbacks->handleProductLgnModeSave('always', $this->createDataContainer(7)));
     }
 
     public function testR4DoesNotRejectWithoutOverrideVariants(): void
@@ -413,7 +413,7 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
             ]]
         );
 
-        self::assertSame('never', $callbacks->handleProductGllModeSave('never', $this->createDataContainer(7)));
+        self::assertSame('never', $callbacks->handleProductLgnModeSave('never', $this->createDataContainer(7)));
     }
 
     public function testR4RejectsBeforeR2(): void
@@ -427,14 +427,14 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage(sprintf(self::R4_MESSAGE, 'VAR-001, Variante B'));
 
-        $callbacks->handleProductGllModeSave('never', $this->createDataContainer(7));
+        $callbacks->handleProductLgnModeSave('never', $this->createDataContainer(7));
     }
 
     public function testSubmitInfoMessagesAppearOnlyAfterSuccessfulSave(): void
     {
         $callbacks = $this->createCallbacks('off', products: [7 => $this->createProduct('inherit', '1')]);
 
-        $callbacks->handleProductGllModeSave('inherit', $this->createDataContainer(7));
+        $callbacks->handleProductLgnModeSave('inherit', $this->createDataContainer(7));
 
         self::assertSame('', Message::generateUnwrapped('BE'));
 
@@ -458,15 +458,15 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
 
     #[DataProvider('productOpenHintCauseProvider')]
     public function testProductOpenHintNamesCause(
-        ?string $standardMemberGroupGllMode,
-        string $storedGllMode,
+        ?string $standardMemberGroupLgnMode,
+        string $storedLgnMode,
         string $expectedMessage
     ): void {
         $this->primeMessageContainer(['act' => 'edit']);
 
         $callbacks = $this->createCallbacks(
-            $standardMemberGroupGllMode,
-            products: [7 => $this->createProduct($storedGllMode, '1')]
+            $standardMemberGroupLgnMode,
+            products: [7 => $this->createProduct($storedLgnMode, '1')]
         );
 
         $callbacks->addProductEditInfoMessage($this->createDataContainer(7));
@@ -515,13 +515,13 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
     }
 
     #[DataProvider('r1NotApplicableProvider')]
-    public function testProductOpenHintIsSkippedWhenGllIsNotOff(?string $standardMemberGroupGllMode, string $storedGllMode): void
+    public function testProductOpenHintIsSkippedWhenLgnIsNotOff(?string $standardMemberGroupLgnMode, string $storedLgnMode): void
     {
         $this->primeMessageContainer(['act' => 'edit']);
 
         $callbacks = $this->createCallbacks(
-            $standardMemberGroupGllMode,
-            products: [7 => $this->createProduct($storedGllMode, '1')],
+            $standardMemberGroupLgnMode,
+            products: [7 => $this->createProduct($storedLgnMode, '1')],
             relatedVariants: [7 => $this->createRelatedVariants()]
         );
 
@@ -570,25 +570,25 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
         yield 'Gruppe on, never' => ['on', 'never'];
         yield 'Gruppe off, inherit' => ['off', 'inherit'];
         yield 'Gruppe off, never' => ['off', 'never'];
-        yield 'Gruppe off, gllMode fehlt' => ['off', ''];
+        yield 'Gruppe off, lgnMode fehlt' => ['off', ''];
         yield 'Gruppe blocked, never' => ['blocked', 'never'];
         yield 'Gruppe leer, never' => ['', 'never'];
         yield 'keine Standard-Benutzergruppe, never' => [null, 'never'];
     }
 
     #[DataProvider('r3Provider')]
-    public function testR3RejectsOwnDetailsWhenGllIsOffForParentProduct(
-        ?string $standardMemberGroupGllMode,
-        string $parentGllMode
+    public function testR3RejectsOwnDetailsWhenLgnIsOffForParentProduct(
+        ?string $standardMemberGroupLgnMode,
+        string $parentLgnMode
     ): void {
-        $parentProduct = $this->createProduct($parentGllMode, '1');
+        $parentProduct = $this->createProduct($parentLgnMode, '1');
 
-        if ('' === $parentGllMode) {
-            unset($parentProduct['gllMode']);
+        if ('' === $parentLgnMode) {
+            unset($parentProduct['lgnMode']);
         }
 
         $callbacks = $this->createCallbacks(
-            $standardMemberGroupGllMode,
+            $standardMemberGroupLgnMode,
             products: [7 => $parentProduct],
             variants: [15 => $this->createVariant('inherit')]
         );
@@ -599,11 +599,11 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
         $callbacks->validateVariantGaranMode('override', $this->createDataContainer(15));
     }
 
-    #[DataProvider('standardMemberGroupGllModeProvider')]
-    public function testR3AcceptsInheritAndDisabled(?string $standardMemberGroupGllMode): void
+    #[DataProvider('standardMemberGroupLgnModeProvider')]
+    public function testR3AcceptsInheritAndDisabled(?string $standardMemberGroupLgnMode): void
     {
         $callbacks = $this->createCallbacks(
-            $standardMemberGroupGllMode,
+            $standardMemberGroupLgnMode,
             products: [7 => $this->createProduct('never', '1')],
             variants: [15 => $this->createVariant('override')]
         );
@@ -613,13 +613,13 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
     }
 
     #[DataProvider('r1NotApplicableProvider')]
-    public function testR3AcceptsOwnDetailsWhenGllIsNotOffForParentProduct(
-        ?string $standardMemberGroupGllMode,
-        string $parentGllMode
+    public function testR3AcceptsOwnDetailsWhenLgnIsNotOffForParentProduct(
+        ?string $standardMemberGroupLgnMode,
+        string $parentLgnMode
     ): void {
         $callbacks = $this->createCallbacks(
-            $standardMemberGroupGllMode,
-            products: [7 => $this->createProduct($parentGllMode, '1')],
+            $standardMemberGroupLgnMode,
+            products: [7 => $this->createProduct($parentLgnMode, '1')],
             variants: [15 => $this->createVariant('inherit', '36', 'Marke', 'Modell')]
         );
 
@@ -627,13 +627,13 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
     }
 
     #[DataProvider('r3Provider')]
-    public function testVariantOpenHintPointsToProduct(?string $standardMemberGroupGllMode, string $parentGllMode): void
+    public function testVariantOpenHintPointsToProduct(?string $standardMemberGroupLgnMode, string $parentLgnMode): void
     {
         $this->primeMessageContainer(['act' => 'edit']);
 
         $callbacks = $this->createCallbacks(
-            $standardMemberGroupGllMode,
-            products: [7 => $this->createProduct($parentGllMode, '')],
+            $standardMemberGroupLgnMode,
+            products: [7 => $this->createProduct($parentLgnMode, '')],
             variants: [15 => $this->createVariant('override')]
         );
 
@@ -642,7 +642,7 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
         self::assertStringContainsString(self::OPEN_VARIANT_MESSAGE, Message::generateUnwrapped('BE'));
     }
 
-    public function testVariantOpenHintIsSkippedWhenGllIsNotOffForParentProduct(): void
+    public function testVariantOpenHintIsSkippedWhenLgnIsNotOffForParentProduct(): void
     {
         $this->primeMessageContainer(['act' => 'edit']);
 
@@ -755,37 +755,37 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
      * @param array<int, list<array<string, mixed>>> $relatedVariants
      */
     private function createCallbacks(
-        ?string $standardMemberGroupGllMode,
+        ?string $standardMemberGroupLgnMode,
         array $products = [],
         array $variants = [],
         array $relatedVariants = [],
     ): LegalGuaranteeBackendCallbacks {
-        if ($standardMemberGroupGllMode === null) {
+        if ($standardMemberGroupLgnMode === null) {
             unset($GLOBALS['TL_CONFIG']['ls_shop_standardGroup']);
         } else {
             $GLOBALS['TL_CONFIG']['ls_shop_standardGroup'] = self::STANDARD_MEMBER_GROUP_ID;
         }
 
-        $standardMemberGroupGllModeHelper = new StandardMemberGroupGllMode(
+        $standardMemberGroupLgnModeHelper = new StandardMemberGroupLgnMode(
             static fn (int $groupId): array => self::STANDARD_MEMBER_GROUP_ID === $groupId
-                ? ['id' => $groupId, 'lsShopGllMode' => $standardMemberGroupGllMode]
+                ? ['id' => $groupId, 'lsShopLgnMode' => $standardMemberGroupLgnMode]
                 : []
         );
 
         return new LegalGuaranteeBackendCallbacks(
             $this->createConnectionStub($products, $variants, $relatedVariants),
-            new ProductGuaranteeConfigurationValidator(standardMemberGroupGllMode: $standardMemberGroupGllModeHelper),
-            standardMemberGroupGllMode: $standardMemberGroupGllModeHelper,
+            new ProductGuaranteeConfigurationValidator(standardMemberGroupLgnMode: $standardMemberGroupLgnModeHelper),
+            standardMemberGroupLgnMode: $standardMemberGroupLgnModeHelper,
         );
     }
 
     /**
      * @return array<string, mixed>
      */
-    private function createProduct(string $gllMode, string $enableGaran): array
+    private function createProduct(string $lgnMode, string $enableGaran): array
     {
         return [
-            'gllMode' => $gllMode,
+            'lgnMode' => $lgnMode,
             'enableGaran' => $enableGaran,
             'guaranteeDurationMonths' => '36',
             'guaranteeBrand' => '',

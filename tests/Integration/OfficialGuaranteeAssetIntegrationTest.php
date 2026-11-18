@@ -56,15 +56,15 @@ final class OfficialGuaranteeAssetIntegrationTest extends TestCase
         }
     }
 
-    public function testOfficialGllPdfAssetsExposeSingleColourPagesWithOfficialLinks(): void
+    public function testOfficialLgnPdfAssetsExposeSingleColourPagesWithOfficialLinks(): void
     {
         $assetLocator = $this->createAssetLocator();
         $expectedLinksByLanguage = $this->getExpectedLinksByLanguage();
 
-        self::assertSame(array_keys($expectedLinksByLanguage), $assetLocator->getAvailableGllPdfLanguages());
+        self::assertSame(array_keys($expectedLinksByLanguage), $assetLocator->getAvailableLgnPdfLanguages());
 
         foreach ($expectedLinksByLanguage as $language => $expectedLinks) {
-            $pdfPath = $assetLocator->getGllPdfPathByLanguage($language);
+            $pdfPath = $assetLocator->getLgnPdfPathByLanguage($language);
             self::assertNotNull($pdfPath);
 
             $pdfInspector = new VersionedPdfAssetInspector($pdfPath);

@@ -35,14 +35,14 @@ final class OrderMessagesAttachmentResolutionTest extends TestCase
             $this->createOrderMessagesInstance(),
             'resolveAttachmentAbsolutePath',
             [
-                'bundles/otherbundle/legal-guarantee/gll/v1.0/legal-guarantee-notice-de.pdf',
+                'bundles/otherbundle/legal-guarantee/lgn/v1.0/legal-guarantee-notice-de.pdf',
                 '/tmp/merconis-project',
                 'web',
             ]
         );
 
         self::assertSame(
-            '/tmp/merconis-project/web/bundles/otherbundle/legal-guarantee/gll/v1.0/legal-guarantee-notice-de.pdf',
+            '/tmp/merconis-project/web/bundles/otherbundle/legal-guarantee/lgn/v1.0/legal-guarantee-notice-de.pdf',
             $resolvedPath
         );
     }

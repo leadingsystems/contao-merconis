@@ -42,13 +42,13 @@ final class ProductGuaranteeValidationHelperTest extends TestCase
 
         foreach (
             [
-                ProductGuaranteeConfigurationValidator::MESSAGE_GLL_INVALID_MODE,
-                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED,
-                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED_ALWAYS,
-                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_VARIANT_OVERRIDE,
-            ] as $gllModeMessageCode
+                ProductGuaranteeConfigurationValidator::MESSAGE_LGN_INVALID_MODE,
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_LGN_REQUIRED,
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_LGN_REQUIRED_ALWAYS,
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_LGN_VARIANT_OVERRIDE,
+            ] as $lgnModeMessageCode
         ) {
-            self::assertSame('gllMode', $helper->getFieldNameForMessageCode($gllModeMessageCode), $gllModeMessageCode);
+            self::assertSame('lgnMode', $helper->getFieldNameForMessageCode($lgnModeMessageCode), $lgnModeMessageCode);
         }
 
         self::assertSame(
@@ -60,7 +60,7 @@ final class ProductGuaranteeValidationHelperTest extends TestCase
         self::assertSame(
             'garanMode',
             $helper->getFieldNameForMessageCode(
-                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_OVERRIDE_GLL_REQUIRED
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_OVERRIDE_LGN_REQUIRED
             )
         );
         self::assertSame(

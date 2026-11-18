@@ -254,10 +254,10 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['invalidServiceNumberMessage'] = '
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['cartPreview']['continueShopping'] = 'Weiter einkaufen';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['cartPreview']['openCart'] = 'Warenkorb öffnen';
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['dashboard']['gllAnnouncement'] = 'Mit Version 5.1.18 wurden die Mitteilung über die gesetzliche Gewährleistung und die Kennzeichnung der Herstellergarantie eingeführt. Legen Sie bei jeder Mitgliedergruppe fest, ob sie angezeigt werden. Bis dahin zeigt der Shop sie nicht an.';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['dashboard']['lgnAnnouncement'] = 'Mit Version 5.1.18 wurden die Mitteilung über die gesetzliche Gewährleistung und die Kennzeichnung der Herstellergarantie eingeführt. Legen Sie bei jeder Mitgliedergruppe fest, ob sie angezeigt werden. Bis dahin zeigt der Shop sie nicht an.';
 
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['gllTitle'] = 'Gesetzliche Gewährleistung, mindestens zwei Jahre';
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['gllEuLinkText'] = 'EU-Information zur gesetzlichen Gewährleistung';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['lgnTitle'] = 'Gesetzliche Gewährleistung, mindestens zwei Jahre';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['lgnEuLinkText'] = 'EU-Information zur gesetzlichen Gewährleistung';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['garanBlockHeadline'] = 'Herstellergarantie für folgende Artikel:';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['garanEuLinkText'] = 'EU-Information zur Herstellergarantie';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['garanLabelUnavailableNotice'] = 'Die Kennzeichnung der Herstellergarantie für diese Artikel konnte aus technischen Gründen nicht erzeugt werden. Bitte wenden Sie sich an den Händler.';
@@ -266,16 +266,16 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['garanTitlePattern'] = '
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuaranteeImport']['importLogEntry'] = 'Zeile %d, Feld "%s": %s';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuaranteeImport']['apiMessage'] = 'Feld "%s": %s';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuaranteeImport']['messages'] = [
-	'gll_invalid_mode' => 'Die Zeile wurde nicht übernommen, weil "%s" kein zulässiger Wert für die Einstellung zur gesetzlichen Gewährleistung ist. Zulässig sind "inherit", "always" und "never".',
+	'lgn_invalid_mode' => 'Die Zeile wurde nicht übernommen, weil "%s" kein zulässiger Wert für die Einstellung zur gesetzlichen Gewährleistung ist. Zulässig sind "inherit", "always" und "never".',
 	'garan_invalid_mode' => 'Die Zeile wurde nicht übernommen, weil "%s" kein zulässiger Wert für die Herstellergarantie der Variante ist. Zulässig sind "inherit", "disabled" und "override".',
 	'garan_disabled_missing_brand' => 'Die Zeile wurde nicht übernommen, weil für die Herstellergarantie die Marke (Brand/Trademark) fehlt.',
 	'garan_disabled_missing_model' => 'Die Zeile wurde nicht übernommen, weil für die Herstellergarantie das Modell (Model identifier) fehlt.',
 	'garan_disabled_missing_duration' => 'Die Zeile wurde nicht übernommen, weil für die Herstellergarantie die Garantiedauer fehlt.',
 	'garan_disabled_invalid_duration' => 'Die Zeile wurde nicht übernommen, weil "%s" keine zulässige Garantiedauer ist. Zulässig sind ganze Monate von 30 bis 360 in Schritten von 6.',
-	'garan_disabled_gll_required' => 'Die Zeile wurde nicht übernommen, weil die Herstellergarantie eingeschaltet ist und die Mitteilung über die gesetzliche Gewährleistung mit "never" in der Standard-Benutzergruppe nicht angezeigt würde. Bitte für die gesetzliche Gewährleistung "inherit" oder "always" angeben oder die Herstellergarantie ausschalten.',
-	'garan_disabled_gll_required_always' => 'Die Zeile wurde nicht übernommen, weil die Herstellergarantie eingeschaltet ist und die Mitteilung über die gesetzliche Gewährleistung in der Standard-Benutzergruppe nicht angezeigt würde; die Standard-Benutzergruppe zeigt sie nur für Produkte mit "always". Bitte für die gesetzliche Gewährleistung "always" angeben oder die Herstellergarantie ausschalten.',
-	'garan_disabled_gll_variant_override' => 'Die Zeile wurde nicht übernommen, weil die Mitteilung über die gesetzliche Gewährleistung damit in der Standard-Benutzergruppe nicht angezeigt würde und folgende Varianten bei der Herstellergarantie "override" verwenden: %s. Bitte zuerst diese Varianten auf einen anderen Wert als "override" stellen und die Zeile danach erneut übertragen oder für die gesetzliche Gewährleistung einen Wert angeben, mit dem die Mitteilung angezeigt wird.',
-	'garan_override_gll_required' => 'Die Variante wurde nicht übernommen: "override" bei der Herstellergarantie setzt voraus, dass die Mitteilung über die gesetzliche Gewährleistung für das Produkt in der Standard-Benutzergruppe angezeigt wird. Bitte zuerst die Einstellung zur gesetzlichen Gewährleistung am Produkt ändern und die Zeile danach erneut übertragen.',
+	'garan_disabled_lgn_required' => 'Die Zeile wurde nicht übernommen, weil die Herstellergarantie eingeschaltet ist und die Mitteilung über die gesetzliche Gewährleistung mit "never" in der Standard-Benutzergruppe nicht angezeigt würde. Bitte für die gesetzliche Gewährleistung "inherit" oder "always" angeben oder die Herstellergarantie ausschalten.',
+	'garan_disabled_lgn_required_always' => 'Die Zeile wurde nicht übernommen, weil die Herstellergarantie eingeschaltet ist und die Mitteilung über die gesetzliche Gewährleistung in der Standard-Benutzergruppe nicht angezeigt würde; die Standard-Benutzergruppe zeigt sie nur für Produkte mit "always". Bitte für die gesetzliche Gewährleistung "always" angeben oder die Herstellergarantie ausschalten.',
+	'garan_disabled_lgn_variant_override' => 'Die Zeile wurde nicht übernommen, weil die Mitteilung über die gesetzliche Gewährleistung damit in der Standard-Benutzergruppe nicht angezeigt würde und folgende Varianten bei der Herstellergarantie "override" verwenden: %s. Bitte zuerst diese Varianten auf einen anderen Wert als "override" stellen und die Zeile danach erneut übertragen oder für die gesetzliche Gewährleistung einen Wert angeben, mit dem die Mitteilung angezeigt wird.',
+	'garan_override_lgn_required' => 'Die Variante wurde nicht übernommen: "override" bei der Herstellergarantie setzt voraus, dass die Mitteilung über die gesetzliche Gewährleistung für das Produkt in der Standard-Benutzergruppe angezeigt wird. Bitte zuerst die Einstellung zur gesetzlichen Gewährleistung am Produkt ändern und die Zeile danach erneut übertragen.',
 ];
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['label'] = 'Kommentar zur Position';

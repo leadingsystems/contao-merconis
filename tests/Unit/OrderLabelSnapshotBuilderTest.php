@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace LeadingSystems\MerconisBundle\Tests\Unit;
 
 use LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\ProductGuaranteeDisplayResolver;
-use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\MemberGroupGllModeProviderInterface;
+use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\MemberGroupLgnModeProviderInterface;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeLanguageResolver;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Order\OrderLabelSnapshotBuilder;
@@ -19,16 +19,16 @@ final class OrderLabelSnapshotBuilderTest extends TestCase
      *
      * @return iterable<string, array{0: string|null, 1: string, 2: bool}>
      */
-    public static function memberGroupAndProductGllModeProvider(): iterable
+    public static function memberGroupAndProductLgnModeProvider(): iterable
     {
-        $expectedShowGllByMemberGroupGllMode = [
+        $expectedShowLgnByMemberGroupLgnMode = [
             'on' => ['inherit' => true, 'always' => true, 'never' => false],
             'off' => ['inherit' => false, 'always' => true, 'never' => false],
             'blocked' => ['inherit' => false, 'always' => false, 'never' => false],
             'empty' => ['inherit' => false, 'always' => false, 'never' => false],
             'null' => ['inherit' => false, 'always' => false, 'never' => false],
         ];
-        $memberGroupGllModesByCaseName = [
+        $memberGroupLgnModesByCaseName = [
             'on' => 'on',
             'off' => 'off',
             'blocked' => 'blocked',
@@ -36,25 +36,25 @@ final class OrderLabelSnapshotBuilderTest extends TestCase
             'null' => null,
         ];
 
-        foreach ($expectedShowGllByMemberGroupGllMode as $memberGroupCaseName => $expectedShowGllByProductGllMode) {
-            foreach ($expectedShowGllByProductGllMode as $productGllMode => $expectedShowGll) {
-                yield sprintf('group %s, product %s', $memberGroupCaseName, $productGllMode) => [
-                    $memberGroupGllModesByCaseName[$memberGroupCaseName],
-                    $productGllMode,
-                    $expectedShowGll,
+        foreach ($expectedShowLgnByMemberGroupLgnMode as $memberGroupCaseName => $expectedShowLgnByProductLgnMode) {
+            foreach ($expectedShowLgnByProductLgnMode as $productLgnMode => $expectedShowLgn) {
+                yield sprintf('group %s, product %s', $memberGroupCaseName, $productLgnMode) => [
+                    $memberGroupLgnModesByCaseName[$memberGroupCaseName],
+                    $productLgnMode,
+                    $expectedShowLgn,
                 ];
             }
         }
     }
 
-    #[DataProvider('memberGroupAndProductGllModeProvider')]
+    #[DataProvider('memberGroupAndProductLgnModeProvider')]
     public function testBuildItemSnapshotFollowsBuyerMemberGroupForProductPosition(
-        ?string $memberGroupGllMode,
-        string $productGllMode,
-        bool $expectedShowGll
+        ?string $memberGroupLgnMode,
+        string $productLgnMode,
+        bool $expectedShowLgn
     ): void {
-        $snapshot = $this->createBuilder($memberGroupGllMode)->buildItemSnapshot([
-            'gllMode' => $productGllMode,
+        $snapshot = $this->createBuilder($memberGroupLgnMode)->buildItemSnapshot([
+            'lgnMode' => $productLgnMode,
             'enableGaran' => '1',
             'guaranteeBrand' => 'ACME',
             'guaranteeModelIdentifier' => 'X100',
@@ -62,24 +62,24 @@ final class OrderLabelSnapshotBuilderTest extends TestCase
         ]);
 
         self::assertSame(
-            $expectedShowGll ? '1' : '',
-            $snapshot[OrderLabelSnapshotBuilder::REQUIRES_GLL_ORDER_SNAPSHOT_KEY]
+            $expectedShowLgn ? '1' : '',
+            $snapshot[OrderLabelSnapshotBuilder::REQUIRES_LGN_ORDER_SNAPSHOT_KEY]
         );
-        self::assertSame($expectedShowGll ? OfficialGuaranteeAssetLocator::GARAN_VERSION : '', $snapshot['garanVersion']);
-        self::assertSame($expectedShowGll ? 'ACME' : '', $snapshot['garanBrand']);
-        self::assertSame($expectedShowGll ? 'X100' : '', $snapshot['garanModelIdentifier']);
-        self::assertSame($expectedShowGll ? '36' : null, $snapshot['garanDurationMonths']);
+        self::assertSame($expectedShowLgn ? OfficialGuaranteeAssetLocator::GARAN_VERSION : '', $snapshot['garanVersion']);
+        self::assertSame($expectedShowLgn ? 'ACME' : '', $snapshot['garanBrand']);
+        self::assertSame($expectedShowLgn ? 'X100' : '', $snapshot['garanModelIdentifier']);
+        self::assertSame($expectedShowLgn ? '36' : null, $snapshot['garanDurationMonths']);
     }
 
-    #[DataProvider('memberGroupAndProductGllModeProvider')]
-    public function testBuildItemSnapshotUsesParentGllModeForVariantPosition(
-        ?string $memberGroupGllMode,
-        string $productGllMode,
-        bool $expectedShowGll
+    #[DataProvider('memberGroupAndProductLgnModeProvider')]
+    public function testBuildItemSnapshotUsesParentLgnModeForVariantPosition(
+        ?string $memberGroupLgnMode,
+        string $productLgnMode,
+        bool $expectedShowLgn
     ): void {
-        $snapshot = $this->createBuilder($memberGroupGllMode)->buildItemSnapshot(
+        $snapshot = $this->createBuilder($memberGroupLgnMode)->buildItemSnapshot(
             [
-                'gllMode' => $productGllMode,
+                'lgnMode' => $productLgnMode,
                 'enableGaran' => '',
             ],
             [
@@ -91,25 +91,25 @@ final class OrderLabelSnapshotBuilderTest extends TestCase
         );
 
         self::assertSame(
-            $expectedShowGll ? '1' : '',
-            $snapshot[OrderLabelSnapshotBuilder::REQUIRES_GLL_ORDER_SNAPSHOT_KEY]
+            $expectedShowLgn ? '1' : '',
+            $snapshot[OrderLabelSnapshotBuilder::REQUIRES_LGN_ORDER_SNAPSHOT_KEY]
         );
-        self::assertSame($expectedShowGll ? OfficialGuaranteeAssetLocator::GARAN_VERSION : '', $snapshot['garanVersion']);
-        self::assertSame($expectedShowGll ? 'Variantenmarke' : '', $snapshot['garanBrand']);
-        self::assertSame($expectedShowGll ? 'Variantenmodell' : '', $snapshot['garanModelIdentifier']);
-        self::assertSame($expectedShowGll ? '42' : null, $snapshot['garanDurationMonths']);
+        self::assertSame($expectedShowLgn ? OfficialGuaranteeAssetLocator::GARAN_VERSION : '', $snapshot['garanVersion']);
+        self::assertSame($expectedShowLgn ? 'Variantenmarke' : '', $snapshot['garanBrand']);
+        self::assertSame($expectedShowLgn ? 'Variantenmodell' : '', $snapshot['garanModelIdentifier']);
+        self::assertSame($expectedShowLgn ? '42' : null, $snapshot['garanDurationMonths']);
     }
 
     public function testBuildItemSnapshotDoesNotStoreMemberGroupValue(): void
     {
         $snapshot = $this->createBuilder('on')->buildItemSnapshot([
-            'gllMode' => 'inherit',
+            'lgnMode' => 'inherit',
             'enableGaran' => '',
         ]);
 
         self::assertSame(
             [
-                OrderLabelSnapshotBuilder::REQUIRES_GLL_ORDER_SNAPSHOT_KEY,
+                OrderLabelSnapshotBuilder::REQUIRES_LGN_ORDER_SNAPSHOT_KEY,
                 'garanVersion',
                 'garanBrand',
                 'garanModelIdentifier',
@@ -122,22 +122,22 @@ final class OrderLabelSnapshotBuilderTest extends TestCase
 
     public function testBuildItemSnapshotReadsMemberGroupValueForEveryPosition(): void
     {
-        $memberGroupGllModeProvider = new class implements MemberGroupGllModeProviderInterface {
+        $memberGroupLgnModeProvider = new class implements MemberGroupLgnModeProviderInterface {
             public int $callCount = 0;
 
-            public function getCurrentMemberGroupGllMode(): string
+            public function getCurrentMemberGroupLgnMode(): string
             {
                 ++$this->callCount;
 
                 return 'on';
             }
         };
-        $builder = $this->createBuilderWithProvider($memberGroupGllModeProvider);
+        $builder = $this->createBuilderWithProvider($memberGroupLgnModeProvider);
 
-        $builder->buildItemSnapshot(['gllMode' => 'inherit']);
-        $builder->buildItemSnapshot(['gllMode' => 'always']);
+        $builder->buildItemSnapshot(['lgnMode' => 'inherit']);
+        $builder->buildItemSnapshot(['lgnMode' => 'always']);
 
-        self::assertSame(2, $memberGroupGllModeProvider->callCount);
+        self::assertSame(2, $memberGroupLgnModeProvider->callCount);
     }
 
     public function testBuildOrderSnapshotStoresResolvedOfficialLanguageWithEnglishFallback(): void
@@ -148,14 +148,14 @@ final class OrderLabelSnapshotBuilderTest extends TestCase
             'customerLanguage' => 'zz_ZZ',
             'items' => [
                 [
-                    OrderLabelSnapshotBuilder::REQUIRES_GLL_ORDER_SNAPSHOT_KEY => '1',
+                    OrderLabelSnapshotBuilder::REQUIRES_LGN_ORDER_SNAPSHOT_KEY => '1',
                 ],
             ],
         ]);
 
-        self::assertSame(['gllVersion', 'gllLanguage'], array_keys($snapshot));
-        self::assertSame(OfficialGuaranteeAssetLocator::GLL_VERSION, $snapshot['gllVersion']);
-        self::assertSame('en', $snapshot['gllLanguage']);
+        self::assertSame(['lgnVersion', 'lgnLanguage'], array_keys($snapshot));
+        self::assertSame(OfficialGuaranteeAssetLocator::LGN_VERSION, $snapshot['lgnVersion']);
+        self::assertSame('en', $snapshot['lgnLanguage']);
     }
 
     public function testBuildItemSnapshotUsesVariantResolvedEffectiveValues(): void
@@ -164,7 +164,7 @@ final class OrderLabelSnapshotBuilderTest extends TestCase
 
         $snapshot = $builder->buildItemSnapshot(
             [
-                'gllMode' => 'inherit',
+                'lgnMode' => 'inherit',
                 'enableGaran' => '1',
                 'guaranteeBrand' => 'Produkt & Marke',
                 'guaranteeModelIdentifier' => 'Produktmodell "A"',
@@ -178,7 +178,7 @@ final class OrderLabelSnapshotBuilderTest extends TestCase
             ]
         );
 
-        self::assertSame('1', $snapshot[OrderLabelSnapshotBuilder::REQUIRES_GLL_ORDER_SNAPSHOT_KEY]);
+        self::assertSame('1', $snapshot[OrderLabelSnapshotBuilder::REQUIRES_LGN_ORDER_SNAPSHOT_KEY]);
         self::assertSame(OfficialGuaranteeAssetLocator::GARAN_VERSION, $snapshot['garanVersion']);
         self::assertSame('Variantenmarke <S>', $snapshot['garanBrand']);
         self::assertSame('Variantenmodell', $snapshot['garanModelIdentifier']);
@@ -190,36 +190,36 @@ final class OrderLabelSnapshotBuilderTest extends TestCase
         $builder = $this->createBuilder('on');
 
         $snapshot = $builder->buildItemSnapshot([
-            'gllMode' => 'inherit',
+            'lgnMode' => 'inherit',
             'enableGaran' => '1',
             'guaranteeBrand' => '',
             'guaranteeModelIdentifier' => 'Modell',
             'guaranteeDurationMonths' => '24',
         ]);
 
-        self::assertSame('1', $snapshot[OrderLabelSnapshotBuilder::REQUIRES_GLL_ORDER_SNAPSHOT_KEY]);
+        self::assertSame('1', $snapshot[OrderLabelSnapshotBuilder::REQUIRES_LGN_ORDER_SNAPSHOT_KEY]);
         self::assertSame('', $snapshot['garanVersion']);
         self::assertSame('', $snapshot['garanBrand']);
         self::assertSame('', $snapshot['garanModelIdentifier']);
         self::assertSame(null, $snapshot['garanDurationMonths']);
     }
 
-    private function createBuilder(?string $memberGroupGllMode): OrderLabelSnapshotBuilder
+    private function createBuilder(?string $memberGroupLgnMode): OrderLabelSnapshotBuilder
     {
-        return $this->createBuilderWithProvider(new class ($memberGroupGllMode) implements MemberGroupGllModeProviderInterface {
-            public function __construct(private readonly ?string $memberGroupGllMode)
+        return $this->createBuilderWithProvider(new class ($memberGroupLgnMode) implements MemberGroupLgnModeProviderInterface {
+            public function __construct(private readonly ?string $memberGroupLgnMode)
             {
             }
 
-            public function getCurrentMemberGroupGllMode(): string
+            public function getCurrentMemberGroupLgnMode(): string
             {
-                return trim((string) $this->memberGroupGllMode);
+                return trim((string) $this->memberGroupLgnMode);
             }
         });
     }
 
     private function createBuilderWithProvider(
-        MemberGroupGllModeProviderInterface $memberGroupGllModeProvider
+        MemberGroupLgnModeProviderInterface $memberGroupLgnModeProvider
     ): OrderLabelSnapshotBuilder {
         return new OrderLabelSnapshotBuilder(
             new ProductGuaranteeDisplayResolver(),
@@ -227,7 +227,7 @@ final class OrderLabelSnapshotBuilderTest extends TestCase
                 dirname(__DIR__, 2),
                 new OfficialGuaranteeLanguageResolver(),
             ),
-            $memberGroupGllModeProvider
+            $memberGroupLgnModeProvider
         );
     }
 }

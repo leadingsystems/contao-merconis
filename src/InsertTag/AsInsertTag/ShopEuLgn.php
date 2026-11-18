@@ -17,6 +17,6 @@ final class ShopEuLgn extends InsertTag
 
     public function customInserttags($strTag, $params)
     {
-        return $this->markupProvider->renderCurrentLanguageGllNotice();
+        return $this->markupProvider->renderCurrentLanguageLgnNotice();
     }
 }

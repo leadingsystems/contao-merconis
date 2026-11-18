@@ -9,15 +9,15 @@ use RuntimeException;
 
 final class OfficialGuaranteeAssetLocator
 {
-    public const GLL_VERSION = 'v1.0';
+    public const LGN_VERSION = 'v1.0';
     public const GARAN_VERSION = 'v1.0';
 
-    private const GLL_BASE_RELATIVE_PATH = 'src/Resources/public/legal-guarantee/gll/';
+    private const LGN_BASE_RELATIVE_PATH = 'src/Resources/public/legal-guarantee/lgn/';
     private const GARAN_BASE_RELATIVE_PATH = 'src/Resources/legal-guarantee/garan/';
     private const FONT_BASE_RELATIVE_PATH = 'src/Resources/public/legal-guarantee/fonts/inter';
     private const FONT_STYLESHEET_RELATIVE_PATH = 'src/Resources/public/legal-guarantee/legal-guarantee-fonts.css';
-    private const GLL_SVG_FILENAME_PATTERN = 'legal-guarantee-notice-%s.svg';
-    private const GLL_PDF_FILENAME_PATTERN = 'legal-guarantee-notice-%s.pdf';
+    private const LGN_SVG_FILENAME_PATTERN = 'legal-guarantee-notice-%s.svg';
+    private const LGN_PDF_FILENAME_PATTERN = 'legal-guarantee-notice-%s.pdf';
     private const EU_TEXT_LINKS_FILENAME = 'eu-text-links.json';
 
     public function __construct(
@@ -29,30 +29,30 @@ final class OfficialGuaranteeAssetLocator
     /**
      * @return list<string>
      */
-    public function getAvailableGllSvgLanguages(?string $version = null): array
+    public function getAvailableLgnSvgLanguages(?string $version = null): array
     {
-        return $this->scanAvailableLanguages($this->getGllVersionDirectory($version), 'svg');
+        return $this->scanAvailableLanguages($this->getLgnVersionDirectory($version), 'svg');
     }
 
     /**
      * @return list<string>
      */
-    public function getAvailableGllPdfLanguages(?string $version = null): array
+    public function getAvailableLgnPdfLanguages(?string $version = null): array
     {
-        return $this->scanAvailableLanguages($this->getGllVersionDirectory($version), 'pdf');
+        return $this->scanAvailableLanguages($this->getLgnVersionDirectory($version), 'pdf');
     }
 
-    public function resolveGllSvgLanguage(string $contaoLocale, ?string $version = null): string
+    public function resolveLgnSvgLanguage(string $contaoLocale, ?string $version = null): string
     {
         return $this->languageResolver->resolveOfficialLanguage(
             $contaoLocale,
-            $this->getAvailableGllSvgLanguages($version)
+            $this->getAvailableLgnSvgLanguages($version)
         );
     }
 
-    public function resolveGllPdfLanguage(string $contaoLocale, ?string $version = null): ?string
+    public function resolveLgnPdfLanguage(string $contaoLocale, ?string $version = null): ?string
     {
-        $availableLanguages = $this->getAvailableGllPdfLanguages($version);
+        $availableLanguages = $this->getAvailableLgnPdfLanguages($version);
 
         if ([] === $availableLanguages) {
             return null;
@@ -61,67 +61,67 @@ final class OfficialGuaranteeAssetLocator
         return $this->languageResolver->resolveOfficialLanguage($contaoLocale, $availableLanguages);
     }
 
-    public function resolveGllSvgPath(string $contaoLocale, ?string $version = null): string
+    public function resolveLgnSvgPath(string $contaoLocale, ?string $version = null): string
     {
-        return $this->getGllSvgPathByLanguage(
-            $this->resolveGllSvgLanguage($contaoLocale, $version),
+        return $this->getLgnSvgPathByLanguage(
+            $this->resolveLgnSvgLanguage($contaoLocale, $version),
             $version
         );
     }
 
-    public function resolveGllPdfPath(string $contaoLocale, ?string $version = null): ?string
+    public function resolveLgnPdfPath(string $contaoLocale, ?string $version = null): ?string
     {
-        $resolvedLanguage = $this->resolveGllPdfLanguage($contaoLocale, $version);
+        $resolvedLanguage = $this->resolveLgnPdfLanguage($contaoLocale, $version);
 
         if (null === $resolvedLanguage) {
             return null;
         }
 
-        return $this->getGllPdfPathByLanguage($resolvedLanguage, $version);
+        return $this->getLgnPdfPathByLanguage($resolvedLanguage, $version);
     }
 
-    public function getGllVersionDirectory(?string $version = null): string
+    public function getLgnVersionDirectory(?string $version = null): string
     {
-        return $this->projectDir . '/' . self::GLL_BASE_RELATIVE_PATH . ($version ?? self::GLL_VERSION);
+        return $this->projectDir . '/' . self::LGN_BASE_RELATIVE_PATH . ($version ?? self::LGN_VERSION);
     }
 
-    public function getGllSvgPathByLanguage(string $officialLanguage, ?string $version = null): string
+    public function getLgnSvgPathByLanguage(string $officialLanguage, ?string $version = null): string
     {
-        return $this->getGllVersionDirectory($version) . '/' . sprintf(
-            self::GLL_SVG_FILENAME_PATTERN,
+        return $this->getLgnVersionDirectory($version) . '/' . sprintf(
+            self::LGN_SVG_FILENAME_PATTERN,
             $officialLanguage
         );
     }
 
-    public function getGllPdfPathByLanguage(string $officialLanguage, ?string $version = null): ?string
+    public function getLgnPdfPathByLanguage(string $officialLanguage, ?string $version = null): ?string
     {
-        $path = $this->getGllVersionDirectory($version) . '/' . sprintf(
-            self::GLL_PDF_FILENAME_PATTERN,
+        $path = $this->getLgnVersionDirectory($version) . '/' . sprintf(
+            self::LGN_PDF_FILENAME_PATTERN,
             $officialLanguage
         );
 
         return is_file($path) ? $path : null;
     }
 
-    public function getGllEuTextLinksPath(?string $version = null): string
+    public function getLgnEuTextLinksPath(?string $version = null): string
     {
-        return $this->getGllVersionDirectory($version) . '/' . self::EU_TEXT_LINKS_FILENAME;
+        return $this->getLgnVersionDirectory($version) . '/' . self::EU_TEXT_LINKS_FILENAME;
     }
 
-    public function resolveGllEuUrl(string $contaoLocale, ?string $version = null): string
+    public function resolveLgnEuUrl(string $contaoLocale, ?string $version = null): string
     {
-        return $this->getGllEuUrlByLanguage(
-            $this->resolveGllSvgLanguage($contaoLocale),
+        return $this->getLgnEuUrlByLanguage(
+            $this->resolveLgnSvgLanguage($contaoLocale),
             $version
         );
     }
 
-    public function getGllEuUrlByLanguage(string $officialLanguage, ?string $version = null): string
+    public function getLgnEuUrlByLanguage(string $officialLanguage, ?string $version = null): string
     {
         return $this->readRequiredStringValue(
-            $this->readRequiredJsonFile($this->getGllEuTextLinksPath($version)),
+            $this->readRequiredJsonFile($this->getLgnEuTextLinksPath($version)),
             $officialLanguage,
-            $this->getGllEuTextLinksPath($version)
+            $this->getLgnEuTextLinksPath($version)
         );
     }
 
@@ -174,10 +174,10 @@ final class OfficialGuaranteeAssetLocator
      */
     private function scanAvailableLanguages(string $directory, string $extension): array
     {
-        $pattern = $directory . '/' . sprintf(self::GLL_SVG_FILENAME_PATTERN, '*');
+        $pattern = $directory . '/' . sprintf(self::LGN_SVG_FILENAME_PATTERN, '*');
 
         if ('pdf' === $extension) {
-            $pattern = $directory . '/' . sprintf(self::GLL_PDF_FILENAME_PATTERN, '*');
+            $pattern = $directory . '/' . sprintf(self::LGN_PDF_FILENAME_PATTERN, '*');
         }
 
         $languages = [];

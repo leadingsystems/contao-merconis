@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup;
 
-interface MemberGroupGllModeProviderInterface
+interface MemberGroupLgnModeProviderInterface
 {
     /**
-     * Liefert den Wert `lsShopGllMode` der maßgeblichen Mitgliedergruppe des aktuellen
+     * Liefert den Wert `lsShopLgnMode` der maßgeblichen Mitgliedergruppe des aktuellen
      * Besuchers beziehungsweise Käufers. Ein nicht festgelegter Wert ist `''`.
      */
-    public function getCurrentMemberGroupGllMode(): string;
+    public function getCurrentMemberGroupLgnMode(): string;
 }

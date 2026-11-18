@@ -23,11 +23,11 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         'gll_enabled_by_garan',
         'garan_disabled_by_gll',
         'garan_not_output_without_gll',
-        'garan_override_gll_required',
-        'garan_disabled_gll_variant_override',
+        'garan_override_lgn_required',
+        'garan_disabled_lgn_variant_override',
     ];
     /*
-     * Die Bezeichner der entfernten GLL-Übernahme sind zusammengesetzt, damit eine
+     * Die Bezeichner der entfernten LGN-Übernahme sind zusammengesetzt, damit eine
      * Repository-Suche nach ihren Resten leer bleibt.
      */
     private const FORMER_GLL_MIGRATION_MANAGER_CLASS = 'EnableGll' . 'SettingsMigrationManager';
@@ -76,12 +76,12 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         self::assertSame("varchar(255) NOT NULL default ''", $tableConfig['fields']['guaranteeBrand']['sql']);
         self::assertSame("varchar(255) NOT NULL default ''", $tableConfig['fields']['guaranteeModelIdentifier']['sql']);
         self::assertStringContainsString(
-            '{lsShopGuaranteeLabels_legend},gllMode,enableGaran;',
+            '{lsShopGuaranteeLabels_legend},lgnMode,enableGaran;',
             str_replace(["\n", "\r", "\t", ' '], '', $tableConfig['palettes']['default'])
         );
         self::assertStringNotContainsString('enableGll', $tableConfig['palettes']['default']);
         self::assertContains('enableGaran', $tableConfig['palettes']['__selector__']);
-        self::assertNotContains('gllMode', $tableConfig['palettes']['__selector__']);
+        self::assertNotContains('lgnMode', $tableConfig['palettes']['__selector__']);
         self::assertSame(
             'guaranteeDurationMonths,guaranteeBrand,guaranteeModelIdentifier',
             str_replace(["\n", "\r", "\t", ' '], '', $tableConfig['subpalettes']['enableGaran'])
@@ -117,13 +117,13 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
             $tableConfig['config']['onbeforesubmit_callback']
         );
         self::assertSame(
-            [[self::BACKEND_CALLBACKS_CLASS, 'handleProductGllModeSave']],
-            $tableConfig['fields']['gllMode']['save_callback']
+            [[self::BACKEND_CALLBACKS_CLASS, 'handleProductLgnModeSave']],
+            $tableConfig['fields']['lgnMode']['save_callback']
         );
     }
 
     /**
-     * Die GLL/GARAN-Callbacks nach Implementierungsentscheidung 0025 und die
+     * Die LGN/GARAN-Callbacks nach Implementierungsentscheidung 0025 und die
      * Feldprüfungen und Vorbelegungen aus 0015, sonst keine.
      */
     public function testDcaRegistersExactlyTheLegalGuaranteeCallbacks(): void
@@ -136,7 +136,7 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
                 'config.onsubmit_callback' => ['addProductSubmitInfoMessages'],
                 'config.onload_callback' => ['addProductEditInfoMessage'],
                 'config.onbeforesubmit_callback' => ['handleProductBeforeSubmit'],
-                'fields.gllMode.save_callback' => ['handleProductGllModeSave'],
+                'fields.lgnMode.save_callback' => ['handleProductLgnModeSave'],
                 'fields.guaranteeDurationMonths.save_callback' => ['validateProductGuaranteeDurationMonths'],
                 'fields.guaranteeBrand.load_callback' => ['loadProductGuaranteeBrand'],
             ],
@@ -169,37 +169,37 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         self::assertStringNotContainsString('enableGll', $backendCallbacksSource);
         self::assertStringNotContainsString('validateProductEnableGll', $backendCallbacksSource);
         self::assertStringNotContainsString('validateProductEnableGaran', $backendCallbacksSource);
-        self::assertStringNotContainsString("Input::post('gllMode", $backendCallbacksSource);
+        self::assertStringNotContainsString("Input::post('lgnMode", $backendCallbacksSource);
         self::assertStringNotContainsString('getGroupSettings4User', $backendCallbacksSource);
     }
 
-    public function testProductDcaContainsGllModeSelectWithReferenceDefaultSqlAndFilter(): void
+    public function testProductDcaContainsLgnModeSelectWithReferenceDefaultSqlAndFilter(): void
     {
-        $GLOBALS['TL_LANG']['tl_ls_shop_product']['gllModeOptions'] = null;
+        $GLOBALS['TL_LANG']['tl_ls_shop_product']['lgnModeOptions'] = null;
         $this->loadProductDca();
 
-        $gllModeConfig = $GLOBALS['TL_DCA']['tl_ls_shop_product']['fields']['gllMode'];
+        $lgnModeConfig = $GLOBALS['TL_DCA']['tl_ls_shop_product']['fields']['lgnMode'];
 
-        self::assertSame('select', $gllModeConfig['inputType']);
-        self::assertSame(['inherit', 'always', 'never'], $gllModeConfig['options']);
-        self::assertSame('inherit', $gllModeConfig['default']);
-        self::assertSame("varchar(16) NOT NULL default 'inherit'", $gllModeConfig['sql']);
-        self::assertTrue($gllModeConfig['filter']);
-        self::assertTrue($gllModeConfig['exclude']);
-        self::assertArrayNotHasKey('includeBlankOption', $gllModeConfig['eval']);
-        self::assertArrayNotHasKey('merconis_multilanguage', $gllModeConfig['eval']);
+        self::assertSame('select', $lgnModeConfig['inputType']);
+        self::assertSame(['inherit', 'always', 'never'], $lgnModeConfig['options']);
+        self::assertSame('inherit', $lgnModeConfig['default']);
+        self::assertSame("varchar(16) NOT NULL default 'inherit'", $lgnModeConfig['sql']);
+        self::assertTrue($lgnModeConfig['filter']);
+        self::assertTrue($lgnModeConfig['exclude']);
+        self::assertArrayNotHasKey('includeBlankOption', $lgnModeConfig['eval']);
+        self::assertArrayNotHasKey('merconis_multilanguage', $lgnModeConfig['eval']);
         // Hilfe-Assistent und halbe Breite nach Implementierungsentscheidung 0027.
-        self::assertTrue($gllModeConfig['eval']['helpwizard']);
-        self::assertArrayNotHasKey('explanation', $gllModeConfig);
-        $gllModeCssClasses = explode(' ', $gllModeConfig['eval']['tl_class']);
-        self::assertContains('w50', $gllModeCssClasses);
-        self::assertContains('clr', $gllModeCssClasses);
+        self::assertTrue($lgnModeConfig['eval']['helpwizard']);
+        self::assertArrayNotHasKey('explanation', $lgnModeConfig);
+        $lgnModeCssClasses = explode(' ', $lgnModeConfig['eval']['tl_class']);
+        self::assertContains('w50', $lgnModeCssClasses);
+        self::assertContains('clr', $lgnModeCssClasses);
 
-        $GLOBALS['TL_LANG']['tl_ls_shop_product']['gllModeOptions'] = ['inherit' => 'Reference check'];
+        $GLOBALS['TL_LANG']['tl_ls_shop_product']['lgnModeOptions'] = ['inherit' => 'Reference check'];
 
-        self::assertSame(['inherit' => 'Reference check'], $gllModeConfig['reference']);
+        self::assertSame(['inherit' => 'Reference check'], $lgnModeConfig['reference']);
 
-        unset($GLOBALS['TL_LANG']['tl_ls_shop_product']['gllModeOptions']);
+        unset($GLOBALS['TL_LANG']['tl_ls_shop_product']['lgnModeOptions']);
     }
 
     public function testVariantDcaContainsOverrideSelectorAndGuaranteeSubpalette(): void
@@ -262,8 +262,8 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         $variantLanguageDe = (string) file_get_contents(self::LANGUAGE_BASE_PATH . 'de/tl_ls_shop_variant.php');
         $variantLanguageEn = (string) file_get_contents(self::LANGUAGE_BASE_PATH . 'en/tl_ls_shop_variant.php');
 
-        self::assertStringContainsString("['gllMode']", $productLanguageDe);
-        self::assertStringContainsString("['gllMode']", $productLanguageEn);
+        self::assertStringContainsString("['lgnMode']", $productLanguageDe);
+        self::assertStringContainsString("['lgnMode']", $productLanguageEn);
         self::assertStringNotContainsString("['enableGll']", $productLanguageDe);
         self::assertStringNotContainsString("['enableGll']", $productLanguageEn);
         self::assertStringContainsString("['garanMode']", $variantLanguageDe);
@@ -272,17 +272,17 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         self::assertStringContainsString("['lsShopGuaranteeLabels_legend']", $variantLanguageDe);
         self::assertStringContainsString("['guaranteeValidationMessages']", $productLanguageDe);
         self::assertStringContainsString("['guaranteeValidationMessages']", $variantLanguageEn);
-        self::assertStringNotContainsString('enableGaranActivationRequiresStoredGllHint', $productLanguageDe);
-        self::assertStringNotContainsString('enableGaranActivationRequiresStoredGllHint', $productLanguageEn);
-        self::assertStringNotContainsString('garanOverrideRequiresStoredGllHint', $variantLanguageDe);
-        self::assertStringNotContainsString('garanOverrideRequiresStoredGllHint', $variantLanguageEn);
+        self::assertStringNotContainsString('enableGaranActivationRequiresStoredLgnHint', $productLanguageDe);
+        self::assertStringNotContainsString('enableGaranActivationRequiresStoredLgnHint', $productLanguageEn);
+        self::assertStringNotContainsString('garanOverrideRequiresStoredLgnHint', $variantLanguageDe);
+        self::assertStringNotContainsString('garanOverrideRequiresStoredLgnHint', $variantLanguageEn);
         self::assertStringContainsString('garan_disabled_invalid_duration', $productLanguageDe);
         self::assertStringContainsString('garan_invalid_mode', $variantLanguageDe);
         self::assertStringContainsString('garan_disabled_invalid_duration', $variantLanguageEn);
 
         // Import und Product Management API lesen ihre Meldungen aus `default` (`legalGuaranteeImport`).
         foreach ([$productLanguageDe, $productLanguageEn, $variantLanguageDe, $variantLanguageEn] as $languageFileContents) {
-            foreach (['garan_disabled_gll_required', 'garan_disabled_missing_brand', 'garan_disabled_missing_model', 'garan_disabled_missing_duration'] as $importMessageCode) {
+            foreach (['garan_disabled_lgn_required', 'garan_disabled_missing_brand', 'garan_disabled_missing_model', 'garan_disabled_missing_duration'] as $importMessageCode) {
                 self::assertStringNotContainsString($importMessageCode, $languageFileContents);
             }
         }
@@ -384,13 +384,13 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
             $servicesContents
         );
         self::assertStringContainsString(
-            'LegalGuarantee\MemberGroup\StandardMemberGroupGllMode: ~',
+            'LegalGuarantee\MemberGroup\StandardMemberGroupLgnMode: ~',
             $servicesContents
         );
         self::assertStringNotContainsString(self::FORMER_GLL_MIGRATION_MANAGER_CLASS, $servicesContents);
         self::assertFileDoesNotExist(self::FORMER_GLL_MIGRATION_MANAGER_PATH);
         self::assertStringContainsString(
-            "LeadingSystems\\MerconisBundle\\LegalGuarantee\\MemberGroup\\MemberGroupGllModeInspector:\n    public: true",
+            "LeadingSystems\\MerconisBundle\\LegalGuarantee\\MemberGroup\\MemberGroupLgnModeInspector:\n    public: true",
             $servicesContents
         );
         self::assertStringNotContainsString(
@@ -437,8 +437,8 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         self::assertStringContainsString("['garanLabelTruncationLength']", $settingsLanguageEn);
         self::assertStringContainsString('Gewährleistung und Herstellergarantie (GARAN-Label)', $settingsLanguageDe);
         self::assertStringContainsString('Legal guarantee and manufacturer guarantee (GARAN label)', $settingsLanguageEn);
-        self::assertStringContainsString("['dashboard']['gllAnnouncement']", $defaultLanguageDe);
-        self::assertStringContainsString("['dashboard']['gllAnnouncement']", $defaultLanguageEn);
+        self::assertStringContainsString("['dashboard']['lgnAnnouncement']", $defaultLanguageDe);
+        self::assertStringContainsString("['dashboard']['lgnAnnouncement']", $defaultLanguageEn);
     }
 
     private function loadProductDca(): void

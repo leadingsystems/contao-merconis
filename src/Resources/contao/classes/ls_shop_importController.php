@@ -694,7 +694,7 @@ class ls_shop_importController
 							`lsShopProductDeliveryInfoSet` = ?,
 							`deliveryInfoSetToUseInPreorderPhase` = ?,
 							`lsShopProductProducer` = ?,
-							`gllMode` = ?,
+							`lgnMode` = ?,
 							`enableGaran` = ?,
 							`guaranteeDurationMonths` = ?,
 							`guaranteeBrand` = ?,
@@ -744,7 +744,7 @@ class ls_shop_importController
 				$row['settingsForStockAndDeliveryTime'] ? $row['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
 				$row['settingsForStockAndDeliveryTimeInPreorderPhase'] ? $row['settingsForStockAndDeliveryTimeInPreorderPhase'] : 0, // int, empty = 0
 				$row['producer'], // String, maxlength 255
-				$row['gllMode'], // inherit, always or never
+				$row['lgnMode'], // inherit, always or never
 				$row['enableGaran'], // 1 or ''
 				$row['guaranteeDurationMonths'], // decimal, empty = null
 				$row['guaranteeBrand'], // String
@@ -863,7 +863,7 @@ class ls_shop_importController
 							`lsShopProductDeliveryInfoSet` = ?,
 							`deliveryInfoSetToUseInPreorderPhase` = ?,
 							`lsShopProductProducer` = ?,
-							`gllMode` = ?,
+							`lgnMode` = ?,
 							`enableGaran` = ?,
 							`guaranteeDurationMonths` = ?,
 							`guaranteeBrand` = ?,
@@ -913,7 +913,7 @@ class ls_shop_importController
 				$row['settingsForStockAndDeliveryTime'] ? $row['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
 				$row['settingsForStockAndDeliveryTimeInPreorderPhase'] ? $row['settingsForStockAndDeliveryTimeInPreorderPhase'] : 0, // int, empty = 0
 				$row['producer'], // String, maxlength 255
-				$row['gllMode'], // inherit, always or never
+				$row['lgnMode'], // inherit, always or never
 				$row['enableGaran'], // 1 or ''
 				$row['guaranteeDurationMonths'], // decimal, empty = null
 				$row['guaranteeBrand'], // String
@@ -2234,7 +2234,7 @@ class ls_shop_importController
 
 	/*
 	 * Prüft die Produktzeile nach Spec 27, Abschnitt 4, gegen den gespeicherten Stand der Varianten und übernimmt
-	 * gllMode und die GARAN-Felder. Liefert null, wenn die Zeile nicht geschrieben werden darf; die Meldungen
+	 * lgnMode und die GARAN-Felder. Liefert null, wenn die Zeile nicht geschrieben werden darf; die Meldungen
 	 * stehen dann im Import-Log.
 	 */
 	private function applyLegalGuaranteeConfigurationToProductRow(array $row, int $int_existingProductId, $str_rawGuaranteeDurationInput): ?array {

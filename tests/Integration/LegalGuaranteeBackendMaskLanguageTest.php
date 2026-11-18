@@ -8,7 +8,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Titel, Beschreibungen und Legenden der GLL- und GARAN-Felder in den Backend-Masken von
+ * Titel, Beschreibungen und Legenden der LGN- und GARAN-Felder in den Backend-Masken von
  * Produkt, Variante, Mitgliedergruppe und Grundeinstellungen nach Spec 27, Abschnitte
  * "Terminologie", 3.1 und 3.4, und Spec 02, Abschnitte 1.11 und 1.26.
  */
@@ -52,7 +52,7 @@ final class LegalGuaranteeBackendMaskLanguageTest extends TestCase
         'tl_lsShopSettings.legalGuarantee_legend',
     ];
 
-    private const FORBIDDEN_FRAGMENTS = ['GLL', 'GARAN', 'Haltbarkeitsgarantie', 'durability'];
+    private const FORBIDDEN_FRAGMENTS = ['LGN', 'GARAN', 'Haltbarkeitsgarantie', 'durability'];
 
     private mixed $originalTlLang;
     private mixed $originalTlConfig;
@@ -170,8 +170,8 @@ final class LegalGuaranteeBackendMaskLanguageTest extends TestCase
     {
         $languageKeysByTable = [
             'tl_ls_shop_product' => [
-                'gllMode',
-                'gllModeOptions',
+                'lgnMode',
+                'lgnModeOptions',
                 'enableGaran',
                 'guaranteeDurationMonths',
                 'guaranteeBrand',
@@ -187,9 +187,9 @@ final class LegalGuaranteeBackendMaskLanguageTest extends TestCase
                 'lsShopGuaranteeLabels_legend',
             ],
             'tl_member_group' => [
-                'lsShopGllMode',
-                'lsShopGllModeOptions',
-                'lsShopGllModeBlankOption',
+                'lsShopLgnMode',
+                'lsShopLgnModeOptions',
+                'lsShopLgnModeBlankOption',
             ],
             'tl_lsShopSettings' => [
                 'legalGuarantee_legend',

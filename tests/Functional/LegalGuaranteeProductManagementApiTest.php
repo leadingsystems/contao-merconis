@@ -108,11 +108,11 @@ final class LegalGuaranteeProductManagementApiTest extends TestCase
     {
         yield 'de' => [
             'de',
-            'Feld "gllMode": Die Zeile wurde nicht übernommen, weil die Mitteilung über die gesetzliche Gewährleistung damit in der Standard-Benutzergruppe nicht angezeigt würde und folgende Varianten bei der Herstellergarantie "override" verwenden: VAR-OWN. Bitte zuerst diese Varianten auf einen anderen Wert als "override" stellen und die Zeile danach erneut übertragen oder für die gesetzliche Gewährleistung einen Wert angeben, mit dem die Mitteilung angezeigt wird.',
+            'Feld "lgnMode": Die Zeile wurde nicht übernommen, weil die Mitteilung über die gesetzliche Gewährleistung damit in der Standard-Benutzergruppe nicht angezeigt würde und folgende Varianten bei der Herstellergarantie "override" verwenden: VAR-OWN. Bitte zuerst diese Varianten auf einen anderen Wert als "override" stellen und die Zeile danach erneut übertragen oder für die gesetzliche Gewährleistung einen Wert angeben, mit dem die Mitteilung angezeigt wird.',
         ];
         yield 'en' => [
             'en',
-            'field "gllMode": The row was not applied because the legal guarantee notice would then not be shown for the standard user group and the following variants use "override" for the manufacturer guarantee: VAR-OWN. Please first set these variants to a value other than "override" and then transfer the row again, or specify a legal guarantee notice setting that shows the notice.',
+            'field "lgnMode": The row was not applied because the legal guarantee notice would then not be shown for the standard user group and the following variants use "override" for the manufacturer guarantee: VAR-OWN. Please first set these variants to a value other than "override" and then transfer the row again, or specify a legal guarantee notice setting that shows the notice.',
         ];
     }
 
@@ -131,13 +131,13 @@ final class LegalGuaranteeProductManagementApiTest extends TestCase
             self::assertSame($expectedMessage, $exception->getMessage());
         }
 
-        self::assertSame('inherit', $this->fetchStoredProductGllMode());
+        self::assertSame('inherit', $this->fetchStoredProductLgnMode());
     }
 
     /**
      * @return iterable<string, array{string|null, string}>
      */
-    public static function acceptedGllModeProvider(): iterable
+    public static function acceptedLgnModeProvider(): iterable
     {
         yield 'Feld fehlt' => [null, 'inherit'];
         yield 'inherit' => ['inherit', 'inherit'];
@@ -145,18 +145,18 @@ final class LegalGuaranteeProductManagementApiTest extends TestCase
         yield 'never' => ['never', 'never'];
     }
 
-    #[DataProvider('acceptedGllModeProvider')]
-    public function testProductRowGllModeIsWritten(?string $submittedGllMode, string $expectedGllMode): void
+    #[DataProvider('acceptedLgnModeProvider')]
+    public function testProductRowLgnModeIsWritten(?string $submittedLgnMode, string $expectedLgnMode): void
     {
         $GLOBALS['TL_LANGUAGE'] = 'de';
         $this->installDatabase('on', 'always', ['VAR-INHERIT' => 'inherit']);
-        $productRow = $this->createProductRow($submittedGllMode ?? '', '');
+        $productRow = $this->createProductRow($submittedLgnMode ?? '', '');
 
-        if ($submittedGllMode === null) {
-            unset($productRow['gllMode']);
+        if ($submittedLgnMode === null) {
+            unset($productRow['lgnMode']);
         }
 
-        self::assertSame($expectedGllMode, ls_shop_productManagementApiHelper::applyLegalGuaranteeProductData($productRow)['gllMode']);
+        self::assertSame($expectedLgnMode, ls_shop_productManagementApiHelper::applyLegalGuaranteeProductData($productRow)['lgnMode']);
     }
 
     /**
@@ -168,10 +168,10 @@ final class LegalGuaranteeProductManagementApiTest extends TestCase
         $GLOBALS['TL_LANGUAGE'] = 'en';
         $this->installDatabase('off', 'always', []);
 
-        self::assertSame('on', ls_shop_generalHelper::getGroupSettings4User(true)['lsShopGllMode']);
+        self::assertSame('on', ls_shop_generalHelper::getGroupSettings4User(true)['lsShopLgnMode']);
 
         $this->expectExceptionMessage(
-            'field "gllMode": The row was not applied because the manufacturer guarantee is enabled and the legal guarantee notice would not be shown for the standard user group, which only shows it for products set to "always". Please specify "always" for the legal guarantee notice or disable the manufacturer guarantee.'
+            'field "lgnMode": The row was not applied because the manufacturer guarantee is enabled and the legal guarantee notice would not be shown for the standard user group, which only shows it for products set to "always". Please specify "always" for the legal guarantee notice or disable the manufacturer guarantee.'
         );
 
         ls_shop_productManagementApiHelper::applyLegalGuaranteeProductData($this->createProductRow('inherit', '1'));
@@ -220,21 +220,21 @@ final class LegalGuaranteeProductManagementApiTest extends TestCase
     }
 
     /**
-     * Der Preprocessor prüft `gllMode` wie `garanMode`; Ablehnungen stehen auf dem
+     * Der Preprocessor prüft `lgnMode` wie `garanMode`; Ablehnungen stehen auf dem
      * bestehenden Meldungsweg (`arr_messages[<Zeile>][<Feld>]`) in der Sprache des Requests.
      *
      * @return iterable<string, array{string, string, string}>
      */
     public static function preprocessorRejectionProvider(): iterable
     {
-        yield 'gllMode, de' => [
+        yield 'lgnMode, de' => [
             'de',
-            'gllMode',
+            'lgnMode',
             'Die Zeile wurde nicht übernommen, weil "sometimes" kein zulässiger Wert für die Einstellung zur gesetzlichen Gewährleistung ist. Zulässig sind "inherit", "always" und "never".',
         ];
-        yield 'gllMode, en' => [
+        yield 'lgnMode, en' => [
             'en',
-            'gllMode',
+            'lgnMode',
             'The row was not applied because "sometimes" is not a valid value for the legal guarantee notice setting. Allowed values are "inherit", "always" and "never".',
         ];
         yield 'garanMode, de' => [
@@ -252,7 +252,7 @@ final class LegalGuaranteeProductManagementApiTest extends TestCase
     ): void {
         $GLOBALS['TL_LANGUAGE'] = $requestLanguage;
         $this->installDatabase('on', 'inherit', []);
-        $rowType = $fieldName === 'gllMode' ? 'product' : 'variant';
+        $rowType = $fieldName === 'lgnMode' ? 'product' : 'variant';
 
         $preprocessingResult = @ls_shop_productManagementApiPreprocessor::preprocess(
             [['type' => $rowType, 'productcode' => 'ART-1', 'category' => self::CATEGORY_ALIAS, $fieldName => 'sometimes']],
@@ -266,7 +266,7 @@ final class LegalGuaranteeProductManagementApiTest extends TestCase
     /**
      * @return iterable<string, array{string, mixed, string}>
      */
-    public static function preprocessorGllModeProvider(): iterable
+    public static function preprocessorLgnModeProvider(): iterable
     {
         yield 'Produkt, Feld fehlt' => ['product', null, 'inherit'];
         yield 'Produkt, leer' => ['product', '', 'inherit'];
@@ -275,34 +275,34 @@ final class LegalGuaranteeProductManagementApiTest extends TestCase
         yield 'Variante' => ['variant', 'never', ''];
     }
 
-    #[DataProvider('preprocessorGllModeProvider')]
-    public function testPreprocessorNormalizesGllMode(string $rowType, mixed $submittedGllMode, string $expectedGllMode): void
+    #[DataProvider('preprocessorLgnModeProvider')]
+    public function testPreprocessorNormalizesLgnMode(string $rowType, mixed $submittedLgnMode, string $expectedLgnMode): void
     {
         $GLOBALS['TL_LANGUAGE'] = 'de';
         $this->installDatabase('on', 'inherit', []);
         $dataRow = ['type' => $rowType, 'productcode' => 'ART-1', 'category' => self::CATEGORY_ALIAS];
 
-        if ($submittedGllMode !== null) {
-            $dataRow['gllMode'] = $submittedGllMode;
+        if ($submittedLgnMode !== null) {
+            $dataRow['lgnMode'] = $submittedLgnMode;
         }
 
         $preprocessingResult = @ls_shop_productManagementApiPreprocessor::preprocess([$dataRow], 'apiResource_writeProductData');
 
-        self::assertArrayNotHasKey('gllMode', $preprocessingResult['arr_messages'][1] ?? []);
-        self::assertSame($expectedGllMode, $preprocessingResult['arr_preprocessedDataRows'][0]['gllMode']);
+        self::assertArrayNotHasKey('lgnMode', $preprocessingResult['arr_messages'][1] ?? []);
+        self::assertSame($expectedLgnMode, $preprocessingResult['arr_preprocessedDataRows'][0]['lgnMode']);
         self::assertArrayNotHasKey('enableGll', $preprocessingResult['arr_preprocessedDataRows'][0]);
     }
 
     /**
      * @return array<string, mixed>
      */
-    private function createProductRow(string $gllMode, string $enableGaran): array
+    private function createProductRow(string $lgnMode, string $enableGaran): array
     {
         return [
             'type' => 'product',
             'productcode' => 'ART-1',
             'producer' => 'ACME',
-            'gllMode' => $gllMode,
+            'lgnMode' => $lgnMode,
             'enableGaran' => $enableGaran,
             'guaranteeDurationMonths' => $enableGaran === '1' ? '36' : '',
             'guaranteeBrand' => $enableGaran === '1' ? 'ACME' : '',
@@ -314,18 +314,18 @@ final class LegalGuaranteeProductManagementApiTest extends TestCase
      * @param array<string, string> $storedGaranModeByVariantCode
      */
     private function installDatabase(
-        string $standardMemberGroupGllMode,
-        string $storedProductGllMode,
+        string $standardMemberGroupLgnMode,
+        string $storedProductLgnMode,
         array $storedGaranModeByVariantCode
     ): void {
         $this->connection = DriverManager::getConnection(['url' => 'sqlite:///:memory:']);
-        $this->connection->executeStatement('CREATE TABLE tl_member_group (id INTEGER PRIMARY KEY, name TEXT NOT NULL DEFAULT \'\', lsShopGllMode TEXT NULL)');
+        $this->connection->executeStatement('CREATE TABLE tl_member_group (id INTEGER PRIMARY KEY, name TEXT NOT NULL DEFAULT \'\', lsShopLgnMode TEXT NULL)');
         $this->connection->executeStatement('
             CREATE TABLE tl_ls_shop_product (
                 id INTEGER PRIMARY KEY,
                 lsShopProductCode TEXT NOT NULL,
                 lsShopProductProducer TEXT NOT NULL DEFAULT \'\',
-                gllMode TEXT NOT NULL DEFAULT \'inherit\',
+                lgnMode TEXT NOT NULL DEFAULT \'inherit\',
                 enableGll TEXT NOT NULL DEFAULT \'1\',
                 enableGaran TEXT NOT NULL DEFAULT \'\',
                 guaranteeDurationMonths INTEGER NULL,
@@ -345,13 +345,13 @@ final class LegalGuaranteeProductManagementApiTest extends TestCase
         $this->connection->insert('tl_member_group', [
             'id' => self::STANDARD_MEMBER_GROUP_ID,
             'name' => 'Gäste',
-            'lsShopGllMode' => $standardMemberGroupGllMode,
+            'lsShopLgnMode' => $standardMemberGroupLgnMode,
         ]);
         $this->connection->insert('tl_ls_shop_product', [
             'id' => self::PRODUCT_ID,
             'lsShopProductCode' => 'ART-1',
             'lsShopProductProducer' => 'ACME',
-            'gllMode' => $storedProductGllMode,
+            'lgnMode' => $storedProductLgnMode,
         ]);
 
         $variantId = 100;
@@ -382,9 +382,9 @@ final class LegalGuaranteeProductManagementApiTest extends TestCase
         (new ReflectionProperty(Database::class, 'objInstance'))->setValue(null, null);
     }
 
-    private function fetchStoredProductGllMode(): string
+    private function fetchStoredProductLgnMode(): string
     {
-        return (string) $this->connection->fetchOne('SELECT gllMode FROM tl_ls_shop_product WHERE id = ?', [self::PRODUCT_ID]);
+        return (string) $this->connection->fetchOne('SELECT lgnMode FROM tl_ls_shop_product WHERE id = ?', [self::PRODUCT_ID]);
     }
 }
 
@@ -397,7 +397,7 @@ final class LegalGuaranteeProductManagementApiTestHook
      */
     public function adjustGroupSettings(array $groupSettings): array
     {
-        $groupSettings['lsShopGllMode'] = 'on';
+        $groupSettings['lsShopLgnMode'] = 'on';
 
         return $groupSettings;
     }

@@ -14,7 +14,7 @@ require_once __DIR__ . '/../../src/Resources/contao/classes/ls_shop_importContro
 
 /**
  * Meldungen zu Spec 27, Abschnitt 4, im Import-Log und in der Product Management API: in
- * `de` und `en` vorhanden, ohne die Kürzel "GLL" und "GARAN" und ohne Feldnamen. Die
+ * `de` und `en` vorhanden, ohne die Kürzel "LGN" und "GARAN" und ohne Feldnamen. Die
  * CSV-Werte dürfen genannt werden (Spec 27, Abschnitte 3.1 und 3.3).
  */
 final class LegalGuaranteeImportMessagesLanguageTest extends TestCase
@@ -25,26 +25,26 @@ final class LegalGuaranteeImportMessagesLanguageTest extends TestCase
      * Code => Anzahl der Platzhalter `%s`.
      */
     private const MESSAGE_PLACEHOLDER_COUNTS = [
-        ProductGuaranteeConfigurationValidator::MESSAGE_GLL_INVALID_MODE => 1,
+        ProductGuaranteeConfigurationValidator::MESSAGE_LGN_INVALID_MODE => 1,
         ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_INVALID_MODE => 1,
         ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_BRAND => 0,
         ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_MODEL => 0,
         ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_DURATION => 0,
         ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_INVALID_DURATION => 1,
-        ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED => 0,
-        ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED_ALWAYS => 0,
-        ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_VARIANT_OVERRIDE => 1,
-        ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_OVERRIDE_GLL_REQUIRED => 0,
+        ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_LGN_REQUIRED => 0,
+        ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_LGN_REQUIRED_ALWAYS => 0,
+        ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_LGN_VARIANT_OVERRIDE => 1,
+        ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_OVERRIDE_LGN_REQUIRED => 0,
     ];
 
     private const FORBIDDEN_FRAGMENTS = [
-        'GLL',
+        'LGN',
         'GARAN',
-        'gllMode',
+        'lgnMode',
         'garanMode',
         'enableGaran',
         'enableGll',
-        'lsShopGllMode',
+        'lsShopLgnMode',
         'ls_shop_standardGroup',
         'guaranteeDurationMonths',
         'guaranteeBrand',
@@ -125,28 +125,28 @@ final class LegalGuaranteeImportMessagesLanguageTest extends TestCase
         $messages = $this->loadDefaultLanguageFile($language)['messages'];
         $texts = [
             'de' => [
-                'gll_required' => ['"inherit" oder "always" angeben', 'Herstellergarantie ausschalten', 'gesetzliche Gewährleistung'],
-                'gll_required_always' => ['"always" angeben', 'Herstellergarantie ausschalten', 'Standard-Benutzergruppe'],
+                'lgn_required' => ['"inherit" oder "always" angeben', 'Herstellergarantie ausschalten', 'gesetzliche Gewährleistung'],
+                'lgn_required_always' => ['"always" angeben', 'Herstellergarantie ausschalten', 'Standard-Benutzergruppe'],
                 'variant_override' => ['"override"', 'erneut übertragen'],
-                'override_gll_required' => ['am Produkt ändern'],
-                'gll_invalid_mode' => ['"inherit", "always" und "never"'],
+                'override_lgn_required' => ['am Produkt ändern'],
+                'lgn_invalid_mode' => ['"inherit", "always" und "never"'],
                 'garan_invalid_mode' => ['"inherit", "disabled" und "override"'],
             ],
             'en' => [
-                'gll_required' => ['"inherit" or "always"', 'disable the manufacturer guarantee', 'legal guarantee notice'],
-                'gll_required_always' => ['specify "always"', 'disable the manufacturer guarantee', 'standard user group'],
+                'lgn_required' => ['"inherit" or "always"', 'disable the manufacturer guarantee', 'legal guarantee notice'],
+                'lgn_required_always' => ['specify "always"', 'disable the manufacturer guarantee', 'standard user group'],
                 'variant_override' => ['"override"', 'transfer the row again'],
-                'override_gll_required' => ['setting of the product first'],
-                'gll_invalid_mode' => ['"inherit", "always" and "never"'],
+                'override_lgn_required' => ['setting of the product first'],
+                'lgn_invalid_mode' => ['"inherit", "always" and "never"'],
                 'garan_invalid_mode' => ['"inherit", "disabled" and "override"'],
             ],
         ][$language];
         $messageCodes = [
-            'gll_required' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED,
-            'gll_required_always' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED_ALWAYS,
-            'variant_override' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_VARIANT_OVERRIDE,
-            'override_gll_required' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_OVERRIDE_GLL_REQUIRED,
-            'gll_invalid_mode' => ProductGuaranteeConfigurationValidator::MESSAGE_GLL_INVALID_MODE,
+            'lgn_required' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_LGN_REQUIRED,
+            'lgn_required_always' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_LGN_REQUIRED_ALWAYS,
+            'variant_override' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_LGN_VARIANT_OVERRIDE,
+            'override_lgn_required' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_OVERRIDE_LGN_REQUIRED,
+            'lgn_invalid_mode' => ProductGuaranteeConfigurationValidator::MESSAGE_LGN_INVALID_MODE,
             'garan_invalid_mode' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_INVALID_MODE,
         ];
 
@@ -166,13 +166,13 @@ final class LegalGuaranteeImportMessagesLanguageTest extends TestCase
         $reflectionClass->getProperty('bln_importFileHasRowForVersionAndSpecialChars')->setValue($controller, true);
 
         $logEntry = $reflectionClass->getMethod('formatLegalGuaranteeImportWarning')->invoke($controller, [
-            'code' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_VARIANT_OVERRIDE,
-            'field' => 'gllMode',
+            'code' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_LGN_VARIANT_OVERRIDE,
+            'field' => 'lgnMode',
             'parameters' => ['VAR-1, VAR-2'],
         ]);
 
         self::assertSame(
-            'Zeile 7, Feld "gllMode": Die Zeile wurde nicht übernommen, weil die Mitteilung über die gesetzliche Gewährleistung damit in der Standard-Benutzergruppe nicht angezeigt würde und folgende Varianten bei der Herstellergarantie "override" verwenden: VAR-1, VAR-2. Bitte zuerst diese Varianten auf einen anderen Wert als "override" stellen und die Zeile danach erneut übertragen oder für die gesetzliche Gewährleistung einen Wert angeben, mit dem die Mitteilung angezeigt wird.',
+            'Zeile 7, Feld "lgnMode": Die Zeile wurde nicht übernommen, weil die Mitteilung über die gesetzliche Gewährleistung damit in der Standard-Benutzergruppe nicht angezeigt würde und folgende Varianten bei der Herstellergarantie "override" verwenden: VAR-1, VAR-2. Bitte zuerst diese Varianten auf einen anderen Wert als "override" stellen und die Zeile danach erneut übertragen oder für die gesetzliche Gewährleistung einen Wert angeben, mit dem die Mitteilung angezeigt wird.',
             $logEntry
         );
     }
@@ -182,11 +182,11 @@ final class LegalGuaranteeImportMessagesLanguageTest extends TestCase
         $this->loadDefaultLanguageFile('en');
 
         self::assertSame(
-            'field "gllMode": The row was not applied because "sometimes" is not a valid value for the legal guarantee notice setting. Allowed values are "inherit", "always" and "never".; field "guaranteeBrand": The row was not applied because the Brand/Trademark for the manufacturer guarantee is missing.',
+            'field "lgnMode": The row was not applied because "sometimes" is not a valid value for the legal guarantee notice setting. Allowed values are "inherit", "always" and "never".; field "guaranteeBrand": The row was not applied because the Brand/Trademark for the manufacturer guarantee is missing.',
             (new ProductGuaranteeConfigurationApplier())->formatWriteErrorMessage([
                 [
-                    'code' => ProductGuaranteeConfigurationValidator::MESSAGE_GLL_INVALID_MODE,
-                    'field' => 'gllMode',
+                    'code' => ProductGuaranteeConfigurationValidator::MESSAGE_LGN_INVALID_MODE,
+                    'field' => 'lgnMode',
                     'parameters' => ['sometimes'],
                 ],
                 [

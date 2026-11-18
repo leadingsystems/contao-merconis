@@ -9,7 +9,7 @@ use Contao\Environment;
 use Contao\Input;
 use Contao\Message;
 use Doctrine\DBAL\Connection;
-use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\StandardMemberGroupGllMode;
+use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\StandardMemberGroupLgnMode;
 
 final class LegalGuaranteeBackendCallbacks
 {
@@ -25,38 +25,38 @@ final class LegalGuaranteeBackendCallbacks
         private readonly Connection $connection,
         private readonly ProductGuaranteeConfigurationValidator $validator = new ProductGuaranteeConfigurationValidator(),
         private readonly ProductGuaranteeValidationHelper $validationHelper = new ProductGuaranteeValidationHelper(),
-        private readonly StandardMemberGroupGllMode $standardMemberGroupGllMode = new StandardMemberGroupGllMode(),
+        private readonly StandardMemberGroupLgnMode $standardMemberGroupLgnMode = new StandardMemberGroupLgnMode(),
     ) {
     }
 
     /**
-     * `save_callback` an `gllMode` (Spec 27, Abschnitt 4).
+     * `save_callback` an `lgnMode` (Spec 27, Abschnitt 4).
      *
-     * R4: Weicht der abgeschickte Wert vom gespeicherten ab, gälte danach "GLL aus" und
+     * R4: Weicht der abgeschickte Wert vom gespeicherten ab, gälte danach "LGN aus" und
      * stehen Varianten auf `override`, wird das Speichern abgelehnt.
-     * R1: Ist der abgeschickte Wert gleich dem gespeicherten, gilt "GLL aus" und ist
-     * `enableGaran` an, wird `gllMode` auf den Wert nach R1 gesetzt. Ändert der Nutzer
-     * `gllMode`, greift stattdessen R2 im `onbeforesubmit_callback`.
-     * `gllModeOptions` enthält je Wert das Paar aus Beschriftung und Erläuterung für den
+     * R1: Ist der abgeschickte Wert gleich dem gespeicherten, gilt "LGN aus" und ist
+     * `enableGaran` an, wird `lgnMode` auf den Wert nach R1 gesetzt. Ändert der Nutzer
+     * `lgnMode`, greift stattdessen R2 im `onbeforesubmit_callback`.
+     * `lgnModeOptions` enthält je Wert das Paar aus Beschriftung und Erläuterung für den
      * Hilfe-Assistenten; der Hinweis nennt nur die Beschriftung.
      *
      * @throws \Exception Bei einer Ablehnung nach R4
      */
-    public function handleProductGllModeSave(mixed $value, DataContainer $dataContainer): string
+    public function handleProductLgnModeSave(mixed $value, DataContainer $dataContainer): string
     {
         $productId = $this->getRecordId($dataContainer);
         $productData = $this->fetchProductData($productId);
-        $standardMemberGroupGllMode = $this->standardMemberGroupGllMode->getStoredGllMode();
-        $storedGllMode = $this->standardMemberGroupGllMode->normalizeProductGllMode($productData['gllMode'] ?? null);
-        $submittedGllMode = $this->standardMemberGroupGllMode->normalizeProductGllMode($value);
-        $isGllOffForSubmittedGllMode = $this->standardMemberGroupGllMode->isGllOff(
-            $standardMemberGroupGllMode,
-            $submittedGllMode
+        $standardMemberGroupLgnMode = $this->standardMemberGroupLgnMode->getStoredLgnMode();
+        $storedLgnMode = $this->standardMemberGroupLgnMode->normalizeProductLgnMode($productData['lgnMode'] ?? null);
+        $submittedLgnMode = $this->standardMemberGroupLgnMode->normalizeProductLgnMode($value);
+        $isLgnOffForSubmittedLgnMode = $this->standardMemberGroupLgnMode->isLgnOff(
+            $standardMemberGroupLgnMode,
+            $submittedLgnMode
         );
 
-        if ($submittedGllMode !== $storedGllMode) {
-            if (!$isGllOffForSubmittedGllMode) {
-                return $submittedGllMode;
+        if ($submittedLgnMode !== $storedLgnMode) {
+            if (!$isLgnOffForSubmittedLgnMode) {
+                return $submittedLgnMode;
             }
 
             $overrideVariantIdentifiers = $this->validator->getOverrideVariantIdentifiers(
@@ -65,28 +65,28 @@ final class LegalGuaranteeBackendCallbacks
 
             if ($overrideVariantIdentifiers !== []) {
                 throw new \Exception(sprintf(
-                    $GLOBALS['TL_LANG']['tl_ls_shop_product']['legalGuaranteeMessages']['gllModeRejectedByOwnVariantDetails'],
+                    $GLOBALS['TL_LANG']['tl_ls_shop_product']['legalGuaranteeMessages']['lgnModeRejectedByOwnVariantDetails'],
                     implode(', ', $overrideVariantIdentifiers)
                 ));
             }
 
-            return $submittedGllMode;
+            return $submittedLgnMode;
         }
 
-        if (!$isGllOffForSubmittedGllMode || $this->getEffectiveProductEnableGaran($productData, $dataContainer) !== '1') {
-            return $submittedGllMode;
+        if (!$isLgnOffForSubmittedLgnMode || $this->getEffectiveProductEnableGaran($productData, $dataContainer) !== '1') {
+            return $submittedLgnMode;
         }
 
-        $gllModeForEnabledGaran = $this->standardMemberGroupGllMode->getGllModeForEnabledGaran($standardMemberGroupGllMode);
+        $lgnModeForEnabledGaran = $this->standardMemberGroupLgnMode->getLgnModeForEnabledGaran($standardMemberGroupLgnMode);
 
         if ($productId !== null) {
             $this->queueProductInfoMessage($productId, sprintf(
-                $GLOBALS['TL_LANG']['tl_ls_shop_product']['legalGuaranteeMessages']['gllModeChangedForManufacturerGuarantee'],
-                $GLOBALS['TL_LANG']['tl_ls_shop_product']['gllModeOptions'][$gllModeForEnabledGaran][0]
+                $GLOBALS['TL_LANG']['tl_ls_shop_product']['legalGuaranteeMessages']['lgnModeChangedForManufacturerGuarantee'],
+                $GLOBALS['TL_LANG']['tl_ls_shop_product']['lgnModeOptions'][$lgnModeForEnabledGaran][0]
             ));
         }
 
-        return $gllModeForEnabledGaran;
+        return $lgnModeForEnabledGaran;
     }
 
     public function validateProductGuaranteeDurationMonths(mixed $value, DataContainer $dataContainer): ?string
@@ -107,7 +107,7 @@ final class LegalGuaranteeBackendCallbacks
 
     /**
      * `onbeforesubmit_callback` des Produkts, R2 (Spec 27, Abschnitt 4): Enthält `$values`
-     * einen geänderten Wert für `gllMode`, gilt dafür "GLL aus" und ist `enableGaran` an,
+     * einen geänderten Wert für `lgnMode`, gilt dafür "LGN aus" und ist `enableGaran` an,
      * wird `enableGaran` ausgeschaltet. Dauer, Marke und Modell bleiben. Beim Umschalten
      * über `toggleSubpalette` enthält `$values` nur `enableGaran`.
      *
@@ -119,11 +119,11 @@ final class LegalGuaranteeBackendCallbacks
     {
         $productId = $this->getRecordId($dataContainer);
 
-        if ($productId === null || !array_key_exists('gllMode', $values)) {
+        if ($productId === null || !array_key_exists('lgnMode', $values)) {
             return $values;
         }
 
-        if (!$this->standardMemberGroupGllMode->isGllOffForProduct($values['gllMode'])) {
+        if (!$this->standardMemberGroupLgnMode->isLgnOffForProduct($values['lgnMode'])) {
             return $values;
         }
 
@@ -137,7 +137,7 @@ final class LegalGuaranteeBackendCallbacks
         $values['enableGaran'] = '';
         $this->queueProductInfoMessage(
             $productId,
-            $GLOBALS['TL_LANG']['tl_ls_shop_product']['legalGuaranteeMessages']['manufacturerGuaranteeDisabledByGllMode']
+            $GLOBALS['TL_LANG']['tl_ls_shop_product']['legalGuaranteeMessages']['manufacturerGuaranteeDisabledByLgnMode']
         );
 
         return $values;
@@ -160,7 +160,7 @@ final class LegalGuaranteeBackendCallbacks
 
     /**
      * `onload_callback` des Produkts: Hinweise beim Öffnen der Maske, wenn für den
-     * gespeicherten Datensatz "GLL aus" gilt und `enableGaran` an ist (Ursache und Weg)
+     * gespeicherten Datensatz "LGN aus" gilt und `enableGaran` an ist (Ursache und Weg)
      * beziehungsweise Varianten auf `override` stehen (die Varianten).
      */
     public function addProductEditInfoMessage(DataContainer $dataContainer): void
@@ -171,15 +171,15 @@ final class LegalGuaranteeBackendCallbacks
 
         $productId = $this->getRecordId($dataContainer);
         $productData = $this->fetchProductData($productId);
-        $productGllMode = $this->standardMemberGroupGllMode->normalizeProductGllMode($productData['gllMode'] ?? null);
+        $productLgnMode = $this->standardMemberGroupLgnMode->normalizeProductLgnMode($productData['lgnMode'] ?? null);
 
-        if (!$this->standardMemberGroupGllMode->isGllOffForProduct($productGllMode)) {
+        if (!$this->standardMemberGroupLgnMode->isLgnOffForProduct($productLgnMode)) {
             return;
         }
 
         if ($this->normalizeCheckboxValue($productData['enableGaran'] ?? null) === '1') {
             Message::addInfo(
-                'never' === $productGllMode
+                'never' === $productLgnMode
                     ? $GLOBALS['TL_LANG']['tl_ls_shop_product']['legalGuaranteeMessages']['openHintProductNeverShown']
                     : $GLOBALS['TL_LANG']['tl_ls_shop_product']['legalGuaranteeMessages']['openHintStandardGroupOnlyAlwaysShow']
             );
@@ -219,7 +219,7 @@ final class LegalGuaranteeBackendCallbacks
 
         if (
             is_array($firstGaranModeMessage)
-            && $firstGaranModeMessage['code'] === ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_OVERRIDE_GLL_REQUIRED
+            && $firstGaranModeMessage['code'] === ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_OVERRIDE_LGN_REQUIRED
         ) {
             throw new \Exception(
                 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['legalGuaranteeMessages']['ownDetailsRejectedWithoutLegalGuarantee']
@@ -237,7 +237,7 @@ final class LegalGuaranteeBackendCallbacks
 
     /**
      * `onload_callback` der Variante: Hinweis beim Öffnen der Maske, wenn die Variante
-     * gespeichert auf `override` steht und für das Elternprodukt "GLL aus" gilt.
+     * gespeichert auf `override` steht und für das Elternprodukt "LGN aus" gilt.
      */
     public function addVariantEditInfoMessage(DataContainer $dataContainer): void
     {
@@ -253,7 +253,7 @@ final class LegalGuaranteeBackendCallbacks
 
         $parentProductData = $this->fetchParentProductData($variantData);
 
-        if (!$this->standardMemberGroupGllMode->isGllOffForProduct($parentProductData['gllMode'] ?? null)) {
+        if (!$this->standardMemberGroupLgnMode->isLgnOffForProduct($parentProductData['lgnMode'] ?? null)) {
             return;
         }
 
@@ -330,7 +330,7 @@ final class LegalGuaranteeBackendCallbacks
         }
 
         $productData = $this->connection->fetchAssociative(
-            'SELECT gllMode, enableGaran, guaranteeDurationMonths, guaranteeBrand, guaranteeModelIdentifier, lsShopProductProducer
+            'SELECT lgnMode, enableGaran, guaranteeDurationMonths, guaranteeBrand, guaranteeModelIdentifier, lsShopProductProducer
              FROM tl_ls_shop_product
              WHERE id = ?',
             [$productId]

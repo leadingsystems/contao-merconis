@@ -9,35 +9,35 @@ use Traversable;
 final class ProductGuaranteeDisplayResolver
 {
     /**
-     * Bestimmt die Ausgabe für die maßgebliche Mitgliedergruppe. `showGll` folgt der Tabelle
-     * in Spec 27, Abschnitt 3.5; für eine Variante gilt `gllMode` des Elternprodukts aus
-     * `$productData`. `showGaran` setzt `showGll` voraus.
+     * Bestimmt die Ausgabe für die maßgebliche Mitgliedergruppe. `showLgn` folgt der Tabelle
+     * in Spec 27, Abschnitt 3.5; für eine Variante gilt `lgnMode` des Elternprodukts aus
+     * `$productData`. `showGaran` setzt `showLgn` voraus.
      *
-     * @param string|null $memberGroupGllMode Wert `lsShopGllMode` der maßgeblichen Gruppe
+     * @param string|null $memberGroupLgnMode Wert `lsShopLgnMode` der maßgeblichen Gruppe
      * @param iterable<string, mixed> $productData
      * @param iterable<string, mixed>|null $variantData
      *
      * @return array{
-     *   showGll: bool,
+     *   showLgn: bool,
      *   showGaran: bool,
      *   garan: array{brand: string, modelIdentifier: string, durationMonths: string}|null
      * }
      */
-    public function resolve(?string $memberGroupGllMode, iterable $productData, ?iterable $variantData = null): array
+    public function resolve(?string $memberGroupLgnMode, iterable $productData, ?iterable $variantData = null): array
     {
         $productData = $this->normalizeData($productData);
         $variantData = null !== $variantData ? $this->normalizeData($variantData) : null;
-        $showGll = $this->resolveShowGll($memberGroupGllMode, $productData['gllMode'] ?? null);
+        $showLgn = $this->resolveShowLgn($memberGroupLgnMode, $productData['lgnMode'] ?? null);
 
         $effectiveGaranData = $this->resolveEffectiveGaranData($productData, $variantData);
-        $showGaran = $showGll
+        $showGaran = $showLgn
             && $this->isTruthy($effectiveGaranData['enableGaran'] ?? null)
             && '' !== $effectiveGaranData['brand']
             && '' !== $effectiveGaranData['modelIdentifier']
             && '' !== $effectiveGaranData['durationMonths'];
 
         return [
-            'showGll' => $showGll,
+            'showLgn' => $showLgn,
             'showGaran' => $showGaran,
             'garan' => $showGaran
                 ? [
@@ -110,16 +110,16 @@ final class ProductGuaranteeDisplayResolver
 
     /**
      * Leer und `NULL` wirken wie `blocked`. Ein unbekannter Gruppen- oder Produktwert ergibt
-     * keinen GLL-Output.
+     * keinen LGN-Output.
      */
-    private function resolveShowGll(?string $memberGroupGllMode, mixed $productGllMode): bool
+    private function resolveShowLgn(?string $memberGroupLgnMode, mixed $productLgnMode): bool
     {
-        $normalizedMemberGroupGllMode = trim((string) $memberGroupGllMode);
-        $normalizedProductGllMode = trim((string) $productGllMode);
+        $normalizedMemberGroupLgnMode = trim((string) $memberGroupLgnMode);
+        $normalizedProductLgnMode = trim((string) $productLgnMode);
 
-        return match ($normalizedMemberGroupGllMode) {
-            'on' => in_array($normalizedProductGllMode, ['inherit', 'always'], true),
-            'off' => 'always' === $normalizedProductGllMode,
+        return match ($normalizedMemberGroupLgnMode) {
+            'on' => in_array($normalizedProductLgnMode, ['inherit', 'always'], true),
+            'off' => 'always' === $normalizedProductLgnMode,
             default => false,
         };
     }

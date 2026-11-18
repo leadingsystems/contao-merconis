@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\Tests\Unit;
 
-use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\StandardMemberGroupGllMode;
+use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\StandardMemberGroupLgnMode;
 use LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\ProductGuaranteeConfigurationValidator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -38,7 +38,7 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
         $validator = $this->createValidator();
 
         $result = $validator->validateProduct([
-            'gllMode' => 'inherit',
+            'lgnMode' => 'inherit',
             'enableGaran' => '1',
             'guaranteeDurationMonths' => '30',
             'guaranteeBrand' => ' ACME &amp; Co. ',
@@ -57,7 +57,7 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
         $validator = $this->createValidator();
 
         $result = $validator->validateProduct([
-            'gllMode' => 'inherit',
+            'lgnMode' => 'inherit',
             'enableGaran' => '1',
             'guaranteeDurationMonths' => '36',
             'guaranteeBrand' => '',
@@ -92,17 +92,17 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
     }
 
     /**
-     * "GARAN setzt GLL voraus" für jede Kombination aus Wert der Standard-Benutzergruppe
-     * (`null` = keine gesetzt) und `gllMode` der Zeile (`null` = Spalte fehlt). Erwartet ist
+     * "GARAN setzt LGN voraus" für jede Kombination aus Wert der Standard-Benutzergruppe
+     * (`null` = keine gesetzt) und `lgnMode` der Zeile (`null` = Spalte fehlt). Erwartet ist
      * der Meldungscode oder `null` für keine Ablehnung.
      *
      * @return iterable<string, array{string|null, string|null, string|null}>
      */
-    public static function productGaranRequiresGllProvider(): iterable
+    public static function productGaranRequiresLgnProvider(): iterable
     {
-        $required = ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED;
-        $requiredAlways = ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED_ALWAYS;
-        $productGllModes = ['inherit', 'always', 'never', '', null];
+        $required = ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_LGN_REQUIRED;
+        $requiredAlways = ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_LGN_REQUIRED_ALWAYS;
+        $productLgnModes = ['inherit', 'always', 'never', '', null];
         $expectedCodesByGroup = [
             'on' => [null, null, $required, null, null],
             'off' => [$requiredAlways, null, $requiredAlways, $requiredAlways, $requiredAlways],
@@ -113,25 +113,25 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
         $groupValues = ['on' => 'on', 'off' => 'off', 'blocked' => 'blocked', 'leer' => '', 'keine' => null];
 
         foreach ($expectedCodesByGroup as $groupLabel => $expectedCodes) {
-            foreach ($productGllModes as $productGllModeIndex => $productGllMode) {
-                yield sprintf('Gruppe %s, Produkt "%s"', $groupLabel, $productGllMode ?? 'fehlt') => [
+            foreach ($productLgnModes as $productLgnModeIndex => $productLgnMode) {
+                yield sprintf('Gruppe %s, Produkt "%s"', $groupLabel, $productLgnMode ?? 'fehlt') => [
                     $groupValues[$groupLabel],
-                    $productGllMode,
-                    $expectedCodes[$productGllModeIndex],
+                    $productLgnMode,
+                    $expectedCodes[$productLgnModeIndex],
                 ];
             }
         }
     }
 
-    #[DataProvider('productGaranRequiresGllProvider')]
-    public function testProductRowWithGaranIsRejectedWhenGllIsOff(
-        ?string $standardMemberGroupGllMode,
-        ?string $productGllMode,
+    #[DataProvider('productGaranRequiresLgnProvider')]
+    public function testProductRowWithGaranIsRejectedWhenLgnIsOff(
+        ?string $standardMemberGroupLgnMode,
+        ?string $productLgnMode,
         ?string $expectedCode
     ): void {
-        $productRow = $this->createCompleteGaranProductRow($productGllMode);
+        $productRow = $this->createCompleteGaranProductRow($productLgnMode);
 
-        $result = $this->createValidator($standardMemberGroupGllMode)->validateProduct($productRow);
+        $result = $this->createValidator($standardMemberGroupLgnMode)->validateProduct($productRow);
 
         self::assertSame(
             $expectedCode === null ? [] : [$expectedCode],
@@ -139,27 +139,27 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
         );
         self::assertSame('1', $result->getNormalizedData()['enableGaran']);
         self::assertSame(
-            in_array($productGllMode, ['always', 'never'], true) ? $productGllMode : 'inherit',
-            $result->getNormalizedData()['gllMode']
+            in_array($productLgnMode, ['always', 'never'], true) ? $productLgnMode : 'inherit',
+            $result->getNormalizedData()['lgnMode']
         );
     }
 
-    public function testProductRowWithoutGaranIsNotRejectedWhenGllIsOff(): void
+    public function testProductRowWithoutGaranIsNotRejectedWhenLgnIsOff(): void
     {
-        foreach (['on' => 'never', 'off' => 'inherit', 'blocked' => 'never', '' => 'never'] as $groupGllMode => $productGllMode) {
-            $result = $this->createValidator((string) $groupGllMode)->validateProduct([
-                'gllMode' => $productGllMode,
+        foreach (['on' => 'never', 'off' => 'inherit', 'blocked' => 'never', '' => 'never'] as $groupLgnMode => $productLgnMode) {
+            $result = $this->createValidator((string) $groupLgnMode)->validateProduct([
+                'lgnMode' => $productLgnMode,
                 'enableGaran' => '',
                 'guaranteeDurationMonths' => '',
                 'guaranteeBrand' => '',
                 'guaranteeModelIdentifier' => '',
             ]);
 
-            self::assertSame([], $result->getMessages(), (string) $groupGllMode);
+            self::assertSame([], $result->getMessages(), (string) $groupLgnMode);
         }
     }
 
-    public function testProductRowIsRejectedWhenStoredVariantsUseOverrideAndGllIsOff(): void
+    public function testProductRowIsRejectedWhenStoredVariantsUseOverrideAndLgnIsOff(): void
     {
         $storedVariants = [
             ['lsShopVariantCode' => 'VAR-001', 'garanMode' => 'override'],
@@ -169,7 +169,7 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
 
         $result = $this->createValidator('on')->validateProduct(
             [
-                'gllMode' => 'never',
+                'lgnMode' => 'never',
                 'enableGaran' => '',
                 'guaranteeDurationMonths' => null,
                 'guaranteeBrand' => '',
@@ -179,7 +179,7 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
         );
 
         self::assertSame(
-            [ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_VARIANT_OVERRIDE],
+            [ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_LGN_VARIANT_OVERRIDE],
             array_column($result->getMessages(), 'code')
         );
         self::assertSame(['VAR-001, VAR-002'], $result->getMessages()[0]['parameters']);
@@ -188,9 +188,9 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
     /**
      * Der Validator kennt nur den gespeicherten Stand der Varianten. Nimmt dieselbe Datei die
      * Varianten von `override` weg, liegen diese Zeilen beim Prüfen der Produktzeile noch nicht
-     * vor; die Produktzeile wird trotzdem abgelehnt, auch bei unverändertem `gllMode`.
+     * vor; die Produktzeile wird trotzdem abgelehnt, auch bei unverändertem `lgnMode`.
      */
-    public function testProductRowIsRejectedForStoredOverrideVariantsEvenWithUnchangedGllMode(): void
+    public function testProductRowIsRejectedForStoredOverrideVariantsEvenWithUnchangedLgnMode(): void
     {
         $result = $this->createValidator('off')->validateProduct(
             $this->createCompleteGaranProductRow('inherit'),
@@ -199,14 +199,14 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
 
         self::assertSame(
             [
-                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_VARIANT_OVERRIDE,
-                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED_ALWAYS,
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_LGN_VARIANT_OVERRIDE,
+                ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_LGN_REQUIRED_ALWAYS,
             ],
             array_column($result->getMessages(), 'code')
         );
     }
 
-    public function testStoredOverrideVariantsDoNotRejectProductRowWhenGllIsOn(): void
+    public function testStoredOverrideVariantsDoNotRejectProductRowWhenLgnIsOn(): void
     {
         $result = $this->createValidator('off')->validateProduct(
             $this->createCompleteGaranProductRow('always'),
@@ -219,7 +219,7 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
     /**
      * @return iterable<string, array{string}>
      */
-    public static function invalidProductGllModeProvider(): iterable
+    public static function invalidProductLgnModeProvider(): iterable
     {
         yield 'unbekannter Wert' => ['sometimes'];
         yield 'alter Checkbox-Wert' => ['1'];
@@ -227,16 +227,16 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
         yield 'Variantenwert' => ['override'];
     }
 
-    #[DataProvider('invalidProductGllModeProvider')]
-    public function testProductRowWithInvalidGllModeIsRejected(string $invalidGllMode): void
+    #[DataProvider('invalidProductLgnModeProvider')]
+    public function testProductRowWithInvalidLgnModeIsRejected(string $invalidLgnMode): void
     {
-        $result = $this->createValidator('on')->validateProduct($this->createCompleteGaranProductRow(' ' . $invalidGllMode . ' '));
+        $result = $this->createValidator('on')->validateProduct($this->createCompleteGaranProductRow(' ' . $invalidLgnMode . ' '));
 
         self::assertSame(
-            [ProductGuaranteeConfigurationValidator::MESSAGE_GLL_INVALID_MODE],
+            [ProductGuaranteeConfigurationValidator::MESSAGE_LGN_INVALID_MODE],
             array_column($result->getMessages(), 'code')
         );
-        self::assertSame([$invalidGllMode], $result->getMessages()[0]['parameters']);
+        self::assertSame([$invalidLgnMode], $result->getMessages()[0]['parameters']);
     }
 
     public function testProductRowColumnEnableGllHasNoEffect(): void
@@ -249,29 +249,29 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
         $acceptedRow['enableGll'] = '';
 
         self::assertSame(
-            [ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_GLL_REQUIRED],
+            [ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_LGN_REQUIRED],
             array_column($validator->validateProduct($rejectedRow)->getMessages(), 'code')
         );
         self::assertSame([], $validator->validateProduct($acceptedRow)->getMessages());
-        self::assertSame('inherit', $validator->validateProduct($acceptedRow)->getNormalizedData()['gllMode']);
+        self::assertSame('inherit', $validator->validateProduct($acceptedRow)->getNormalizedData()['lgnMode']);
     }
 
     /**
-     * Abgelehnte Zeilen behalten ihre Werte; der Validator setzt weder `gllMode` noch
+     * Abgelehnte Zeilen behalten ihre Werte; der Validator setzt weder `lgnMode` noch
      * `enableGaran` um (Spec 27, Abschnitt 4, "Import und Product Management API").
      */
     public function testRejectedProductRowKeepsItsValues(): void
     {
-        foreach (['on' => 'never', 'off' => 'never', 'blocked' => 'never'] as $groupGllMode => $productGllMode) {
-            $result = $this->createValidator($groupGllMode)->validateProduct(
-                $this->createCompleteGaranProductRow($productGllMode),
+        foreach (['on' => 'never', 'off' => 'never', 'blocked' => 'never'] as $groupLgnMode => $productLgnMode) {
+            $result = $this->createValidator($groupLgnMode)->validateProduct(
+                $this->createCompleteGaranProductRow($productLgnMode),
                 [['lsShopVariantCode' => 'VAR-001', 'garanMode' => 'override']]
             );
 
-            self::assertNotSame([], $result->getMessages(), $groupGllMode);
-            self::assertSame('never', $result->getNormalizedData()['gllMode'], $groupGllMode);
-            self::assertSame('1', $result->getNormalizedData()['enableGaran'], $groupGllMode);
-            self::assertSame('36', $result->getNormalizedData()['guaranteeDurationMonths'], $groupGllMode);
+            self::assertNotSame([], $result->getMessages(), $groupLgnMode);
+            self::assertSame('never', $result->getNormalizedData()['lgnMode'], $groupLgnMode);
+            self::assertSame('1', $result->getNormalizedData()['enableGaran'], $groupLgnMode);
+            self::assertSame('36', $result->getNormalizedData()['guaranteeDurationMonths'], $groupLgnMode);
         }
     }
 
@@ -287,7 +287,7 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
                 'guaranteeModelIdentifier' => 'Ignored',
             ],
             [
-                'gllMode' => 'inherit',
+                'lgnMode' => 'inherit',
                 'enableGaran' => '1',
                 'guaranteeDurationMonths' => '54',
                 'guaranteeBrand' => 'Parent Brand',
@@ -318,7 +318,7 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
                 'guaranteeModelIdentifier' => '',
             ],
             [
-                'gllMode' => 'inherit',
+                'lgnMode' => 'inherit',
                 'enableGaran' => '1',
                 'guaranteeDurationMonths' => '60',
                 'guaranteeBrand' => 'Parent Brand',
@@ -340,7 +340,7 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
         self::assertSame('', $result->getEffectiveData()['guaranteeModelIdentifier']);
     }
 
-    public function testVariantInheritDoesNotDuplicateParentGllValidation(): void
+    public function testVariantInheritDoesNotDuplicateParentLgnValidation(): void
     {
         $validator = $this->createValidator();
 
@@ -352,7 +352,7 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
                 'guaranteeModelIdentifier' => '',
             ],
             [
-                'gllMode' => 'never',
+                'lgnMode' => 'never',
                 'enableGaran' => '1',
                 'guaranteeDurationMonths' => '60',
                 'guaranteeBrand' => 'Parent Brand',
@@ -375,7 +375,7 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
                 'guaranteeModelIdentifier' => 'VarMod',
             ],
             [
-                'gllMode' => 'inherit',
+                'lgnMode' => 'inherit',
                 'enableGaran' => '1',
                 'guaranteeDurationMonths' => '60',
                 'guaranteeBrand' => '',
@@ -396,9 +396,9 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
      *
      * @return iterable<string, array{string|null, string|null, bool}>
      */
-    public static function variantOverrideGllProvider(): iterable
+    public static function variantOverrideLgnProvider(): iterable
     {
-        $productGllModes = ['inherit', 'always', 'never', null];
+        $productLgnModes = ['inherit', 'always', 'never', null];
         $expectedRejectionByGroup = [
             'on' => [false, false, true, false],
             'off' => [true, false, true, true],
@@ -406,12 +406,12 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
             '' => [false, false, true, false],
         ];
 
-        foreach ($expectedRejectionByGroup as $standardMemberGroupGllMode => $expectedRejections) {
-            foreach ($productGllModes as $productGllModeIndex => $productGllMode) {
-                yield sprintf('Gruppe "%s", Produkt "%s"', $standardMemberGroupGllMode, $productGllMode ?? 'fehlt') => [
-                    (string) $standardMemberGroupGllMode,
-                    $productGllMode,
-                    $expectedRejections[$productGllModeIndex],
+        foreach ($expectedRejectionByGroup as $standardMemberGroupLgnMode => $expectedRejections) {
+            foreach ($productLgnModes as $productLgnModeIndex => $productLgnMode) {
+                yield sprintf('Gruppe "%s", Produkt "%s"', $standardMemberGroupLgnMode, $productLgnMode ?? 'fehlt') => [
+                    (string) $standardMemberGroupLgnMode,
+                    $productLgnMode,
+                    $expectedRejections[$productLgnModeIndex],
                 ];
             }
         }
@@ -420,10 +420,10 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
         yield 'keine Standard-Benutzergruppe, Produkt "inherit"' => [null, 'inherit', false];
     }
 
-    #[DataProvider('variantOverrideGllProvider')]
-    public function testVariantOverrideIsRejectedWhenGllIsOffForParentProduct(
-        ?string $standardMemberGroupGllMode,
-        ?string $productGllMode,
+    #[DataProvider('variantOverrideLgnProvider')]
+    public function testVariantOverrideIsRejectedWhenLgnIsOffForParentProduct(
+        ?string $standardMemberGroupLgnMode,
+        ?string $productLgnMode,
         bool $expectedRejection
     ): void {
         $productData = [
@@ -433,11 +433,11 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
             'guaranteeModelIdentifier' => 'ParentM',
         ];
 
-        if ($productGllMode !== null) {
-            $productData['gllMode'] = $productGllMode;
+        if ($productLgnMode !== null) {
+            $productData['lgnMode'] = $productLgnMode;
         }
 
-        $result = $this->createValidator($standardMemberGroupGllMode)->validateVariant(
+        $result = $this->createValidator($standardMemberGroupLgnMode)->validateVariant(
             [
                 'garanMode' => 'override',
                 'guaranteeDurationMonths' => '60',
@@ -448,7 +448,7 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
         );
 
         self::assertSame(
-            $expectedRejection ? [ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_OVERRIDE_GLL_REQUIRED] : [],
+            $expectedRejection ? [ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_OVERRIDE_LGN_REQUIRED] : [],
             array_column($result->getMessages(), 'code')
         );
     }
@@ -464,14 +464,14 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
             ],
             [
                 'enableGll' => '',
-                'gllMode' => 'always',
+                'lgnMode' => 'always',
             ],
         );
 
         self::assertSame([], $result->getMessages());
     }
 
-    public function testVariantInheritAndDisabledAreNotRejectedWhenGllIsOffForParentProduct(): void
+    public function testVariantInheritAndDisabledAreNotRejectedWhenLgnIsOffForParentProduct(): void
     {
         $validator = $this->createValidator('off');
 
@@ -484,7 +484,7 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
                     'guaranteeModelIdentifier' => '',
                 ],
                 [
-                    'gllMode' => 'never',
+                    'lgnMode' => 'never',
                     'enableGaran' => '1',
                     'guaranteeDurationMonths' => '60',
                     'guaranteeBrand' => 'Parent Brand',
@@ -521,7 +521,7 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
                 'guaranteeModelIdentifier' => '',
             ],
             [
-                'gllMode' => 'inherit',
+                'lgnMode' => 'inherit',
                 'enableGaran' => '',
                 'guaranteeDurationMonths' => '',
                 'guaranteeBrand' => '',
@@ -551,7 +551,7 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
         $model = 'ä&"<>ß' . str_repeat('B', 60);
 
         $result = $validator->validateProduct([
-            'gllMode' => 'inherit',
+            'lgnMode' => 'inherit',
             'enableGaran' => '1',
             'guaranteeDurationMonths' => '36',
             'guaranteeBrand' => $brand,
@@ -570,7 +570,7 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
         $model = 'ä&"<>ß' . str_repeat('B', 60);
 
         $result = $validator->validateProduct([
-            'gllMode' => 'inherit',
+            'lgnMode' => 'inherit',
             'enableGaran' => '',
             'guaranteeDurationMonths' => '',
             'guaranteeBrand' => $brand,
@@ -594,7 +594,7 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
                 'guaranteeModelIdentifier' => '',
             ],
             [
-                'gllMode' => 'inherit',
+                'lgnMode' => 'inherit',
                 'enableGaran' => '1',
                 'guaranteeDurationMonths' => '36',
                 'guaranteeBrand' => ' Elternmarke &amp; Co. ',
@@ -621,7 +621,7 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
                 'guaranteeModelIdentifier' => $model,
             ],
             [
-                'gllMode' => 'inherit',
+                'lgnMode' => 'inherit',
                 'enableGaran' => '',
                 'guaranteeDurationMonths' => '',
                 'guaranteeBrand' => 'Parent Brand',
@@ -651,7 +651,7 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
                 'guaranteeModelIdentifier' => '',
             ],
             [
-                'gllMode' => 'inherit',
+                'lgnMode' => 'inherit',
                 'enableGaran' => '',
                 'guaranteeDurationMonths' => '',
                 'guaranteeBrand' => $brand,
@@ -665,12 +665,12 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
     }
 
     /**
-     * Vollständige Produktzeile mit eingeschalteter Herstellergarantie; `null` lässt `gllMode`
+     * Vollständige Produktzeile mit eingeschalteter Herstellergarantie; `null` lässt `lgnMode`
      * weg (fehlende Spalte).
      *
      * @return array<string, mixed>
      */
-    private function createCompleteGaranProductRow(?string $productGllMode): array
+    private function createCompleteGaranProductRow(?string $productLgnMode): array
     {
         $productRow = [
             'enableGaran' => '1',
@@ -679,8 +679,8 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
             'guaranteeModelIdentifier' => 'Model',
         ];
 
-        if ($productGllMode !== null) {
-            $productRow['gllMode'] = $productGllMode;
+        if ($productLgnMode !== null) {
+            $productRow['lgnMode'] = $productLgnMode;
         }
 
         return $productRow;
@@ -689,17 +689,17 @@ final class ProductGuaranteeConfigurationValidatorTest extends TestCase
     /**
      * `null` heißt "keine Standard-Benutzergruppe gesetzt".
      */
-    private function createValidator(?string $standardMemberGroupGllMode = 'on'): ProductGuaranteeConfigurationValidator
+    private function createValidator(?string $standardMemberGroupLgnMode = 'on'): ProductGuaranteeConfigurationValidator
     {
-        if ($standardMemberGroupGllMode === null) {
+        if ($standardMemberGroupLgnMode === null) {
             unset($GLOBALS['TL_CONFIG']['ls_shop_standardGroup']);
         } else {
             $GLOBALS['TL_CONFIG']['ls_shop_standardGroup'] = self::STANDARD_MEMBER_GROUP_ID;
         }
 
         return new ProductGuaranteeConfigurationValidator(
-            standardMemberGroupGllMode: new StandardMemberGroupGllMode(
-                static fn (int $groupId): array => ['id' => $groupId, 'lsShopGllMode' => $standardMemberGroupGllMode]
+            standardMemberGroupLgnMode: new StandardMemberGroupLgnMode(
+                static fn (int $groupId): array => ['id' => $groupId, 'lsShopLgnMode' => $standardMemberGroupLgnMode]
             )
         );
     }
