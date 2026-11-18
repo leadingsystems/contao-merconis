@@ -113,6 +113,7 @@ $GLOBALS['TL_DCA']['tl_member_group']['fields']['lsShopGllMode'] = [
         'includeBlankOption' => true,
         'blankOptionLabel' => &$GLOBALS['TL_LANG']['tl_member_group']['lsShopGllModeBlankOption'],
         'mandatory' => true,
+        'helpwizard' => true,
         'tl_class' => 'clr w50',
     ],
     'sql' => "varchar(16) NOT NULL default ''",

@@ -70,7 +70,7 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopPrice_3_legend']								= 'Devi
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopPrice_4_legend']								= 'Deviant prices for group no. 4';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopPrice_5_legend']								= 'Deviant prices for group no. 5';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopStockDeliveryTimeAndAvailability_legend']									= 'Goods in stock, delivery time and availability';
-$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopGuaranteeLabels_legend']						= 'Legal guarantee and durability guarantee';
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopGuaranteeLabels_legend']						= 'Legal guarantee and manufacturer guarantee (GARAN label)';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['configurator_legend']								= 'Configurator settings';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['associatedProducts_legend']							= 'Associated products';
 
@@ -98,8 +98,8 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceType'] = array(
 );
 
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['legalGuaranteeMessages'] = [
-	'ownDetailsRejectedWithoutLegalGuarantee' => 'The variant was not saved: "Own details" for the manufacturer guarantee requires the legal guarantee notice of the product to be shown for the standard member group. Please change and save the legal guarantee notice setting of the product first.',
-	'openHintParentProductWithoutLegalGuarantee' => 'The manufacturer guarantee of this variant with "Own details" is not shown because the legal guarantee notice of the product is not shown for the standard member group. Please change the legal guarantee notice setting of the product.'
+	'ownDetailsRejectedWithoutLegalGuarantee' => 'The variant was not saved: "Own details" for the manufacturer guarantee requires the legal guarantee notice of the product to be shown for the standard user group. Please change and save the legal guarantee notice setting of the product first.',
+	'openHintParentProductWithoutLegalGuarantee' => 'The manufacturer guarantee of this variant with "Own details" is not shown because the legal guarantee notice of the product is not shown for the standard user group. Please change the legal guarantee notice setting of the product.'
 ];
 
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceQuantityDetectionMethod'] = array(
@@ -133,10 +133,10 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contents_label01'] = 'Keyword';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contents_label02'] = 'Variant information';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contentsLanguageIndependent_label01'] = 'Keyword';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contentsLanguageIndependent_label02'] = 'Variant information';
-$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeValidationMessages'] = array(
-	'garan_invalid_mode' => 'GARAN was not saved because "%s" is not a valid garanMode. Use "inherit", "disabled" or "override".',
-	'garan_disabled_invalid_duration' => 'GARAN was not saved because "%s" is not an allowed guarantee duration. Use whole months from 30 to 360 in steps of 6.'
-);
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeValidationMessages'] = [
+	'garan_invalid_mode' => 'The manufacturer guarantee was not saved because "%s" is not a valid selection. Allowed are "Inherit from product", "No output" and "Own details".',
+	'garan_disabled_invalid_duration' => 'The manufacturer guarantee was not saved because "%s" is not an allowed guarantee duration. Use whole months from 30 to 360 in steps of 6.'
+];
 
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['attributesValues_label01'] = 'Attribute';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['attributesValues_label02'] = 'Value';

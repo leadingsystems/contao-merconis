@@ -52,23 +52,23 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductRecommendedProducts']				=	array('Empfohlene Produkte', 'Wählen Sie hier Produkte aus, die in einem entsprechenden CrossSeller dargestellt werden können.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['associatedProducts']								=	array('Verbundene Produkte', 'Wählen Sie hier Produkte aus, die Sie zur Realisierung individueller Funktionen mit diesem Produkt in Verbindung setzen möchten.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductProducer']							= 	array('Hersteller');
-	$GLOBALS['TL_LANG']['tl_ls_shop_product']['gllMode']										=	['Gesetzliche Gewährleistung', 'Die Mitteilung gilt für körperliche Waren und Waren mit digitalen Elementen. Für reine digitale Inhalte, SaaS und Dienstleistungen \'Nie anzeigen\' wählen. \'Wie Mitgliedergruppe\' übernimmt die Einstellung der Mitgliedergruppe des Kunden.'];
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['gllMode']										=	['Gesetzliche Gewährleistung', 'Steuert die Mitteilung über die gesetzliche Gewährleistung für dieses Produkt.'];
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['gllModeOptions']									=	[
-		'inherit' => 'Wie Mitgliedergruppe',
-		'always' => 'Immer anzeigen',
-		'never' => 'Nie anzeigen'
+		'inherit' => ['Wie Mitgliedergruppe', 'Übernimmt die Einstellung der Mitgliedergruppe des Kunden. Richtig für körperliche Waren und Waren mit digitalen Elementen.'],
+		'always' => ['Immer anzeigen', 'Zeigt die Mitteilung auch in Gruppen, die nur Produkte mit \'Immer anzeigen\' berücksichtigen, nicht in Gruppen ohne Verbraucher. Für Waren in Shops mit überwiegend Dienstleistungen oder digitalen Inhalten.'],
+		'never' => ['Nie anzeigen', 'Für reine digitale Inhalte, SaaS und Dienstleistungen. Ohne die Mitteilung wird auch keine Herstellergarantie angezeigt.']
 	];
-	$GLOBALS['TL_LANG']['tl_ls_shop_product']['enableGaran']									=	array('GARAN aktivieren');
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['enableGaran']									=	['Herstellergarantie anzeigen (GARAN-Label)', 'Zeigt die Kennzeichnung der Herstellergarantie, wenn Dauer, Marke und Modell ausgefüllt sind und die gesetzliche Gewährleistung angezeigt wird.'];
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeDurationMonths']							=	array('Garantiedauer in Monaten', 'Eingabe in ganzen Monaten, von 30 bis 360, in Schritten von 6. Die Ausgabe zeigt Jahre mit Komma als Dezimaltrennzeichen: 30 Monate ergeben 2,5 Jahre, 36 Monate ergeben 3 Jahre.');
-	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeBrand']									=	['Brand/Trademark', 'Der volle Wert wird gespeichert. Bei Überlänge wird der Markenname in der Labeldarstellung mit \'...\' gekürzt. Die Kürzungslänge ist in den Grundeinstellungen konfigurierbar.'];
-	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeModelIdentifier']						=	['Model identifier', 'Der volle Wert wird gespeichert. Bei Überlänge wird die Modellkennung in der Labeldarstellung mit \'...\' gekürzt. Die Kürzungslänge ist in den Grundeinstellungen konfigurierbar.'];
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeBrand']									=	['Marke (Brand/Trademark)', 'Der volle Wert wird gespeichert. Bei Überlänge wird der Markenname in der Labeldarstellung mit \'...\' gekürzt. Die Kürzungslänge ist in den Grundeinstellungen konfigurierbar.'];
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeModelIdentifier']						=	['Modell (Model identifier)', 'Der volle Wert wird gespeichert. Bei Überlänge wird die Modellkennung in der Labeldarstellung mit \'...\' gekürzt. Die Kürzungslänge ist in den Grundeinstellungen konfigurierbar.'];
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['legalGuaranteeMessages']							=	[
 		'gllModeChangedForManufacturerGuarantee' => 'Die Einstellung zur gesetzlichen Gewährleistung wurde auf "%s" gestellt, weil die Herstellergarantie eingeschaltet ist und die Mitteilung über die gesetzliche Gewährleistung voraussetzt.',
-		'manufacturerGuaranteeDisabledByGllMode' => 'Die Herstellergarantie wurde ausgeschaltet, weil die Mitteilung über die gesetzliche Gewährleistung mit der gewählten Einstellung in der Standard-Mitgliedergruppe nicht angezeigt wird. Dauer, Marke und Modell bleiben gespeichert.',
+		'manufacturerGuaranteeDisabledByGllMode' => 'Die Herstellergarantie wurde ausgeschaltet, weil die Mitteilung über die gesetzliche Gewährleistung mit der gewählten Einstellung in der Standard-Benutzergruppe nicht angezeigt wird. Dauer, Marke und Modell bleiben gespeichert.',
 		'gllModeRejectedByOwnVariantDetails' => 'Gesperrt durch Varianten mit "Eigene Angaben": %s. Bitte zuerst diese Varianten ändern.',
 		'openHintProductNeverShown' => 'Die Herstellergarantie dieses Produkts wird nicht ausgegeben, weil die gesetzliche Gewährleistung auf "Nie anzeigen" steht. Bitte die Einstellung zur gesetzlichen Gewährleistung am Produkt ändern.',
-		'openHintStandardGroupOnlyAlwaysShow' => 'Die Herstellergarantie dieses Produkts wird nicht ausgegeben, weil die Standard-Mitgliedergruppe bei der gesetzlichen Gewährleistung auf "Nur Produkte mit \'Immer anzeigen\'" steht und das Produkt auf "Wie Mitgliedergruppe". Bitte das Produkt auf "Immer anzeigen" stellen; das erledigt bereits ein Speichern des Produkts.',
-		'openHintVariantsWithOwnDetails' => 'Die Herstellergarantie folgender Varianten mit "Eigene Angaben" wird nicht ausgegeben, weil die Mitteilung über die gesetzliche Gewährleistung für dieses Produkt in der Standard-Mitgliedergruppe nicht angezeigt wird: %s. Bitte die Einstellung zur gesetzlichen Gewährleistung am Produkt ändern.'
+		'openHintStandardGroupOnlyAlwaysShow' => 'Die Herstellergarantie dieses Produkts wird nicht ausgegeben, weil die Standard-Benutzergruppe bei der gesetzlichen Gewährleistung auf "Nur Produkte mit \'Immer anzeigen\'" steht und das Produkt auf "Wie Mitgliedergruppe". Bitte das Produkt auf "Immer anzeigen" stellen; das erledigt bereits ein Speichern des Produkts.',
+		'openHintVariantsWithOwnDetails' => 'Die Herstellergarantie folgender Varianten mit "Eigene Angaben" wird nicht ausgegeben, weil die Mitteilung über die gesetzliche Gewährleistung für dieses Produkt in der Standard-Benutzergruppe nicht angezeigt wird: %s. Bitte die Einstellung zur gesetzlichen Gewährleistung am Produkt ändern.'
 	];
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['keywords']										= 	array('Schlüsselwörter');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['pageTitle']										=	array('Seitentitel', 'Tragen Sie hier den Seitentitel ein, der auf der Produktdetailseite verwendet werden soll. Sie können die Bedeutung der Produktdetailseite für Suchmaschinen damit verbessern. Falls Sie nichts eintragen, so wird dem von Contao regulär erstellten Seitentitel die Produktbezeichnung vorangestellt.');
@@ -92,7 +92,7 @@
 	 $GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopPages_legend']							= 'Seiten-/Kategorien-Zuordnung';
 	 $GLOBALS['TL_LANG']['tl_ls_shop_product']['groupRestrictions_legend']					    = 'Gruppeneinschränkungen';
 	 $GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProducer_legend']							= 'Hersteller';
-	 $GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopGuaranteeLabels_legend']					= 'Gewährleistung und Haltbarkeitsgarantie';
+	 $GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopGuaranteeLabels_legend']					= 'Gewährleistung und Herstellergarantie (GARAN-Label)';
 	 $GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopImages_legend']							= 'Bilder';
 	 $GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopAttributesAndValues_legend']				= 'Merkmale und Ausprägungen';
 	 $GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopPrice_legend']							= 'Preis- und Gewichtsangaben';
@@ -145,9 +145,9 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['flex_contents_label02'] = 'Produktinformation';
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['flex_contentsLanguageIndependent_label01'] = 'Schlüsselwort';
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['flex_contentsLanguageIndependent_label02'] = 'Produktinformation';
-	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeValidationMessages'] = array(
-		'garan_disabled_invalid_duration' => 'GARAN wurde nicht gespeichert, weil "%s" keine zulässige Garantiedauer ist. Zulässig sind ganze Monate von 30 bis 360 in Schritten von 6.'
-	);
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeValidationMessages'] = [
+		'garan_disabled_invalid_duration' => 'Die Herstellergarantie wurde nicht gespeichert, weil "%s" keine zulässige Garantiedauer ist. Zulässig sind ganze Monate von 30 bis 360 in Schritten von 6.'
+	];
 
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['attributesValues_label01'] = 'Merkmal';
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['attributesValues_label02'] = 'Ausprägung';

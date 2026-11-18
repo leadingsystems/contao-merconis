@@ -108,11 +108,11 @@ final class LegalGuaranteeProductManagementApiTest extends TestCase
     {
         yield 'de' => [
             'de',
-            'Feld "gllMode": Die Zeile wurde nicht übernommen, weil die Mitteilung über die gesetzliche Gewährleistung damit in der Standard-Mitgliedergruppe nicht angezeigt würde und folgende Varianten bei der Herstellergarantie "override" verwenden: VAR-OWN. Bitte zuerst diese Varianten auf einen anderen Wert als "override" stellen und die Zeile danach erneut übertragen oder für die gesetzliche Gewährleistung einen Wert angeben, mit dem die Mitteilung angezeigt wird.',
+            'Feld "gllMode": Die Zeile wurde nicht übernommen, weil die Mitteilung über die gesetzliche Gewährleistung damit in der Standard-Benutzergruppe nicht angezeigt würde und folgende Varianten bei der Herstellergarantie "override" verwenden: VAR-OWN. Bitte zuerst diese Varianten auf einen anderen Wert als "override" stellen und die Zeile danach erneut übertragen oder für die gesetzliche Gewährleistung einen Wert angeben, mit dem die Mitteilung angezeigt wird.',
         ];
         yield 'en' => [
             'en',
-            'field "gllMode": The row was not applied because the legal guarantee notice would then not be shown for the standard member group and the following variants use "override" for the manufacturer guarantee: VAR-OWN. Please first set these variants to a value other than "override" and then transfer the row again, or specify a legal guarantee notice setting that shows the notice.',
+            'field "gllMode": The row was not applied because the legal guarantee notice would then not be shown for the standard user group and the following variants use "override" for the manufacturer guarantee: VAR-OWN. Please first set these variants to a value other than "override" and then transfer the row again, or specify a legal guarantee notice setting that shows the notice.',
         ];
     }
 
@@ -171,7 +171,7 @@ final class LegalGuaranteeProductManagementApiTest extends TestCase
         self::assertSame('on', ls_shop_generalHelper::getGroupSettings4User(true)['lsShopGllMode']);
 
         $this->expectExceptionMessage(
-            'field "gllMode": The row was not applied because the manufacturer guarantee is enabled and the legal guarantee notice would not be shown for the standard member group, which only shows it for products set to "always". Please specify "always" for the legal guarantee notice or disable the manufacturer guarantee.'
+            'field "gllMode": The row was not applied because the manufacturer guarantee is enabled and the legal guarantee notice would not be shown for the standard user group, which only shows it for products set to "always". Please specify "always" for the legal guarantee notice or disable the manufacturer guarantee.'
         );
 
         ls_shop_productManagementApiHelper::applyLegalGuaranteeProductData($this->createProductRow('inherit', '1'));
@@ -183,7 +183,7 @@ final class LegalGuaranteeProductManagementApiTest extends TestCase
         $this->installDatabase('on', 'never', []);
 
         $this->expectExceptionMessage(
-            'Feld "garanMode": Die Variante wurde nicht übernommen: "override" bei der Herstellergarantie setzt voraus, dass die Mitteilung über die gesetzliche Gewährleistung für das Produkt in der Standard-Mitgliedergruppe angezeigt wird. Bitte zuerst die Einstellung zur gesetzlichen Gewährleistung am Produkt ändern und die Zeile danach erneut übertragen.'
+            'Feld "garanMode": Die Variante wurde nicht übernommen: "override" bei der Herstellergarantie setzt voraus, dass die Mitteilung über die gesetzliche Gewährleistung für das Produkt in der Standard-Benutzergruppe angezeigt wird. Bitte zuerst die Einstellung zur gesetzlichen Gewährleistung am Produkt ändern und die Zeile danach erneut übertragen.'
         );
 
         ls_shop_productManagementApiHelper::applyLegalGuaranteeVariantData(

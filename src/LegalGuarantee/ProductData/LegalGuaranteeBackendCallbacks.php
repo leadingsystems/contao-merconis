@@ -37,6 +37,8 @@ final class LegalGuaranteeBackendCallbacks
      * R1: Ist der abgeschickte Wert gleich dem gespeicherten, gilt "GLL aus" und ist
      * `enableGaran` an, wird `gllMode` auf den Wert nach R1 gesetzt. Ändert der Nutzer
      * `gllMode`, greift stattdessen R2 im `onbeforesubmit_callback`.
+     * `gllModeOptions` enthält je Wert das Paar aus Beschriftung und Erläuterung für den
+     * Hilfe-Assistenten; der Hinweis nennt nur die Beschriftung.
      *
      * @throws \Exception Bei einer Ablehnung nach R4
      */
@@ -80,7 +82,7 @@ final class LegalGuaranteeBackendCallbacks
         if ($productId !== null) {
             $this->queueProductInfoMessage($productId, sprintf(
                 $GLOBALS['TL_LANG']['tl_ls_shop_product']['legalGuaranteeMessages']['gllModeChangedForManufacturerGuarantee'],
-                $GLOBALS['TL_LANG']['tl_ls_shop_product']['gllModeOptions'][$gllModeForEnabledGaran]
+                $GLOBALS['TL_LANG']['tl_ls_shop_product']['gllModeOptions'][$gllModeForEnabledGaran][0]
             ));
         }
 

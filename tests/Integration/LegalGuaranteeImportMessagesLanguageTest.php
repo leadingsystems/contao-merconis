@@ -126,7 +126,7 @@ final class LegalGuaranteeImportMessagesLanguageTest extends TestCase
         $texts = [
             'de' => [
                 'gll_required' => ['"inherit" oder "always" angeben', 'Herstellergarantie ausschalten', 'gesetzliche Gewährleistung'],
-                'gll_required_always' => ['"always" angeben', 'Herstellergarantie ausschalten', 'Standard-Mitgliedergruppe'],
+                'gll_required_always' => ['"always" angeben', 'Herstellergarantie ausschalten', 'Standard-Benutzergruppe'],
                 'variant_override' => ['"override"', 'erneut übertragen'],
                 'override_gll_required' => ['am Produkt ändern'],
                 'gll_invalid_mode' => ['"inherit", "always" und "never"'],
@@ -134,7 +134,7 @@ final class LegalGuaranteeImportMessagesLanguageTest extends TestCase
             ],
             'en' => [
                 'gll_required' => ['"inherit" or "always"', 'disable the manufacturer guarantee', 'legal guarantee notice'],
-                'gll_required_always' => ['specify "always"', 'disable the manufacturer guarantee', 'standard member group'],
+                'gll_required_always' => ['specify "always"', 'disable the manufacturer guarantee', 'standard user group'],
                 'variant_override' => ['"override"', 'transfer the row again'],
                 'override_gll_required' => ['setting of the product first'],
                 'gll_invalid_mode' => ['"inherit", "always" and "never"'],
@@ -172,7 +172,7 @@ final class LegalGuaranteeImportMessagesLanguageTest extends TestCase
         ]);
 
         self::assertSame(
-            'Zeile 7, Feld "gllMode": Die Zeile wurde nicht übernommen, weil die Mitteilung über die gesetzliche Gewährleistung damit in der Standard-Mitgliedergruppe nicht angezeigt würde und folgende Varianten bei der Herstellergarantie "override" verwenden: VAR-1, VAR-2. Bitte zuerst diese Varianten auf einen anderen Wert als "override" stellen und die Zeile danach erneut übertragen oder für die gesetzliche Gewährleistung einen Wert angeben, mit dem die Mitteilung angezeigt wird.',
+            'Zeile 7, Feld "gllMode": Die Zeile wurde nicht übernommen, weil die Mitteilung über die gesetzliche Gewährleistung damit in der Standard-Benutzergruppe nicht angezeigt würde und folgende Varianten bei der Herstellergarantie "override" verwenden: VAR-1, VAR-2. Bitte zuerst diese Varianten auf einen anderen Wert als "override" stellen und die Zeile danach erneut übertragen oder für die gesetzliche Gewährleistung einen Wert angeben, mit dem die Mitteilung angezeigt wird.',
             $logEntry
         );
     }
@@ -182,7 +182,7 @@ final class LegalGuaranteeImportMessagesLanguageTest extends TestCase
         $this->loadDefaultLanguageFile('en');
 
         self::assertSame(
-            'field "gllMode": The row was not applied because "sometimes" is not a valid value for the legal guarantee notice setting. Allowed values are "inherit", "always" and "never".; field "guaranteeBrand": The row was not applied because the brand (Brand/Trademark) for the manufacturer guarantee is missing.',
+            'field "gllMode": The row was not applied because "sometimes" is not a valid value for the legal guarantee notice setting. Allowed values are "inherit", "always" and "never".; field "guaranteeBrand": The row was not applied because the Brand/Trademark for the manufacturer guarantee is missing.',
             (new ProductGuaranteeConfigurationApplier())->formatWriteErrorMessage([
                 [
                     'code' => ProductGuaranteeConfigurationValidator::MESSAGE_GLL_INVALID_MODE,

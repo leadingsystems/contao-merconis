@@ -188,6 +188,12 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         self::assertTrue($gllModeConfig['exclude']);
         self::assertArrayNotHasKey('includeBlankOption', $gllModeConfig['eval']);
         self::assertArrayNotHasKey('merconis_multilanguage', $gllModeConfig['eval']);
+        // Hilfe-Assistent und halbe Breite nach Implementierungsentscheidung 0027.
+        self::assertTrue($gllModeConfig['eval']['helpwizard']);
+        self::assertArrayNotHasKey('explanation', $gllModeConfig);
+        $gllModeCssClasses = explode(' ', $gllModeConfig['eval']['tl_class']);
+        self::assertContains('w50', $gllModeCssClasses);
+        self::assertContains('clr', $gllModeCssClasses);
 
         $GLOBALS['TL_LANG']['tl_ls_shop_product']['gllModeOptions'] = ['inherit' => 'Reference check'];
 
@@ -301,10 +307,11 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         self::assertStringNotContainsString('Model identifier *', $productLanguageEn);
         self::assertStringContainsString('Guarantee duration in months', $variantLanguageEn);
         self::assertStringNotContainsString('Guarantee duration in months *', $variantLanguageEn);
+        // Feldtitel nach Spec 27, Abschnitt 3.1: Deutsch mit Klammerzusatz, Englisch unverändert.
         $this->assertGuaranteeFieldLabelAndDescription(
             $productLanguageDe,
             'guaranteeBrand',
-            'Brand/Trademark',
+            'Marke (Brand/Trademark)',
             self::GUARANTEE_BRAND_DESCRIPTION_DE
         );
         $this->assertGuaranteeFieldLabelAndDescription(
@@ -316,7 +323,7 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         $this->assertGuaranteeFieldLabelAndDescription(
             $variantLanguageDe,
             'guaranteeBrand',
-            'Brand/Trademark',
+            'Marke (Brand/Trademark)',
             self::GUARANTEE_BRAND_DESCRIPTION_DE
         );
         $this->assertGuaranteeFieldLabelAndDescription(
@@ -328,7 +335,7 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         $this->assertGuaranteeFieldLabelAndDescription(
             $productLanguageDe,
             'guaranteeModelIdentifier',
-            'Model identifier',
+            'Modell (Model identifier)',
             self::GUARANTEE_MODEL_IDENTIFIER_DESCRIPTION_DE
         );
         $this->assertGuaranteeFieldLabelAndDescription(
@@ -340,7 +347,7 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         $this->assertGuaranteeFieldLabelAndDescription(
             $variantLanguageDe,
             'guaranteeModelIdentifier',
-            'Model identifier',
+            'Modell (Model identifier)',
             self::GUARANTEE_MODEL_IDENTIFIER_DESCRIPTION_DE
         );
         $this->assertGuaranteeFieldLabelAndDescription(
@@ -428,11 +435,8 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         self::assertStringContainsString("['garanLabelTruncationLength']", $settingsLanguageDe);
         self::assertStringNotContainsString(self::FORMER_GLL_MIGRATION_CONTROL_FIELD, $settingsLanguageEn);
         self::assertStringContainsString("['garanLabelTruncationLength']", $settingsLanguageEn);
-        self::assertStringContainsString('Gewährleistung und Herstellergarantie', $settingsLanguageDe);
-        self::assertStringContainsString(
-            "Legal guarantee and manufacturer\\'s commercial guarantee",
-            $settingsLanguageEn
-        );
+        self::assertStringContainsString('Gewährleistung und Herstellergarantie (GARAN-Label)', $settingsLanguageDe);
+        self::assertStringContainsString('Legal guarantee and manufacturer guarantee (GARAN label)', $settingsLanguageEn);
         self::assertStringContainsString("['dashboard']['gllAnnouncement']", $defaultLanguageDe);
         self::assertStringContainsString("['dashboard']['gllAnnouncement']", $defaultLanguageEn);
     }

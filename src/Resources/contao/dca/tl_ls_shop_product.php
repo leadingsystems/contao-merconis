@@ -536,7 +536,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 					'handleProductGllModeSave'
 				]
 			],
-			'eval'                    => ['tl_class'=>'clr'],
+			'eval'                    => ['helpwizard' => true, 'tl_class'=>'clr w50'],
 			'filter'		=> true,
             'sql'                     => "varchar(16) NOT NULL default 'inherit'"
 		],

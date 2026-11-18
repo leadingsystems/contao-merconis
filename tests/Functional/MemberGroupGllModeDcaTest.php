@@ -66,6 +66,20 @@ final class MemberGroupGllModeDcaTest extends TestCase
         self::assertSame("varchar(16) NOT NULL default ''", $gllModeField['sql']);
     }
 
+    /**
+     * Hilfe-Assistent und halbe Breite nach Implementierungsentscheidung 0027.
+     */
+    public function testGllModeFieldHasHelpWizardAndHalfWidth(): void
+    {
+        $gllModeField = $GLOBALS['TL_DCA']['tl_member_group']['fields']['lsShopGllMode'];
+        $gllModeCssClasses = explode(' ', $gllModeField['eval']['tl_class']);
+
+        self::assertTrue($gllModeField['eval']['helpwizard']);
+        self::assertArrayNotHasKey('explanation', $gllModeField);
+        self::assertContains('w50', $gllModeCssClasses);
+        self::assertContains('clr', $gllModeCssClasses);
+    }
+
     public function testGllModeFieldLabelsReferenceLanguageFiles(): void
     {
         $GLOBALS['TL_LANG']['tl_member_group']['lsShopGllMode'] = ['Title', 'Description'];

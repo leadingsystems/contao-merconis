@@ -11,7 +11,7 @@
 	$GLOBALS['TL_LANG']['tl_member_group']['lsShopFormConfirmOrder']									= array('Confirmation of order form', 'Please select the form customers of this customer group shall use to confirm their order here.');
 	$GLOBALS['TL_LANG']['tl_member_group']['lsShopStandardPaymentMethod']								= array('Pre-selected payment method', 'If you want a certain payment method to be selected automatically at completion of the order, you can define this here.');
 	$GLOBALS['TL_LANG']['tl_member_group']['lsShopStandardShippingMethod']								= array('Pre-selected shipping method', 'If you want a certain shipping method to be selected automatically at completion of the order, you can define this here.');
-	$GLOBALS['TL_LANG']['tl_member_group']['lsShopGllMode'] = ['Legal guarantee notice', "Defines whether members of this group see the notice on the legal guarantee and the label of the manufacturer guarantee. 'Show' applies to products set to 'As member group'. 'Only products set to Always show' suits shops selling mostly services or digital content. 'Never show' is for groups without consumers, e.g. business customers, and also applies to the manufacturer guarantee. A change does not adjust any products."];
+	$GLOBALS['TL_LANG']['tl_member_group']['lsShopGllMode'] = ['Legal guarantee notice', 'Controls the display for members of this group. A change does not adjust any products.'];
 	$GLOBALS['TL_LANG']['tl_member_group']['lsShopGllModeBlankOption'] = 'Please select';
 	
 	/*
@@ -28,7 +28,7 @@
 	);
 
 	$GLOBALS['TL_LANG']['tl_member_group']['lsShopGllModeOptions'] = [
-		'on' => 'Show',
-		'off' => "Only products set to 'Always show'",
-		'blocked' => 'Never show (e.g. business customers)',
+		'on' => ['Show', "Products set to 'As member group' or 'Always show' show the notice and, if enabled, the manufacturer guarantee."],
+		'off' => ["Only products set to 'Always show'", "Only products set to 'Always show' show the notice and the manufacturer guarantee. For shops selling mostly services or digital content."],
+		'blocked' => ['Never show (e.g. business customers)', "Neither notice nor manufacturer guarantee, not even for 'Always show'. For groups without consumers, e.g. business customers."],
 	];

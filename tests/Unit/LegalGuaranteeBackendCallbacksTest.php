@@ -53,9 +53,9 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
         $this->primeMessageContainer();
 
         $GLOBALS['TL_LANG']['tl_ls_shop_product']['gllModeOptions'] = [
-            'inherit' => 'Wie Mitgliedergruppe',
-            'always' => 'Immer anzeigen',
-            'never' => 'Nie anzeigen',
+            'inherit' => ['Wie Mitgliedergruppe', 'Erläuterung zu Wie Mitgliedergruppe.'],
+            'always' => ['Immer anzeigen', 'Erläuterung zu Immer anzeigen.'],
+            'never' => ['Nie anzeigen', 'Erläuterung zu Nie anzeigen.'],
         ];
         $GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeValidationMessages'] = [
             'garan_disabled_invalid_duration' => 'Produkt: Ungültige Dauer %s.',
@@ -137,10 +137,44 @@ final class LegalGuaranteeBackendCallbacksTest extends TestCase
 
         $callbacks->addProductSubmitInfoMessages($this->createDataContainer(7));
 
-        self::assertStringContainsString(
-            sprintf(self::R1_MESSAGE, $GLOBALS['TL_LANG']['tl_ls_shop_product']['gllModeOptions'][$expectedGllMode]),
-            Message::generateUnwrapped('BE')
+        [$expectedGllModeLabel, $expectedGllModeExplanation] = $GLOBALS['TL_LANG']['tl_ls_shop_product']['gllModeOptions'][$expectedGllMode];
+        $generatedMessages = Message::generateUnwrapped('BE');
+
+        self::assertStringContainsString(sprintf(self::R1_MESSAGE, $expectedGllModeLabel), $generatedMessages);
+        self::assertStringNotContainsString($expectedGllModeExplanation, $generatedMessages);
+        self::assertStringNotContainsString('Array', $generatedMessages);
+    }
+
+    /**
+     * Die Meldung zu R1 nennt die Beschriftung aus dem Paar `[Beschriftung, Erläuterung]`
+     * (Implementierungsentscheidung 0027), für beide Zielwerte von R1.
+     *
+     * @return iterable<string, array{string, string, string}>
+     */
+    public static function r1MessageLabelProvider(): iterable
+    {
+        yield 'Zielwert inherit' => ['on', 'never', 'Wie Mitgliedergruppe'];
+        yield 'Zielwert always' => ['off', 'inherit', 'Immer anzeigen'];
+    }
+
+    #[DataProvider('r1MessageLabelProvider')]
+    public function testR1MessageUsesLabelAndNotExplanation(
+        string $standardMemberGroupGllMode,
+        string $storedGllMode,
+        string $expectedGllModeLabel
+    ): void {
+        $callbacks = $this->createCallbacks(
+            $standardMemberGroupGllMode,
+            products: [7 => $this->createProduct($storedGllMode, '1')]
         );
+
+        $callbacks->handleProductGllModeSave($storedGllMode, $this->createDataContainer(7));
+        $callbacks->addProductSubmitInfoMessages($this->createDataContainer(7));
+
+        $generatedMessages = Message::generateUnwrapped('BE');
+
+        self::assertStringContainsString(sprintf(self::R1_MESSAGE, $expectedGllModeLabel), $generatedMessages);
+        self::assertStringNotContainsString('Erläuterung zu', $generatedMessages);
     }
 
     /**

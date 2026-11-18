@@ -16,8 +16,41 @@ final class MemberGroupGllModeLanguageTest extends TestCase
      */
     private const FORMER_GLL_MIGRATION_CONTROL_FIELD = 'ls_shop_enableGll' . 'MigrationControl';
 
-    private const GLL_MODE_DESCRIPTION_DE = "Legt fest, ob Mitglieder dieser Gruppe die Mitteilung über die gesetzliche Gewährleistung und die Kennzeichnung der Herstellergarantie sehen. 'Anzeigen' gilt für Produkte mit 'Wie Mitgliedergruppe'. 'Nur Produkte mit Immer anzeigen' eignet sich für Shops mit überwiegend Dienstleistungen oder digitalen Inhalten. 'Nie anzeigen' ist für Gruppen ohne Verbraucher, zum Beispiel Geschäftskunden, und gilt auch für die Herstellergarantie. Eine Änderung passt keine Produkte an.";
-    private const GLL_MODE_DESCRIPTION_EN = "Defines whether members of this group see the notice on the legal guarantee and the label of the manufacturer guarantee. 'Show' applies to products set to 'As member group'. 'Only products set to Always show' suits shops selling mostly services or digital content. 'Never show' is for groups without consumers, e.g. business customers, and also applies to the manufacturer guarantee. A change does not adjust any products.";
+    private const GLL_MODE_DESCRIPTION_DE = 'Steuert die Anzeige für Mitglieder dieser Gruppe. Eine Änderung passt keine Produkte an.';
+    private const GLL_MODE_DESCRIPTION_EN = 'Controls the display for members of this group. A change does not adjust any products.';
+
+    /*
+     * Je Wert Beschriftung und Erläuterung im Hilfe-Assistenten nach Spec 27, Abschnitt 3.5
+     * (Implementierungsentscheidung 0027); die leere Auswahl hat keine Erläuterung.
+     */
+    private const GLL_MODE_OPTIONS_DE = [
+        'on' => [
+            'Anzeigen',
+            "Produkte mit 'Wie Mitgliedergruppe' oder 'Immer anzeigen' zeigen die Mitteilung und, falls eingeschaltet, die Herstellergarantie.",
+        ],
+        'off' => [
+            "Nur Produkte mit 'Immer anzeigen'",
+            "Nur Produkte mit 'Immer anzeigen' zeigen Mitteilung und Herstellergarantie. Für Shops mit überwiegend Dienstleistungen oder digitalen Inhalten.",
+        ],
+        'blocked' => [
+            'Nie anzeigen (z. B. Geschäftskunden)',
+            "Weder Mitteilung noch Herstellergarantie, auch nicht bei 'Immer anzeigen'. Für Gruppen ohne Verbraucher, zum Beispiel Geschäftskunden.",
+        ],
+    ];
+    private const GLL_MODE_OPTIONS_EN = [
+        'on' => [
+            'Show',
+            "Products set to 'As member group' or 'Always show' show the notice and, if enabled, the manufacturer guarantee.",
+        ],
+        'off' => [
+            "Only products set to 'Always show'",
+            "Only products set to 'Always show' show the notice and the manufacturer guarantee. For shops selling mostly services or digital content.",
+        ],
+        'blocked' => [
+            'Never show (e.g. business customers)',
+            "Neither notice nor manufacturer guarantee, not even for 'Always show'. For groups without consumers, e.g. business customers.",
+        ],
+    ];
 
     private const STANDARD_GROUP_DESCRIPTION_DE = 'Einige Shop-Einstellungen werden für unterschiedliche Kunden- bzw. Mitgliedergruppen separat eingestellt. Definieren Sie hier, welcher dieser Gruppen ein nicht angemeldeter Kunde zugeordnet werden soll. Die Einstellung zur gesetzlichen Gewährleistung dieser Gruppe gilt für alle nicht angemeldeten Besucher und ist der Bezug für die automatische Anpassung am Produkt. Ein Wechsel der Gruppe passt keine Produkte an.';
     private const STANDARD_GROUP_DESCRIPTION_EN = 'Some shop settings are made separately for different user and member groups. Define here to which group a non-registered customer shall be assigned. The legal guarantee setting of this group applies to all visitors who are not logged in and is the reference for the automatic adjustment on the product. Changing the group does not adjust any products.';
@@ -50,14 +83,7 @@ final class MemberGroupGllModeLanguageTest extends TestCase
         $memberGroupLanguage = $this->loadLanguageFile('de', 'tl_member_group')['tl_member_group'];
 
         self::assertSame(['Gesetzliche Gewährleistung', self::GLL_MODE_DESCRIPTION_DE], $memberGroupLanguage['lsShopGllMode']);
-        self::assertSame(
-            [
-                'on' => 'Anzeigen',
-                'off' => "Nur Produkte mit 'Immer anzeigen'",
-                'blocked' => 'Nie anzeigen (z. B. Geschäftskunden)',
-            ],
-            $memberGroupLanguage['lsShopGllModeOptions']
-        );
+        self::assertSame(self::GLL_MODE_OPTIONS_DE, $memberGroupLanguage['lsShopGllModeOptions']);
         self::assertSame('Bitte wählen', $memberGroupLanguage['lsShopGllModeBlankOption']);
     }
 
@@ -66,14 +92,7 @@ final class MemberGroupGllModeLanguageTest extends TestCase
         $memberGroupLanguage = $this->loadLanguageFile('en', 'tl_member_group')['tl_member_group'];
 
         self::assertSame(['Legal guarantee notice', self::GLL_MODE_DESCRIPTION_EN], $memberGroupLanguage['lsShopGllMode']);
-        self::assertSame(
-            [
-                'on' => 'Show',
-                'off' => "Only products set to 'Always show'",
-                'blocked' => 'Never show (e.g. business customers)',
-            ],
-            $memberGroupLanguage['lsShopGllModeOptions']
-        );
+        self::assertSame(self::GLL_MODE_OPTIONS_EN, $memberGroupLanguage['lsShopGllModeOptions']);
         self::assertSame('Please select', $memberGroupLanguage['lsShopGllModeBlankOption']);
     }
 
