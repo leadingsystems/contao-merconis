@@ -40,9 +40,10 @@ final class LegalGuaranteeBackendMaskLanguageTest extends TestCase
     private const ALLOWED_GARAN_SUFFIXES = ['(GARAN-Label)', '(GARAN label)'];
 
     /*
-     * Die drei Stellen, an denen Spec 27, Abschnitt "Terminologie", den Klammerzusatz
-     * erlaubt (die Legende der Palette an Produkt und Variante); als Schlüssel aus
-     * `collectMaskTexts()`.
+     * Die vier Schlüssel aus `collectMaskTexts()` für die drei Stellen, an denen Spec 27,
+     * Abschnitt "Terminologie", den Klammerzusatz erlaubt: Titel von `enableGaran`,
+     * Legende der Palette (je ein Schlüssel an Produkt und Variante) und Legende der
+     * Grundeinstellungen.
      */
     private const GARAN_SUFFIX_LOCATIONS = [
         'tl_ls_shop_product.enableGaran.0',
