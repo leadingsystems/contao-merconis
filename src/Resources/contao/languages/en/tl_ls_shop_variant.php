@@ -38,6 +38,10 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopProductVariantMainImage']						
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopProductVariantMoreImages']						= array('Further images', 'Please select further images for this variant here.');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantDeliveryInfoSet']						= array('Settings on goods in stock/delivery time');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['overrideAvailabilitySettingsOfParentProduct']		=	array('Override availability and pre-order settings of the main product');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['garanMode']											=	array('Manufacturer guarantee of the variant', 'Defines whether the variant inherits the product\'s details, shows no manufacturer guarantee or has its own details.');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeDurationMonths']								=	array('Guarantee duration in months', 'Enter whole months, from 30 to 360, in steps of 6. Output shows years with comma as decimal separator: 30 months become 2,5 years, 36 months become 3 years.');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeBrand']										=	['Brand/Trademark', 'The full value is stored. If too long, the brand name is truncated with \'...\' in the label display. The truncation length is configurable in the shop settings.'];
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeModelIdentifier']							=	['Model identifier', 'The full value is stored. If too long, the model identifier is truncated with \'...\' in the label display. The truncation length is configurable in the shop settings.'];
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['availableFrom']				                	=	array('Available from');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['preorderingAllowed']				                =	array('Pre-orderable', 'If this option is enabled, the product can be pre-ordered if it is not yet available. Regardless of the stock handling setting assigned to the product, the stock level can run into the negative if the pre-order function is activated.');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['deliveryInfoSetToUseInPreorderPhase']            =   array('Deviating settings on goods in stock/delivery time in pre-order phase');
@@ -66,6 +70,7 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopPrice_3_legend']								= 'Devi
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopPrice_4_legend']								= 'Deviant prices for group no. 4';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopPrice_5_legend']								= 'Deviant prices for group no. 5';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopStockDeliveryTimeAndAvailability_legend']									= 'Goods in stock, delivery time and availability';
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopGuaranteeLabels_legend']						= 'Legal guarantee and manufacturer guarantee (GARAN label)';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['configurator_legend']								= 'Configurator settings';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['associatedProducts_legend']							= 'Associated products';
 
@@ -92,11 +97,22 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceType'] = array(
 	'scalePriceFixedAdjustment' => array('Adjustment with a fixed value', 'The given value will be applied as an adjustment to the basic product price. Please precede the given value with a minus sign to create a deduction.')
 );
 
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['legalGuaranteeMessages'] = [
+	'ownDetailsRejectedWithoutLegalGuarantee' => 'The variant was not saved: "Own details" for the manufacturer guarantee requires the legal guarantee notice of the product to be shown for the standard user group. Please change and save the legal guarantee notice setting of the product first.',
+	'openHintParentProductWithoutLegalGuarantee' => 'The manufacturer guarantee of this variant with "Own details" is not shown because the legal guarantee notice of the product is not shown for the standard user group. Please change the legal guarantee notice setting of the product.'
+];
+
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceQuantityDetectionMethod'] = array(
 	'separatedVariantsAndConfigurations' => array('Separated by products, variants and configurations', 'Every cart item will be counted separately, no matter if the product, it\'s variant or even only it\'s configuration differs.'),
 	'separatedVariants' => array('Separated by products and variants', 'Cart items only differing in their configuration will be summarized. Different variants will be counted separately.'),
 	'separatedProducts' => array('Separated by products', 'Different products in the cart will be counted separately but different variants and configurations will be summarized.'),
 	'separatedScalePriceKeywords' => array('Summarized by scale price keyword', 'Cart items with the same scale price keyword will be summarized. Apart from that, different cart items will be counted separately.')
+);
+
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['garanModeOptions'] = array(
+	'inherit' => 'Inherit from product',
+	'disabled' => 'No output',
+	'override' => 'Own details'
 );
 
 /*
@@ -117,6 +133,10 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contents_label01'] = 'Keyword';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contents_label02'] = 'Variant information';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contentsLanguageIndependent_label01'] = 'Keyword';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contentsLanguageIndependent_label02'] = 'Variant information';
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeValidationMessages'] = [
+	'garan_invalid_mode' => 'The manufacturer guarantee was not saved because "%s" is not a valid selection. Allowed are "Inherit from product", "No output" and "Own details".',
+	'garan_disabled_invalid_duration' => 'The manufacturer guarantee was not saved because "%s" is not an allowed guarantee duration. Use whole months from 30 to 360 in steps of 6.'
+];
 
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['attributesValues_label01'] = 'Attribute';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['attributesValues_label02'] = 'Value';

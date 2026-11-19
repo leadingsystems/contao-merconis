@@ -1,6 +1,9 @@
 <?php
 namespace Merconis\Core;
 use Contao\FilesModel;
+use Contao\System;
+use LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\ProductGuaranteeConfigurationApplier;
+use LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\ProductGuaranteeConfigurationValidator;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
 class ls_shop_productManagementApiPreprocessor
@@ -83,6 +86,31 @@ class ls_shop_productManagementApiPreprocessor
 				),
 				'producer' => array(
 					'preprocessor' => 'preprocess_string_maxlength_255',
+					'description' => '',
+					'fieldType' => 'input_output'
+				),
+				'lgnMode' => [
+					'preprocessor' => 'preprocess_lgnMode',
+					'description' => '',
+					'fieldType' => 'input_output'
+				],
+				'garanMode' => array(
+					'preprocessor' => 'preprocess_garanMode',
+					'description' => '',
+					'fieldType' => 'input_output'
+				),
+				'guaranteeDurationMonths' => array(
+					'preprocessor' => 'preprocess_guaranteeDurationMonths',
+					'description' => '',
+					'fieldType' => 'input_output'
+				),
+				'guaranteeBrand' => array(
+					'preprocessor' => 'preprocess_string',
+					'description' => '',
+					'fieldType' => 'input_output'
+				),
+				'guaranteeModelIdentifier' => array(
+					'preprocessor' => 'preprocess_string',
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
@@ -934,6 +962,76 @@ class ls_shop_productManagementApiPreprocessor
 		}
 
 		return $str_output;
+	}
+
+	protected static function preprocess_string($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+		$str_output = trim($var_input);
+
+		return $str_output;
+	}
+
+	protected static function preprocess_guaranteeDurationMonths($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+		if (
+			!in_array($arr_row['type'], array('product', 'variant'))
+		) {
+			return '';
+		}
+
+		return trim((string) $var_input);
+	}
+
+	/**
+	 * Expected input: 'inherit', 'always', 'never' or an empty string. Only relevant for row type 'product'
+	 * Accepted input: as expected
+	 * Normalization: the input string will be trimmed; an empty string or a missing value becomes 'inherit'
+	 */
+	protected static function preprocess_lgnMode($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+		if ($arr_row['type'] !== 'product') {
+			return '';
+		}
+
+		$str_output = trim((string) $var_input);
+
+		if ($str_output === '') {
+			return 'inherit';
+		}
+
+		if (!in_array($str_output, ProductGuaranteeConfigurationValidator::PRODUCT_LGN_MODES, true)) {
+			self::throwLegalGuaranteeException(ProductGuaranteeConfigurationValidator::MESSAGE_LGN_INVALID_MODE, $str_output);
+		}
+
+		return $str_output;
+	}
+
+	protected static function preprocess_garanMode($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+		if ($arr_row['type'] !== 'variant') {
+			return '';
+		}
+
+		$str_output = trim((string) $var_input);
+
+		if ($str_output === '') {
+			return 'inherit';
+		}
+
+		if (!in_array($str_output, array('inherit', 'disabled', 'override'), true)) {
+			self::throwLegalGuaranteeException(ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_INVALID_MODE, $str_output);
+		}
+
+		return $str_output;
+	}
+
+	/*
+	 * Meldung in der Sprache des Requests ($GLOBALS['TL_LANGUAGE']); ist die Sprachdatei "default" in dieser
+	 * Sprache noch nicht geladen, lädt Contao sie hier.
+	 */
+	private static function throwLegalGuaranteeException(string $str_messageCode, string $str_invalidValue): never {
+		System::loadLanguageFile('default');
+
+		throw new \Exception((new ProductGuaranteeConfigurationApplier())->formatMessageText([
+			'code' => $str_messageCode,
+			'parameters' => [$str_invalidValue],
+		]));
 	}
 
 	/**

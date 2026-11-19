@@ -38,6 +38,10 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopProductVariantMainImage']						
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopProductVariantMoreImages']						= array('Weitere Bilder', 'Wählen Sie hier weitere Bilder für diese Variante aus.');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopVariantDeliveryInfoSet']						= array('Einstellungen zu Lagerbestand/Lieferzeit');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['overrideAvailabilitySettingsOfParentProduct']		=	array('Einstellungen des Hauptproduktes zu Verfügbarkeit und Vorbestellung überschreiben');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['garanMode']											=	array('Herstellergarantie der Variante', 'Legt fest, ob die Variante die Angaben des Produkts übernimmt, keine Herstellergarantie ausgibt oder eigene Angaben führt.');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeDurationMonths']								=	array('Garantiedauer in Monaten', 'Eingabe in ganzen Monaten, von 30 bis 360, in Schritten von 6. Die Ausgabe zeigt Jahre mit Komma als Dezimaltrennzeichen: 30 Monate ergeben 2,5 Jahre, 36 Monate ergeben 3 Jahre.');
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeBrand']										=	['Marke (Brand/Trademark)', 'Der volle Wert wird gespeichert. Bei Überlänge wird der Markenname in der Labeldarstellung mit \'...\' gekürzt. Die Kürzungslänge ist in den Grundeinstellungen konfigurierbar.'];
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeModelIdentifier']							=	['Modell (Model identifier)', 'Der volle Wert wird gespeichert. Bei Überlänge wird die Modellkennung in der Labeldarstellung mit \'...\' gekürzt. Die Kürzungslänge ist in den Grundeinstellungen konfigurierbar.'];
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['availableFrom']				                	=	array('Verfügbar ab');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['preorderingAllowed']				                =	array('Vorbestellbar', 'Ist diese Option aktiviert, so kann das Produkt, sofern es noch nicht verfügbar ist, vorbestellt werden. Unabhängig von der dem Produkt zugeordneten Einstellung für das Lagerbestands-Handling kann der Lagerbestand bei aktivierter Vorbestellfunktion ins Minus laufen.');
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['deliveryInfoSetToUseInPreorderPhase']            =   array('Abweichende Einstellungen zu Lagerbestand/Lieferzeit in Vorbestellungsphase');
@@ -66,6 +70,7 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopPrice_3_legend']								= 'Für
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopPrice_4_legend']								= 'Für Gruppe Nr. 4 abweichende Preisangaben';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopPrice_5_legend']								= 'Für Gruppe Nr. 5 abweichende Preisangaben';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopStockDeliveryTimeAndAvailability_legend']									= 'Lagerbestand, Lieferzeit und Verfügbarkeit';
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['lsShopGuaranteeLabels_legend']						= 'Gewährleistung und Herstellergarantie (GARAN-Label)';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['configurator_legend']								= 'Konfigurator-Einstellungen';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['associatedProducts_legend']							= 'Verbundene Produkte';
 
@@ -92,11 +97,22 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceType'] = array(
 	'scalePriceFixedAdjustment' => array('Anpassung mit festem Wert', 'Auf den Basispreis wird die angegebene Anpassung angewendet. Bitte stellen Sie dem angegebenen Wert für einen Abschlag ein Minuszeichen voran.')
 );
 
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['legalGuaranteeMessages'] = [
+	'ownDetailsRejectedWithoutLegalGuarantee' => 'Die Variante wurde nicht gespeichert: "Eigene Angaben" bei der Herstellergarantie setzt voraus, dass die Mitteilung über die gesetzliche Gewährleistung für das Produkt in der Standard-Benutzergruppe angezeigt wird. Bitte zuerst die Einstellung zur gesetzlichen Gewährleistung am Produkt ändern und speichern.',
+	'openHintParentProductWithoutLegalGuarantee' => 'Die Herstellergarantie dieser Variante mit "Eigene Angaben" wird nicht ausgegeben, weil die Mitteilung über die gesetzliche Gewährleistung für das Produkt in der Standard-Benutzergruppe nicht angezeigt wird. Bitte die Einstellung zur gesetzlichen Gewährleistung am Produkt ändern.'
+];
+
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['options']['scalePriceQuantityDetectionMethod'] = array(
 	'separatedVariantsAndConfigurations' => array('Produkte, Varianten und Konfigurationen getrennt', 'Jede Warenkorbposition - egal ob sich das Produkt, die Variante oder lediglich die Konfiguration unterscheidet - wird separat gezählt.'),
 	'separatedVariants' => array('Produkte und Varianten getrennt', 'Warenkorbpositionen, die sich lediglich in ihrer Konfiguration unterscheiden, werden zusammengefasst. Unterschiedliche Varianten werden aber separat gezählt.'),
 	'separatedProducts' => array('Produkte getrennt', 'Unterschiedliche Produkte im Warenkorb werden separat gezählt. Abweichende Varianten oder Konfigurationen werden aber zusammengefasst.'),
 	'separatedScalePriceKeywords' => array('Zusammengefasst nach Staffelpreis-Schlüsselwort', 'Warenkorbpositionen, die ein gemeinsames Staffelpreis-Schlüsselwort hinterlegt haben, werden zusammengefasst. Ansonsten findet eine separate Zählung einzelner Warenkorbpositionen statt.')
+);
+
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['garanModeOptions'] = array(
+	'inherit' => 'Vom Produkt übernehmen',
+	'disabled' => 'Keine Ausgabe',
+	'override' => 'Eigene Angaben'
 );
 
 /*
@@ -117,6 +133,10 @@ $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contents_label01'] = 'Schlüssel
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contents_label02'] = 'Produktinformation';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contentsLanguageIndependent_label01'] = 'Schlüsselwort';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['flex_contentsLanguageIndependent_label02'] = 'Produktinformation';
+$GLOBALS['TL_LANG']['tl_ls_shop_variant']['guaranteeValidationMessages'] = [
+	'garan_invalid_mode' => 'Die Herstellergarantie wurde nicht gespeichert, weil "%s" keine zulässige Auswahl ist. Zulässig sind "Vom Produkt übernehmen", "Keine Ausgabe" und "Eigene Angaben".',
+	'garan_disabled_invalid_duration' => 'Die Herstellergarantie wurde nicht gespeichert, weil "%s" keine zulässige Garantiedauer ist. Zulässig sind ganze Monate von 30 bis 360 in Schritten von 6.'
+];
 
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['attributesValues_label01'] = 'Merkmal';
 $GLOBALS['TL_LANG']['tl_ls_shop_variant']['attributesValues_label02'] = 'Ausprägung';
