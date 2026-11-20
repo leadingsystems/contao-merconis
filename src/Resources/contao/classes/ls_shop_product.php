@@ -909,10 +909,22 @@ returns the id of the variant that has currently been selected
                     ->renderProductLgnNotice($this);
                 break;
 
+            case '_lgnNoticeButton':
+                return System::getContainer()
+                    ->get(LegalGuaranteeMarkupProvider::class)
+                    ->renderProductLgnNoticeButton($this);
+                break;
+
             case '_garanLabel':
                 return System::getContainer()
                     ->get(LegalGuaranteeMarkupProvider::class)
                     ->renderProductGaranLabel($this);
+                break;
+
+            case '_garanLabelButton':
+                return System::getContainer()
+                    ->get(LegalGuaranteeMarkupProvider::class)
+                    ->renderProductGaranLabelButton($this);
                 break;
 
 			case '_quantityComparisonText':

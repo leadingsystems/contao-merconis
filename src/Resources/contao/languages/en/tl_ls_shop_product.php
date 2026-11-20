@@ -60,8 +60,8 @@
 	];
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['enableGaran']									=	['Show manufacturer guarantee (GARAN label)', 'Shows the manufacturer guarantee label if duration, brand and model are filled in and the legal guarantee notice is shown.'];
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeDurationMonths']							=	array('Guarantee duration in months', 'Enter whole months, from 30 to 360, in steps of 6. Output shows years with comma as decimal separator: 30 months become 2,5 years, 36 months become 3 years.');
-	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeBrand']									=	['Brand/Trademark', 'The full value is stored. If too long, the brand name is truncated with \'...\' in the label display. The truncation length is configurable in the shop settings.'];
-	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeModelIdentifier']						=	['Model identifier', 'The full value is stored. If too long, the model identifier is truncated with \'...\' in the label display. The truncation length is configurable in the shop settings.'];
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeBrand']									=	['Brand/Trademark', 'The full value is stored. If too long, the brand name is truncated with \'...\' in the label display.'];
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeModelIdentifier']						=	['Model identifier', 'The full value is stored. If too long, the model identifier is truncated with \'...\' in the label display.'];
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['legalGuaranteeMessages']							=	[
 		'lgnModeChangedForManufacturerGuarantee' => 'The legal guarantee notice setting was changed to "%s" because the manufacturer guarantee is enabled and requires the legal guarantee notice.',
 		'manufacturerGuaranteeDisabledByLgnMode' => 'The manufacturer guarantee was disabled because, with the selected setting, the legal guarantee notice is not shown for the standard user group. Duration, brand and model remain saved.',

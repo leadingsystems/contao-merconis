@@ -14,18 +14,20 @@ final class GaranLabelTemplateIntegrationTest extends TestCase
 {
     private const TEMPLATE_PATH = __DIR__ . '/../../src/Resources/legal-guarantee/garan/v1.0/garan-label-colour.svg';
     private const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
-    // Unterlänge des Kommas in Inter ExtraBold bei `47px`: `yMin` -410 bei 2048 Einheiten je Geviert.
-    private const DECIMAL_DURATION_COMMA_DESCENT = 9.41;
 
     public function testGaranTemplateContainsExpectedStructureAndWarningComment(): void
     {
         $templateContents = (string) file_get_contents(self::TEMPLATE_PATH);
 
-        self::assertStringContainsString('technically prepared', $templateContents);
-        self::assertStringContainsString('data-field attributes', $templateContents);
-        self::assertStringContainsString('clipPath definitions', $templateContents);
-        self::assertStringContainsString('path-based QR code', $templateContents);
-        self::assertStringContainsString('Replacing it with the untouched EU original breaks the renderer.', $templateContents);
+        self::assertSame(1, preg_match('/<!--(.*?)-->/s', $templateContents, $commentMatches));
+        $warningComment = $commentMatches[1];
+
+        self::assertStringContainsString('technically prepared', $warningComment);
+        self::assertStringContainsString('data-field attributes', $warningComment);
+        self::assertStringContainsString('path-based QR code', $warningComment);
+        self::assertStringContainsString('Replacing it with the untouched EU original breaks the renderer.', $warningComment);
+        self::assertStringNotContainsString('clipPath definitions', $warningComment);
+        self::assertStringNotContainsStringIgnoringCase('clip', $warningComment);
 
         $xpath = $this->createXPathForSvg($templateContents);
 
@@ -37,27 +39,21 @@ final class GaranLabelTemplateIntegrationTest extends TestCase
         $textElements = $xpath->query('//svg:text');
         self::assertSame(3, $textElements?->length);
 
-        $fieldToExpectedClipId = [
-            'brand' => 'garan-brand-clip',
-            'model' => 'garan-model-clip',
-            'duration' => 'garan-duration-clip',
-        ];
-
-        foreach ($fieldToExpectedClipId as $field => $expectedClipId) {
-            $textElement = $xpath->query(sprintf('//svg:text[@data-field="%s"]', $field))?->item(0);
-
-            self::assertInstanceOf(DOMElement::class, $textElement);
-            self::assertSame(sprintf('url(#%s)', $expectedClipId), $textElement->getAttribute('clip-path'));
-            self::assertSame(
-                1,
-                $xpath->query(sprintf('//svg:clipPath[@id="%s"]', $expectedClipId))?->length
-            );
+        foreach (['brand', 'model', 'duration'] as $field) {
+            self::assertSame(1, $xpath->query(sprintf('//svg:text[@data-field="%s"]', $field))?->length, $field);
         }
+
+        $brandText = $xpath->query('//svg:text[@data-field="brand"]')?->item(0);
+        self::assertInstanceOf(DOMElement::class, $brandText);
+        self::assertSame('translate(6.32 74.52)', $brandText->getAttribute('transform'));
+        self::assertFalse($brandText->hasAttribute('text-anchor'));
+        self::assertEqualsWithDelta(0.0, $this->extractFirstTspanX($brandText), 0.01);
 
         $modelText = $xpath->query('//svg:text[@data-field="model"]')?->item(0);
         self::assertInstanceOf(DOMElement::class, $modelText);
         self::assertSame('end', $modelText->getAttribute('text-anchor'));
         self::assertSame(262.97, $this->extractTranslateX($modelText->getAttribute('transform')));
+        self::assertEqualsWithDelta(0.0, $this->extractFirstTspanX($modelText), 0.01);
 
         $durationText = $xpath->query('//svg:text[@data-field="duration"]')?->item(0);
         self::assertInstanceOf(DOMElement::class, $durationText);
@@ -66,93 +62,34 @@ final class GaranLabelTemplateIntegrationTest extends TestCase
         self::assertEqualsWithDelta(0.0, $this->extractFirstTspanX($durationText), 0.01);
     }
 
-    public function testGaranTemplateClipRectsUseLocalTextCoordinates(): void
+    public function testGaranTemplateContainsNoClipping(): void
     {
         $templateContents = (string) file_get_contents(self::TEMPLATE_PATH);
         $xpath = $this->createXPathForSvg($templateContents);
 
-        $this->assertClipRectMatchesLocalTextCoordinates(
-            $xpath,
-            'brand',
-            ['x' => 0.0, 'y' => -11.0, 'width' => 184.0, 'height' => 14.0]
-        );
-        $this->assertClipRectMatchesLocalTextCoordinates(
-            $xpath,
-            'model',
-            ['x' => -138.97, 'y' => -11.0, 'width' => 138.97, 'height' => 14.0],
-            true
-        );
-        $this->assertClipRectMatchesLocalTextCoordinates(
-            $xpath,
-            'duration',
-            ['x' => -110.0, 'y' => -70.27, 'width' => 116.0, 'height' => 82.27]
-        );
+        self::assertSame(0, $xpath->query('//svg:clipPath')?->length);
+        self::assertSame(0, $xpath->query('//*[@clip-path]')?->length);
+        self::assertSame(0, $xpath->query('//svg:text[@data-field and @clip-path]')?->length);
+        self::assertStringNotContainsString('clip-path', $templateContents);
+        self::assertStringNotContainsString('<clipPath', $templateContents);
     }
 
-    public function testDurationClipCoversCommaDescentInsideUpperLabelFrame(): void
+    public function testDurationAnchorLiesBeforeCalendarSymbol(): void
     {
         $templateContents = (string) file_get_contents(self::TEMPLATE_PATH);
         $xpath = $this->createXPathForSvg($templateContents);
 
         $durationText = $xpath->query('//svg:text[@data-field="duration"]')?->item(0);
         self::assertInstanceOf(DOMElement::class, $durationText);
-
-        $clipPathReference = $durationText->getAttribute('clip-path');
-        self::assertSame(1, preg_match('/^url\(#([^)]+)\)$/', $clipPathReference, $matches));
-
-        $clipRect = $xpath->query(sprintf('//svg:clipPath[@id="%s"]/svg:rect', $matches[1]))?->item(0);
-        self::assertInstanceOf(DOMElement::class, $clipRect);
-
-        $upperFrameRect = $xpath->query('//svg:rect[@x="3.09" and @y="2.63"]')?->item(0);
-        self::assertInstanceOf(DOMElement::class, $upperFrameRect);
-
-        $durationBaselineY = $this->extractTranslateY($durationText->getAttribute('transform'));
-        $durationClipBottomEdge = $this->extractFloatAttribute($clipRect, 'y')
-            + $this->extractFloatAttribute($clipRect, 'height');
-        $durationClipBottomEdgeInLabelCoordinates = $durationBaselineY + $durationClipBottomEdge;
-        $upperFrameInnerBottomEdge = $this->extractFloatAttribute($upperFrameRect, 'y')
-            + $this->extractFloatAttribute($upperFrameRect, 'height')
-            - $this->extractFloatAttribute($upperFrameRect, 'stroke-width') / 2;
-
-        self::assertEqualsWithDelta(150.57, $durationBaselineY, 0.01);
-        self::assertEqualsWithDelta(12.0, $durationClipBottomEdge, 0.01);
-        self::assertGreaterThan(self::DECIMAL_DURATION_COMMA_DESCENT, $durationClipBottomEdge);
-        self::assertEqualsWithDelta(167.76, $upperFrameInnerBottomEdge, 0.01);
-        self::assertLessThan($upperFrameInnerBottomEdge, $durationClipBottomEdgeInLabelCoordinates);
-    }
-
-    public function testDurationClipEndsBeforeCalendarSymbol(): void
-    {
-        $templateContents = (string) file_get_contents(self::TEMPLATE_PATH);
-        $xpath = $this->createXPathForSvg($templateContents);
-
-        $durationText = $xpath->query('//svg:text[@data-field="duration"]')?->item(0);
-        self::assertInstanceOf(DOMElement::class, $durationText);
-
-        $clipPathReference = $durationText->getAttribute('clip-path');
-        self::assertSame(1, preg_match('/^url\(#([^)]+)\)$/', $clipPathReference, $matches));
-
-        $clipRect = $xpath->query(sprintf('//svg:clipPath[@id="%s"]/svg:rect', $matches[1]))?->item(0);
-        self::assertInstanceOf(DOMElement::class, $clipRect);
 
         $calendarRect = $xpath->query('//svg:rect[@x="121.47" and @y="127.8"]')?->item(0);
         self::assertInstanceOf(DOMElement::class, $calendarRect);
 
-        $durationClipLeftEdge = $this->extractFloatAttribute($clipRect, 'x');
-        $durationClipRightEdge = $durationClipLeftEdge + $this->extractFloatAttribute($clipRect, 'width');
-        $durationAnchorX = $this->extractFirstTspanX($durationText);
         $durationLabelAnchorX = $this->extractTranslateX($durationText->getAttribute('transform'))
-            + $durationAnchorX;
-        $durationClipRightEdgeInLabelCoordinates = $durationLabelAnchorX + $durationClipRightEdge;
-        $calendarLeftEdge = $this->extractFloatAttribute($calendarRect, 'x');
+            + $this->extractFirstTspanX($durationText);
 
-        self::assertLessThanOrEqual($durationClipRightEdge, $durationAnchorX);
-        self::assertGreaterThanOrEqual($durationClipLeftEdge, $durationAnchorX);
-        self::assertEqualsWithDelta(6.0, $durationClipRightEdge, 0.01);
         self::assertEqualsWithDelta(115.07, $durationLabelAnchorX, 0.01);
-        self::assertEqualsWithDelta(121.07, $durationClipRightEdgeInLabelCoordinates, 0.01);
-        self::assertEqualsWithDelta(121.47, $calendarLeftEdge, 0.01);
-        self::assertGreaterThan($durationClipRightEdgeInLabelCoordinates, $calendarLeftEdge);
+        self::assertLessThan($this->extractFloatAttribute($calendarRect, 'x'), $durationLabelAnchorX);
     }
 
     public function testBuildSvgMarkupKeepsFragmentIdsUniquePerRender(): void
@@ -162,12 +99,12 @@ final class GaranLabelTemplateIntegrationTest extends TestCase
 
         $firstXPath = $this->createXPathForSvg(
             $this->extractSvgMarkup(
-                $builder->buildSvgMarkup($templateContents, 'First GARAN label')
+                $builder->buildSvgMarkup($templateContents, 'First GARAN label', 'garan-10')
             )
         );
         $secondXPath = $this->createXPathForSvg(
             $this->extractSvgMarkup(
-                $builder->buildSvgMarkup($templateContents, 'Second GARAN label')
+                $builder->buildSvgMarkup($templateContents, 'Second GARAN label', 'garan-10')
             )
         );
 
@@ -178,8 +115,8 @@ final class GaranLabelTemplateIntegrationTest extends TestCase
         self::assertNotEmpty($secondIds);
         self::assertSame([], array_values(array_intersect($firstIds, $secondIds)));
 
-        $this->assertClipPathReferencesResolveWithinRender($firstXPath);
-        $this->assertClipPathReferencesResolveWithinRender($secondXPath);
+        $this->assertFragmentReferencesResolveWithinRender($firstXPath);
+        $this->assertFragmentReferencesResolveWithinRender($secondXPath);
     }
 
     private function createXPathForSvg(string $svgMarkup): DOMXPath
@@ -222,59 +159,19 @@ final class GaranLabelTemplateIntegrationTest extends TestCase
         return $ids;
     }
 
-    private function assertClipPathReferencesResolveWithinRender(DOMXPath $xpath): void
+    private function assertFragmentReferencesResolveWithinRender(DOMXPath $xpath): void
     {
         $ids = array_flip($this->collectIds($xpath));
+        $svgElement = $xpath->query('/svg:svg')?->item(0);
+        self::assertInstanceOf(DOMElement::class, $svgElement);
+        self::assertArrayHasKey($svgElement->getAttribute('aria-labelledby'), $ids);
 
-        foreach ($xpath->query('//svg:text[@data-field]') ?? [] as $textNode) {
-            self::assertInstanceOf(DOMElement::class, $textNode);
+        foreach ($xpath->query('//@*') ?? [] as $attributeNode) {
+            preg_match_all('/url\(#([^)]+)\)/', (string) $attributeNode->nodeValue, $matches);
 
-            $clipPathReference = $textNode->getAttribute('clip-path');
-            self::assertSame(1, preg_match('/^url\(#([^)]+)\)$/', $clipPathReference, $matches));
-            self::assertArrayHasKey($matches[1], $ids);
-        }
-    }
-
-    /**
-     * @param array{x: float, y: float, width: float, height: float} $expectedRect
-     */
-    private function assertClipRectMatchesLocalTextCoordinates(
-        DOMXPath $xpath,
-        string $field,
-        array $expectedRect,
-        bool $expectLeftAlignedRectToAnchor = false
-    ): void {
-        $textNode = $xpath->query(sprintf('//svg:text[@data-field="%s"]', $field))?->item(0);
-        self::assertInstanceOf(DOMElement::class, $textNode);
-
-        $clipPathReference = $textNode->getAttribute('clip-path');
-        self::assertSame(1, preg_match('/^url\(#([^)]+)\)$/', $clipPathReference, $matches));
-
-        $clipPathNode = $xpath->query(sprintf('//svg:clipPath[@id="%s"]', $matches[1]))?->item(0);
-        self::assertInstanceOf(DOMElement::class, $clipPathNode);
-        self::assertSame('userSpaceOnUse', $clipPathNode->getAttribute('clipPathUnits'));
-
-        $rectNode = $xpath->query('svg:rect', $clipPathNode)?->item(0);
-        self::assertInstanceOf(DOMElement::class, $rectNode);
-
-        $rectX = $this->extractFloatAttribute($rectNode, 'x');
-        $rectY = $this->extractFloatAttribute($rectNode, 'y');
-        $rectWidth = $this->extractFloatAttribute($rectNode, 'width');
-        $rectHeight = $this->extractFloatAttribute($rectNode, 'height');
-
-        self::assertEqualsWithDelta($expectedRect['x'], $rectX, 0.01);
-        self::assertEqualsWithDelta($expectedRect['y'], $rectY, 0.01);
-        self::assertEqualsWithDelta($expectedRect['width'], $rectWidth, 0.01);
-        self::assertEqualsWithDelta($expectedRect['height'], $rectHeight, 0.01);
-
-        self::assertLessThanOrEqual(0.0, $rectX);
-        self::assertGreaterThanOrEqual(0.0, $rectX + $rectWidth);
-        self::assertLessThanOrEqual(0.0, $rectY);
-        self::assertGreaterThanOrEqual(0.0, $rectY + $rectHeight);
-
-        if ($expectLeftAlignedRectToAnchor) {
-            self::assertLessThan(0.0, $rectX);
-            self::assertEqualsWithDelta(0.0, $rectX + $rectWidth, 0.01);
+            foreach ($matches[1] as $referencedId) {
+                self::assertArrayHasKey($referencedId, $ids);
+            }
         }
     }
 
@@ -288,13 +185,6 @@ final class GaranLabelTemplateIntegrationTest extends TestCase
     private function extractTranslateX(string $transform): float
     {
         self::assertSame(1, preg_match('/translate\(([0-9.]+)\s+[0-9.]+\)/', $transform, $matches));
-
-        return (float) $matches[1];
-    }
-
-    private function extractTranslateY(string $transform): float
-    {
-        self::assertSame(1, preg_match('/translate\([0-9.]+\s+([0-9.]+)\)/', $transform, $matches));
 
         return (float) $matches[1];
     }

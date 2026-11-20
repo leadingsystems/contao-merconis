@@ -6,6 +6,7 @@ namespace LeadingSystems\MerconisBundle\Tests\Unit;
 
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeLanguageResolver;
+use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\BrandModelTruncator;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranLabelRenderer;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Order\GaranOrderSnapshotRendererInterface;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Order\GaranV1OrderSnapshotRenderer;
@@ -196,15 +197,21 @@ final class OrderLabelSnapshotRendererTest extends TestCase
         mkdir($baseDirectory . 'v1.0', 0777, true);
         mkdir($baseDirectory . 'v1.1', 0777, true);
 
-        $v10Contents = (string) file_get_contents(
-            dirname(__DIR__, 2) . '/src/Resources/legal-guarantee/garan/v1.0/garan-label-colour.svg'
-        );
+        $sourceDirectory = dirname(__DIR__, 2) . '/src/Resources/legal-guarantee/garan/v1.0/';
+        $v10Contents = (string) file_get_contents($sourceDirectory . 'garan-label-colour.svg');
 
         file_put_contents($baseDirectory . 'v1.0/garan-label-colour.svg', $v10Contents);
         file_put_contents(
             $baseDirectory . 'v1.1/garan-label-colour.svg',
             str_replace('<svg ', '<svg data-version="v1.1" ', $v10Contents)
         );
+
+        foreach (['v1.0', 'v1.1'] as $version) {
+            copy(
+                $sourceDirectory . BrandModelTruncator::WIDTH_TABLE_FILENAME,
+                $baseDirectory . $version . '/' . BrandModelTruncator::WIDTH_TABLE_FILENAME
+            );
+        }
 
         return $projectDir;
     }

@@ -126,53 +126,26 @@ final class OrderConfirmationAttachmentGenerator
                 'brand' => trim((string) ($item['garanBrand'] ?? '')),
                 'modelIdentifier' => trim((string) ($item['garanModelIdentifier'] ?? '')),
                 'durationMonths' => trim((string) ($item['garanDurationMonths'] ?? '')),
-                'productName' => $this->buildOrderProductName($item),
-                'articleNumber' => $this->extractArticleNumber($item),
+                'position' => [
+                    'productName' => $this->getProductTitle($item),
+                    'variantName' => $this->getVariantTitle($item),
+                    'articleNumber' => $this->extractArticleNumber($item),
+                ],
             ];
         }
 
-        $articleNumbersByGroupKey = [];
-
-        foreach ($entries as $entry) {
-            $groupKey = $this->buildGaranGroupingKey(
-                $entry['productId'],
-                $entry['garanVersion'],
-                $entry['brand'],
-                $entry['modelIdentifier'],
-                $entry['durationMonths']
-            );
-
-            $articleNumbersByGroupKey[$groupKey][] = $entry['articleNumber'];
-        }
-
-        $groupedEntries = $this->garanLabelGrouping->groupEntries(array_map(
-            static fn (array $entry): array => [
-                'productId' => $entry['productId'],
-                'garanVersion' => $entry['garanVersion'],
-                'brand' => $entry['brand'],
-                'modelIdentifier' => $entry['modelIdentifier'],
-                'durationMonths' => $entry['durationMonths'],
-                'productName' => $entry['productName'],
-            ],
-            $entries
-        ));
-
-        return array_map(function (array $group) use ($articleNumbersByGroupKey): array {
-            $groupKey = $this->buildGaranGroupingKey(
-                (string) $group['productId'],
-                (string) $group['garanVersion'],
-                (string) $group['brand'],
-                (string) $group['modelIdentifier'],
-                (string) $group['durationMonths']
-            );
-
-            $group['articleNumbers'] = array_values(array_filter(
-                $articleNumbersByGroupKey[$groupKey] ?? [],
+        return array_map(fn (array $group): array => [
+            'productId' => $group['productId'],
+            'garanVersion' => $group['garanVersion'],
+            'brand' => $group['brand'],
+            'modelIdentifier' => $group['modelIdentifier'],
+            'durationMonths' => $group['durationMonths'],
+            'productNames' => array_map([$this, 'buildOrderPositionLine'], $group['positions']),
+            'articleNumbers' => array_values(array_filter(
+                array_column($group['positions'], 'articleNumber'),
                 static fn (string $articleNumber): bool => $articleNumber !== ''
-            ));
-
-            return $group;
-        }, $groupedEntries);
+            )),
+        ], $this->garanLabelGrouping->groupEntries($entries));
     }
 
     /**
@@ -223,24 +196,23 @@ final class OrderConfirmationAttachmentGenerator
     }
 
     /**
-     * @param array<string, mixed> $item
+     * Zeile einer Position nach Spec 27, Abschnitt 7.3.
+     *
+     * @param array{productName: string, variantName: string, articleNumber: string} $position
      */
-    private function buildOrderProductName(array $item): string
+    private function buildOrderPositionLine(array $position): string
     {
-        $productTitle = $this->getProductTitle($item);
-        $variantTitle = $this->getVariantTitle($item);
-        $articleNumber = $this->extractArticleNumber($item);
-        $productName = $productTitle;
+        $positionLine = $position['productName'];
 
-        if ('' !== $variantTitle) {
-            $productName = sprintf('%s (%s)', $productTitle, $variantTitle);
+        if ('' !== $position['variantName']) {
+            $positionLine = sprintf('%s (%s)', $position['productName'], $position['variantName']);
         }
 
-        if ('' === $articleNumber) {
-            return $productName;
+        if ('' === $position['articleNumber']) {
+            return $positionLine;
         }
 
-        return sprintf('%s - %s', $productName, $articleNumber);
+        return sprintf('%s - %s', $positionLine, $position['articleNumber']);
     }
 
     /**
@@ -307,22 +279,6 @@ final class OrderConfirmationAttachmentGenerator
     private function extractArticleNumber(array $item): string
     {
         return trim((string) ($item['artNr'] ?? ''));
-    }
-
-    private function buildGaranGroupingKey(
-        string $productId,
-        string $garanVersion,
-        string $brand,
-        string $modelIdentifier,
-        string $durationMonths
-    ): string {
-        return json_encode([
-            trim($productId),
-            trim($garanVersion),
-            trim($brand),
-            trim($modelIdentifier),
-            trim($durationMonths),
-        ], JSON_THROW_ON_ERROR);
     }
 
     /**

@@ -9,26 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 final class LegalGuaranteeMarkupBuilderTest extends TestCase
 {
-    public function testBuildSvgMarkupAddsAccessibilityAttributesAndTitle(): void
-    {
-        $builder = new LegalGuaranteeMarkupBuilder();
-
-        $markup = $builder->buildSvgMarkup(
-            '<svg xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10"/></svg>',
-            'Legal guarantee'
-        );
-
-        self::assertStringContainsString('merconis-legal-guarantee-label', $markup);
-        self::assertStringContainsString('role="img"', $markup);
-        self::assertStringContainsString('aria-labelledby="merconis-legal-guarantee-svg-1-title"', $markup);
-        self::assertStringContainsString('<title id="merconis-legal-guarantee-svg-1-title"', $markup);
-        self::assertStringContainsString('Legal guarantee', $markup);
-    }
-
-    public function testBuildSvgMarkupRewritesFragmentIdsAndReferencesPerRender(): void
-    {
-        $builder = new LegalGuaranteeMarkupBuilder();
-        $svgMarkup = <<<'SVG'
+    private const SVG_WITH_FRAGMENTS = <<<'SVG'
 <svg xmlns="http://www.w3.org/2000/svg">
   <defs>
     <clipPath id="clip-a">
@@ -42,98 +23,94 @@ final class LegalGuaranteeMarkupBuilderTest extends TestCase
 </svg>
 SVG;
 
-        $firstMarkup = $builder->buildSvgMarkup($svgMarkup, 'Legal guarantee');
-        $secondMarkup = $builder->buildSvgMarkup($svgMarkup, 'Legal guarantee');
-
-        self::assertStringNotContainsString('id="clip-a"', $firstMarkup);
-        self::assertStringNotContainsString('id="shape-a"', $firstMarkup);
-        self::assertStringNotContainsString('.label { clip-path: url(#clip-a); }', $firstMarkup);
-        self::assertStringNotContainsString('href="#shape-a"', $firstMarkup);
-        self::assertMatchesRegularExpression('/id="merconis-legal-guarantee-svg-1-clip-a"/', $firstMarkup);
-        self::assertStringContainsString(
-            '.label { clip-path: url(#merconis-legal-guarantee-svg-1-clip-a); }',
-            $firstMarkup
-        );
-        self::assertMatchesRegularExpression('/url\(#merconis-legal-guarantee-svg-1-clip-a\)/', $firstMarkup);
-        self::assertMatchesRegularExpression('/href="#merconis-legal-guarantee-svg-1-shape-a"/', $firstMarkup);
-        self::assertMatchesRegularExpression('/aria-describedby="merconis-legal-guarantee-svg-1-shape-a"/', $firstMarkup);
-        self::assertMatchesRegularExpression('/id="merconis-legal-guarantee-svg-2-clip-a"/', $secondMarkup);
-        self::assertStringNotContainsString('merconis-legal-guarantee-svg-1-clip-a', $secondMarkup);
-    }
-
-    public function testBuildCheckoutGaranBlockReturnsEmptyStringWithoutAffectedItems(): void
+    public function testBuildSvgMarkupAddsAccessibilityAttributesAndTitleWithoutWrapper(): void
     {
         $builder = new LegalGuaranteeMarkupBuilder();
 
-        self::assertSame(
-            '',
-            $builder->buildCheckoutGaranBlock([], [
-                'garanBlockHeadline' => 'Headline',
-                'garanEuLinkText' => 'EU Link',
-            ])
-        );
-    }
-
-    public function testBuildCheckoutGaranBlockRendersGroupedProductNamesAboveLabel(): void
-    {
-        $builder = new LegalGuaranteeMarkupBuilder();
-
-        $markup = $builder->buildCheckoutGaranBlock([
-            [
-                'productNames' => ['Kissen (Rot)', 'Kissen (Blau)'],
-                'labelMarkup' => '<div class="merconis-legal-guarantee-label"><svg></svg></div><p class="merconis-legal-guarantee-link"><a href="https://example.invalid">EU</a></p>',
-            ],
-        ], [
-            'garanBlockHeadline' => 'Headline',
-            'garanEuLinkText' => 'EU Link',
-        ]);
-
-        self::assertStringContainsString('Headline', $markup);
-        self::assertStringContainsString('Kissen (Rot)<br>Kissen (Blau)', $markup);
-        self::assertStringContainsString('<svg>', $markup);
-        self::assertStringContainsString('<a href="https://example.invalid">EU</a>', $markup);
-    }
-
-    public function testBuildLabelMarkupRendersSingleEuAnchorWithSvgAttributes(): void
-    {
-        $builder = new LegalGuaranteeMarkupBuilder();
-        $euUrl = 'https://europa.eu/youreurope/garantías';
-
-        $markup = $builder->buildLabelMarkup(
-            '<svg xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10"/></svg>',
-            'Gewährleistungslabel',
-            $euUrl,
-            'EU-Information',
+        $markup = $builder->buildSvgMarkup(
+            '<svg xmlns="http://www.w3.org/2000/svg"><title>Old</title><rect width="10" height="10"/></svg>',
+            'Legal guarantee',
+            'lgn-10',
             ['lang' => 'de']
         );
 
+        self::assertStringStartsWith('<svg', $markup);
+        self::assertStringNotContainsString('<div', $markup);
+        self::assertStringContainsString('role="img"', $markup);
+        self::assertStringContainsString('aria-labelledby="merconis-legal-guarantee-svg-lgn-10-title"', $markup);
+        self::assertStringContainsString('<title id="merconis-legal-guarantee-svg-lgn-10-title">Legal guarantee</title>', $markup);
         self::assertStringContainsString('lang="de"', $markup);
-        self::assertStringContainsString('Gewährleistungslabel', $markup);
-        self::assertStringContainsString(
-            'href="https://europa.eu/youreurope/garantías"',
-            $markup
-        );
-        self::assertSame(1, substr_count($markup, '<a '));
+        self::assertSame(1, substr_count($markup, '<title'));
     }
 
-    public function testBuildLabelMarkupAppendsEuTextLinkBelowSvg(): void
+    public function testBuildSvgMarkupRewritesFragmentIdsAndReferencesFromTypeAndReference(): void
     {
         $builder = new LegalGuaranteeMarkupBuilder();
-        $euUrl = 'https://europa.eu/youreurope/гаранции';
 
-        $markup = $builder->buildLabelMarkup(
-            '<svg xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10"/></svg>',
-            'Legal guarantee',
-            $euUrl,
-            'EU-Information'
-        );
+        $markup = $builder->buildSvgMarkup(self::SVG_WITH_FRAGMENTS, 'Legal guarantee', 'garan-10');
 
-        self::assertStringContainsString('merconis-legal-guarantee-label', $markup);
-        self::assertStringContainsString('merconis-legal-guarantee-link', $markup);
+        self::assertStringNotContainsString('id="clip-a"', $markup);
+        self::assertStringNotContainsString('href="#shape-a"', $markup);
+        self::assertStringContainsString('id="merconis-legal-guarantee-svg-garan-10-clip-a"', $markup);
         self::assertStringContainsString(
-            'href="https://europa.eu/youreurope/гаранции"',
+            '.label { clip-path: url(#merconis-legal-guarantee-svg-garan-10-clip-a); }',
             $markup
         );
-        self::assertStringContainsString('EU-Information', $markup);
+        self::assertStringContainsString('clip-path="url(#merconis-legal-guarantee-svg-garan-10-clip-a)"', $markup);
+        self::assertStringContainsString('href="#merconis-legal-guarantee-svg-garan-10-shape-a"', $markup);
+        self::assertStringContainsString('aria-describedby="merconis-legal-guarantee-svg-garan-10-shape-a"', $markup);
+    }
+
+    public function testBuildSvgMarkupAddsCounterOnlyWhenTheSameScopeRepeats(): void
+    {
+        $builder = new LegalGuaranteeMarkupBuilder();
+
+        $firstMarkup = $builder->buildSvgMarkup(self::SVG_WITH_FRAGMENTS, 'Label', 'garan-10');
+        $otherScopeMarkup = $builder->buildSvgMarkup(self::SVG_WITH_FRAGMENTS, 'Label', 'garan-20');
+        $secondMarkup = $builder->buildSvgMarkup(self::SVG_WITH_FRAGMENTS, 'Label', 'garan-10');
+        $thirdMarkup = $builder->buildSvgMarkup(self::SVG_WITH_FRAGMENTS, 'Label', 'garan-10');
+
+        self::assertStringContainsString('id="merconis-legal-guarantee-svg-garan-10-clip-a"', $firstMarkup);
+        self::assertStringContainsString('id="merconis-legal-guarantee-svg-garan-20-clip-a"', $otherScopeMarkup);
+        self::assertStringContainsString('id="merconis-legal-guarantee-svg-garan-10-2-clip-a"', $secondMarkup);
+        self::assertStringContainsString('id="merconis-legal-guarantee-svg-garan-10-3-clip-a"', $thirdMarkup);
+        self::assertStringNotContainsString('merconis-legal-guarantee-svg-garan-10-clip-a', $secondMarkup);
+    }
+
+    public function testBuildDecorativeSvgMarkupHidesSvgFromScreenReadersWithoutTitle(): void
+    {
+        $builder = new LegalGuaranteeMarkupBuilder();
+
+        $markup = $builder->buildDecorativeSvgMarkup(
+            '<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="t"><title id="t">Old</title><rect id="r" width="10" height="10"/><use href="#r"/></svg>',
+            'garan-nested-10'
+        );
+
+        self::assertStringContainsString('aria-hidden="true"', $markup);
+        self::assertStringContainsString('focusable="false"', $markup);
+        self::assertStringNotContainsString('<title', $markup);
+        self::assertStringNotContainsString('role=', $markup);
+        self::assertStringNotContainsString('aria-labelledby', $markup);
+        self::assertStringContainsString('id="merconis-legal-guarantee-svg-garan-nested-10-r"', $markup);
+        self::assertStringContainsString('href="#merconis-legal-guarantee-svg-garan-nested-10-r"', $markup);
+    }
+
+    public function testReservePopoverIdBuildsIdFromTypeAndReferenceAndCountsRepetitions(): void
+    {
+        $builder = new LegalGuaranteeMarkupBuilder();
+
+        self::assertSame('merconis-legal-guarantee-popover-lgn-10', $builder->reservePopoverId('lgn-10'));
+        self::assertSame('merconis-legal-guarantee-popover-garan-10', $builder->reservePopoverId('garan-10'));
+        self::assertSame('merconis-legal-guarantee-popover-lgn-checkout', $builder->reservePopoverId('lgn-checkout'));
+        self::assertSame('merconis-legal-guarantee-popover-lgn-10-2', $builder->reservePopoverId('lgn-10'));
+    }
+
+    public function testPopoverIdsAndSvgPrefixesAreCountedIndependently(): void
+    {
+        $builder = new LegalGuaranteeMarkupBuilder();
+
+        $builder->buildSvgMarkup(self::SVG_WITH_FRAGMENTS, 'Label', 'garan-10');
+
+        self::assertSame('merconis-legal-guarantee-popover-garan-10', $builder->reservePopoverId('garan-10'));
     }
 }

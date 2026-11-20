@@ -38,15 +38,15 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
     private const SETTINGS_DCA_PATH = __DIR__ . '/../../src/Resources/contao/dca/tl_lsShopSettings.php';
     private const DEFAULT_LANGUAGE_DE_PATH = __DIR__ . '/../../src/Resources/contao/languages/de/default.php';
     private const DEFAULT_LANGUAGE_EN_PATH = __DIR__ . '/../../src/Resources/contao/languages/en/default.php';
-    private const GUARANTEE_BRAND_DESCRIPTION_DE = "Der volle Wert wird gespeichert. Bei Überlänge wird der Markenname in der Labeldarstellung mit '...' gekürzt. Die Kürzungslänge ist in den Grundeinstellungen konfigurierbar.";
-    private const GUARANTEE_BRAND_DESCRIPTION_EN = "The full value is stored. If too long, the brand name is truncated with '...' in the label display. The truncation length is configurable in the shop settings.";
-    private const GUARANTEE_MODEL_IDENTIFIER_DESCRIPTION_DE = "Der volle Wert wird gespeichert. Bei Überlänge wird die Modellkennung in der Labeldarstellung mit '...' gekürzt. Die Kürzungslänge ist in den Grundeinstellungen konfigurierbar.";
+    private const GUARANTEE_BRAND_DESCRIPTION_DE = "Der volle Wert wird gespeichert. Bei Überlänge wird der Markenname in der Labeldarstellung mit '...' gekürzt.";
+    private const GUARANTEE_BRAND_DESCRIPTION_EN = "The full value is stored. If too long, the brand name is truncated with '...' in the label display.";
+    private const GUARANTEE_MODEL_IDENTIFIER_DESCRIPTION_DE = "Der volle Wert wird gespeichert. Bei Überlänge wird die Modellkennung in der Labeldarstellung mit '...' gekürzt.";
     /**
      * @var array<string, mixed>|null
      */
     private static ?array $loadedVariantDca = null;
 
-    private const GUARANTEE_MODEL_IDENTIFIER_DESCRIPTION_EN = "The full value is stored. If too long, the model identifier is truncated with '...' in the label display. The truncation length is configurable in the shop settings.";
+    private const GUARANTEE_MODEL_IDENTIFIER_DESCRIPTION_EN = "The full value is stored. If too long, the model identifier is truncated with '...' in the label display.";
 
     protected function setUp(): void
     {
@@ -411,7 +411,7 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         self::assertStringNotContainsString("Input::post('guaranteeModelIdentifier", $variantDca);
     }
 
-    public function testSettingsDcaContainsTruncationLengthWithoutFormerGllMigrationControl(): void
+    public function testSettingsDcaContainsNeitherTruncationLengthNorFormerGllMigrationControl(): void
     {
         $settingsDca = (string) file_get_contents(self::SETTINGS_DCA_PATH);
         $defaultLanguageDe = (string) file_get_contents(self::DEFAULT_LANGUAGE_DE_PATH);
@@ -420,8 +420,8 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         $settingsLanguageEn = (string) file_get_contents(self::LANGUAGE_BASE_PATH . 'en/tl_lsShopSettings.php');
         $miscBackendStyles = (string) file_get_contents(self::MISC_BACKEND_STYLES_PATH);
 
-        self::assertStringContainsString('{legalGuarantee_legend},garanLabelTruncationLength;', $settingsDca);
-        self::assertStringContainsString("'garanLabelTruncationLength' => array(", $settingsDca);
+        self::assertStringNotContainsString('garanLabelTruncationLength', $settingsDca);
+        self::assertStringNotContainsString('legalGuarantee_legend', $settingsDca);
         self::assertStringNotContainsString(self::FORMER_GLL_MIGRATION_CONTROL_FIELD, $settingsDca);
         self::assertStringNotContainsString(self::FORMER_GLL_MIGRATION_MANAGER_CLASS, $settingsDca);
         self::assertStringNotContainsString('applyEnableGllMigrationRequest', $settingsDca);
@@ -430,13 +430,14 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         self::assertStringNotContainsString('tl_ls_shop_product', $settingsDca);
         self::assertStringNotContainsString('tl_ls_shop_variant', $settingsDca);
         self::assertStringNotContainsString(self::FORMER_GLL_MIGRATION_CONTROL_FIELD, $miscBackendStyles);
-        self::assertStringContainsString("['legalGuarantee_legend']", $settingsLanguageDe);
         self::assertStringNotContainsString(self::FORMER_GLL_MIGRATION_CONTROL_FIELD, $settingsLanguageDe);
-        self::assertStringContainsString("['garanLabelTruncationLength']", $settingsLanguageDe);
         self::assertStringNotContainsString(self::FORMER_GLL_MIGRATION_CONTROL_FIELD, $settingsLanguageEn);
-        self::assertStringContainsString("['garanLabelTruncationLength']", $settingsLanguageEn);
-        self::assertStringContainsString('Gewährleistung und Herstellergarantie (GARAN-Label)', $settingsLanguageDe);
-        self::assertStringContainsString('Legal guarantee and manufacturer guarantee (GARAN label)', $settingsLanguageEn);
+
+        foreach ([$settingsLanguageDe, $settingsLanguageEn] as $settingsLanguage) {
+            self::assertStringNotContainsString("['garanLabelTruncationLength']", $settingsLanguage);
+            self::assertStringNotContainsString("['legalGuarantee_legend']", $settingsLanguage);
+        }
+
         self::assertStringContainsString("['dashboard']['lgnAnnouncement']", $defaultLanguageDe);
         self::assertStringContainsString("['dashboard']['lgnAnnouncement']", $defaultLanguageEn);
     }

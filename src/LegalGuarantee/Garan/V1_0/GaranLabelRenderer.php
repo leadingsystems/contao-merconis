@@ -15,9 +15,10 @@ use RuntimeException;
 final class GaranLabelRenderer implements GaranLabelRendererInterface
 {
     private const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
-    private const DEFAULT_TRUNCATION_LENGTH = 30;
     private const ORIGINAL_DURATION_FONT_SIZE = '80px';
     private const DECIMAL_DURATION_FONT_SIZE = '47px';
+
+    private ?BrandModelTruncator $brandModelTruncator = null;
 
     public function __construct(
         private readonly OfficialGuaranteeAssetLocator $assetLocator,
@@ -32,12 +33,12 @@ final class GaranLabelRenderer implements GaranLabelRendererInterface
 
     public function render(string $brand, string $modelIdentifier, string $durationMonths): string
     {
-        $brand = $this->truncateLabelText(
-            $this->requireNonEmptyValue($brand, 'brand')
-        );
-        $modelIdentifier = $this->truncateLabelText(
+        $truncatedValues = $this->getBrandModelTruncator()->truncate(
+            $this->requireNonEmptyValue($brand, 'brand'),
             $this->requireNonEmptyValue($modelIdentifier, 'model')
         );
+        $brand = $truncatedValues['brand'];
+        $modelIdentifier = $truncatedValues['model'];
         $durationMonths = $this->requireNonEmptyValue($durationMonths, 'duration');
         $templatePath = $this->assetLocator->getGaranColourTemplatePath($this->version);
         $templateContents = file_get_contents($templatePath);
@@ -112,15 +113,11 @@ final class GaranLabelRenderer implements GaranLabelRendererInterface
         return $trimmedValue;
     }
 
-    private function truncateLabelText(string $value): string
+    private function getBrandModelTruncator(): BrandModelTruncator
     {
-        $truncationLength = $this->getTruncationLength();
-
-        if (mb_strlen($value) <= $truncationLength) {
-            return $value;
-        }
-
-        return mb_substr($value, 0, $truncationLength) . '...';
+        return $this->brandModelTruncator ??= BrandModelTruncator::fromWidthTableFile(
+            $this->assetLocator->getGaranVersionDirectory($this->version) . '/' . BrandModelTruncator::WIDTH_TABLE_FILENAME
+        );
     }
 
     private function configureDurationFontSize(DOMXPath $xpath, string $durationMonths): void
@@ -148,16 +145,5 @@ final class GaranLabelRenderer implements GaranLabelRendererInterface
         }
 
         return ((int) $normalisedDuration) % 12 !== 0;
-    }
-
-    private function getTruncationLength(): int
-    {
-        $configuredLength = (int) ($GLOBALS['TL_CONFIG']['garanLabelTruncationLength'] ?? 0);
-
-        if ($configuredLength < 1) {
-            return self::DEFAULT_TRUNCATION_LENGTH;
-        }
-
-        return $configuredLength;
     }
 }

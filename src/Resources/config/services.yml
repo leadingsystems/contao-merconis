@@ -58,6 +58,12 @@ services:
       $renderer: '@merconis.legal_guarantee.garan_label_renderer.v1_0'
     tags:
       - { name: 'merconis.legal_guarantee.garan_order_snapshot_renderer' }
+  merconis.legal_guarantee.garan_nested_label_renderer.v1_0:
+    class: LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranNestedLabelRenderer
+    arguments:
+      $version: 'v1.0'
+    tags:
+      - { name: 'merconis.legal_guarantee.garan_nested_label_renderer' }
   LeadingSystems\MerconisBundle\LegalGuarantee\Order\OrderLabelSnapshotRenderer:
     arguments:
       $garanRenderers: !tagged_iterator merconis.legal_guarantee.garan_order_snapshot_renderer
@@ -67,10 +73,14 @@ services:
       $contaoErrorLogger: '@monolog.logger.contao.error'
   LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\ProductGuaranteeDisplayResolver: ~
   LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\LegalGuaranteeMarkupBuilder: ~
+  LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\LegalGuaranteeTemplateRenderer: ~
+  LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\LegalGuaranteeTemplateRendererInterface:
+    alias: LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\LegalGuaranteeTemplateRenderer
   LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\LegalGuaranteeMarkupProvider:
     arguments:
       $contaoErrorLogger: '@monolog.logger.contao.error'
       $garanLabelRenderers: !tagged_iterator merconis.legal_guarantee.garan_label_renderer
+      $garanNestedLabelRenderers: !tagged_iterator merconis.legal_guarantee.garan_nested_label_renderer
     public: true
   LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\CurrentMemberGroupLgnModeProvider: ~
   LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\MemberGroupLgnModeProviderInterface:

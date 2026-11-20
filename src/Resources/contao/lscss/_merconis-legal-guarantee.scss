@@ -1,10 +1,20 @@
-.merconis-legal-guarantee-label {
-  max-width: 100%;
+.merconis-legal-guarantee-unit {
+  &--lgn {
+    max-width: 600px;
+  }
+
+  &--garan {
+    max-width: 400px;
+  }
+
+  svg,
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
 
   svg {
-    display: block;
-    max-width: 100%;
-    height: auto;
     overflow: visible;
 
     text {
@@ -12,7 +22,103 @@
     }
   }
 
-  @include media-breakpoint-up(lg) {
-    max-width: 600px;
+  &__link {
+    margin-top: $ls-margin-bottom-standard;
+
+    a {
+      text-decoration: underline;
+    }
+  }
+}
+
+.merconis-legal-guarantee-button {
+  margin: 1.6rem 0;
+
+  &__trigger,
+  &__close {
+    all: unset;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 2px solid $ls-color-black;
+      outline-offset: 2px;
+    }
+  }
+
+  &--lgn &__trigger {
+    text-decoration: underline;
+  }
+
+  &__nested {
+    display: block;
+    width: 220px;
+    max-width: 100%;
+
+    svg {
+      width: 100%;
+      height: auto;
+    }
+  }
+
+  &__popover:popover-open {
+    margin: auto;
+    max-height: 90vh;
+    overflow: auto;
+    padding: 1.6rem;
+    border: none;
+    background: $ls-color-white;
+    box-shadow: $ls-shadow-l;
+
+    &::backdrop {
+      background: rgba($ls-color-black, 0.5);
+    }
+  }
+
+  &--lgn &__popover:popover-open {
+    width: min(600px, 90vw);
+  }
+
+  &--garan &__popover:popover-open {
+    width: min(400px, 90vw);
+  }
+
+  &__close {
+    float: right;
+    margin-bottom: $ls-margin-bottom-standard;
+    font-size: $ls-font-size-h4;
+  }
+}
+
+.merconis-legal-guarantee-assignment {
+  &__items {
+    list-style: none;
+    margin: 1.6rem 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 400px));
+    gap: 2.4rem;
+  }
+
+  &__item {
+    border: 1px solid $ls-color-grey;
+    padding: 1.6rem;
+  }
+
+  &__positions {
+    list-style: none;
+    margin: 0 0 1.2rem;
+    padding: 0;
+  }
+
+  &__position {
+    font-weight: $ls-font-weight-bold;
+  }
+}
+
+.merconis-legal-guarantee-checkout {
+  margin: 3.2rem 0;
+
+  .merconis-legal-guarantee-button--lgn {
+    margin-top: 2.4rem;
   }
 }

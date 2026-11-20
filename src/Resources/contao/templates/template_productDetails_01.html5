@@ -109,6 +109,10 @@ $str_html_productProducerInfo = $this->objProduct->_useCustomTemplate('template_
                 <?php // ##### FILTER MATCH ###### -> ?>
                 <?php echo isset($str_html_filterMatch) ? $str_html_filterMatch : ''; ?>
                 <?php // <- ##### FILTER MATCH ###### ?>
+
+                <?php // ##### MANUFACTURER GUARANTEE (GARAN) ###### -> ?>
+                <?php echo $this->objProduct->_garanLabelButton; ?>
+                <?php // <- ##### MANUFACTURER GUARANTEE (GARAN) ###### ?>
             </div>
 
 
@@ -136,11 +140,6 @@ $str_html_productProducerInfo = $this->objProduct->_useCustomTemplate('template_
                     <?php } ?>
 
                     <?php echo isset($str_html_deliveryInfo) ? $str_html_deliveryInfo : ''; ?>
-
-                    <div class="merconis-legal-guarantee-output">
-                        <?php echo $this->objProduct->_lgnNotice ?: ''; ?>
-                        <?php echo $this->objProduct->_garanLabel ?: ''; ?>
-                    </div>
 
                     <?php
                     // TrustedShops product rating -->
@@ -240,6 +239,10 @@ $str_html_productProducerInfo = $this->objProduct->_useCustomTemplate('template_
                     ?>
                 </div>
                 <?php // <- ##### DESCRIPTION ###### ?>
+
+                <?php // ##### LEGAL GUARANTEE NOTICE (LGN) ###### -> ?>
+                <?php echo $this->objProduct->_lgnNoticeButton; ?>
+                <?php // <- ##### LEGAL GUARANTEE NOTICE (LGN) ###### ?>
 
                 <?php // ##### productProducerInfo ###### -> ?>
                 <?php echo isset($str_html_productProducerInfo) ? $str_html_productProducerInfo : ''; ?>

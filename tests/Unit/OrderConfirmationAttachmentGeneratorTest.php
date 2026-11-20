@@ -14,7 +14,6 @@ use LeadingSystems\MerconisBundle\LegalGuarantee\Order\OrderLabelSnapshotRendere
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use ReflectionMethod;
 use RuntimeException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -311,42 +310,49 @@ final class OrderConfirmationAttachmentGeneratorTest extends TestCase
         );
     }
 
-    public function testBuildOrderProductNameAppendsVariantAndArticleNumber(): void
+    public function testPositionLineAppendsVariantAndArticleNumber(): void
     {
-        $method = new ReflectionMethod(OrderConfirmationAttachmentGenerator::class, 'buildOrderProductName');
-        $method->setAccessible(true);
+        $writer = $this->createPageCapturingWriter();
 
-        self::assertSame(
-            'Produkt Alpha (Variante Blau) - ART-100',
-            $method->invoke($this->createGenerator(), [
-                'artNr' => 'ART-100',
-                'extendedInfo' => [
-                    '_productTitle_customerLanguage' => 'Produkt Alpha',
-                    '_title_customerLanguage' => 'Variante Blau',
-                ],
-                'isVariant' => true,
-                'productTitle' => 'Fallback Product',
-                'variantTitle' => 'Fallback Variant',
-            ])
-        );
+        $this->createGenerator($writer)->generateAttachments([
+            'orderNr' => 'ORDER-77',
+            'items' => [
+                $this->createGaranSnapshotItem([
+                    'artNr' => 'ART-100',
+                    'extendedInfo' => [
+                        '_productTitle_customerLanguage' => 'Produkt Alpha',
+                        '_title_customerLanguage' => 'Variante Blau',
+                    ],
+                    'isVariant' => true,
+                    'productTitle' => 'Fallback Product',
+                    'variantTitle' => 'Fallback Variant',
+                ]),
+            ],
+        ]);
+
+        self::assertSame(['Produkt Alpha (Variante Blau) - ART-100'], $writer->pages[0]['productNames']);
     }
 
-    public function testBuildOrderProductNameLeavesArticleSeparatorOutWhenArticleNumberIsEmpty(): void
+    public function testPositionLineLeavesArticleSeparatorOutWhenArticleNumberIsEmpty(): void
     {
-        $method = new ReflectionMethod(OrderConfirmationAttachmentGenerator::class, 'buildOrderProductName');
-        $method->setAccessible(true);
+        $writer = $this->createPageCapturingWriter();
 
-        self::assertSame(
-            'Produkt Alpha',
-            $method->invoke($this->createGenerator(), [
-                'artNr' => '',
-                'extendedInfo' => [
-                    '_productTitle_customerLanguage' => 'Produkt Alpha',
-                ],
-                'isVariant' => false,
-                'productTitle' => 'Fallback Product',
-            ])
-        );
+        $this->createGenerator($writer)->generateAttachments([
+            'orderNr' => 'ORDER-77',
+            'items' => [
+                $this->createGaranSnapshotItem([
+                    'artNr' => '',
+                    'extendedInfo' => [
+                        '_productTitle_customerLanguage' => 'Produkt Alpha',
+                    ],
+                    'isVariant' => false,
+                    'productTitle' => 'Fallback Product',
+                ]),
+            ],
+        ]);
+
+        self::assertSame(['Produkt Alpha'], $writer->pages[0]['productNames']);
+        self::assertSame([], $writer->pages[0]['articleNumbers']);
     }
 
     public function testGenerateAttachmentsKeepsTwoProductLinesWhenArticleNumbersMatch(): void
@@ -392,6 +398,37 @@ final class OrderConfirmationAttachmentGeneratorTest extends TestCase
         self::assertCount(2, $writer->pages);
         self::assertSame(['Produkt Alpha - ART-100'], $writer->pages[0]['productNames']);
         self::assertSame(['Produkt Beta - ART-100'], $writer->pages[1]['productNames']);
+    }
+
+    /**
+     * @param array<string, mixed> $item
+     *
+     * @return array<string, mixed>
+     */
+    private function createGaranSnapshotItem(array $item): array
+    {
+        return $item + [
+            'garanBrand' => 'Alpha',
+            'garanDurationMonths' => '36',
+            'garanModelIdentifier' => 'OK-1',
+            'garanVersion' => 'v1.0',
+            'productID' => '10',
+        ];
+    }
+
+    private function createPageCapturingWriter(): GaranPdfAttachmentWriterInterface
+    {
+        return new class implements GaranPdfAttachmentWriterInterface {
+            /** @var list<array<string, mixed>> */
+            public array $pages = [];
+
+            public function write(array $pages, string $orderNumber, int $orderDateUnixTimestamp): array
+            {
+                $this->pages = $pages;
+
+                return ['relativePath' => 'unused.pdf'];
+            }
+        };
     }
 
     private function createTempProjectDir(): string

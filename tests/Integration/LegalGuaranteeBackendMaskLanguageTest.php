@@ -28,28 +28,17 @@ final class LegalGuaranteeBackendMaskLanguageTest extends TestCase
     private const GUARANTEE_LEGEND_DE = 'Gewährleistung und Herstellergarantie (GARAN-Label)';
     private const GUARANTEE_LEGEND_EN = 'Legal guarantee and manufacturer guarantee (GARAN label)';
 
-    private const TRUNCATION_LENGTH_DE = [
-        'Kürzung von Marke und Modell (Zeichen)',
-        'Längere Angaben zu Marke oder Modell werden in der Kennzeichnung der Herstellergarantie nach dieser Zeichenzahl mit "..." gekürzt. Gespeichert bleibt der vollständige Wert. Standard: 30.',
-    ];
-    private const TRUNCATION_LENGTH_EN = [
-        'Shorten brand and model after (characters)',
-        'Longer brand or model values are shortened with "..." after this number of characters in the manufacturer guarantee label. The full value remains stored. Default: 30.',
-    ];
-
     private const ALLOWED_GARAN_SUFFIXES = ['(GARAN-Label)', '(GARAN label)'];
 
     /*
-     * Die vier Schlüssel aus `collectMaskTexts()` für die drei Stellen, an denen Spec 27,
-     * Abschnitt "Terminologie", den Klammerzusatz erlaubt: Titel von `enableGaran`,
-     * Legende der Palette (je ein Schlüssel an Produkt und Variante) und Legende der
-     * Grundeinstellungen.
+     * Die drei Schlüssel aus `collectMaskTexts()` für die zwei Stellen, an denen Spec 27,
+     * Abschnitt "Terminologie", den Klammerzusatz erlaubt: Titel von `enableGaran` und
+     * Legende der Palette (je ein Schlüssel an Produkt und Variante).
      */
     private const GARAN_SUFFIX_LOCATIONS = [
         'tl_ls_shop_product.enableGaran.0',
         'tl_ls_shop_product.lsShopGuaranteeLabels_legend',
         'tl_ls_shop_variant.lsShopGuaranteeLabels_legend',
-        'tl_lsShopSettings.legalGuarantee_legend',
     ];
 
     private const FORBIDDEN_FRAGMENTS = ['LGN', 'GARAN', 'Haltbarkeitsgarantie', 'durability'];
@@ -95,8 +84,8 @@ final class LegalGuaranteeBackendMaskLanguageTest extends TestCase
         self::assertSame(self::ENABLE_GARAN_DE, $productLanguage['enableGaran']);
         self::assertSame(self::GUARANTEE_LEGEND_DE, $productLanguage['lsShopGuaranteeLabels_legend']);
         self::assertSame(self::GUARANTEE_LEGEND_DE, $variantLanguage['lsShopGuaranteeLabels_legend']);
-        self::assertSame(self::GUARANTEE_LEGEND_DE, $settingsLanguage['legalGuarantee_legend']);
-        self::assertSame(self::TRUNCATION_LENGTH_DE, $settingsLanguage['garanLabelTruncationLength']);
+        self::assertArrayNotHasKey('legalGuarantee_legend', $settingsLanguage);
+        self::assertArrayNotHasKey('garanLabelTruncationLength', $settingsLanguage);
         self::assertSame('Standard-Benutzergruppe', $settingsLanguage['ls_shop_standardGroup'][0]);
         self::assertSame('Marke (Brand/Trademark)', $productLanguage['guaranteeBrand'][0]);
         self::assertSame('Modell (Model identifier)', $productLanguage['guaranteeModelIdentifier'][0]);
@@ -113,8 +102,8 @@ final class LegalGuaranteeBackendMaskLanguageTest extends TestCase
         self::assertSame(self::ENABLE_GARAN_EN, $productLanguage['enableGaran']);
         self::assertSame(self::GUARANTEE_LEGEND_EN, $productLanguage['lsShopGuaranteeLabels_legend']);
         self::assertSame(self::GUARANTEE_LEGEND_EN, $variantLanguage['lsShopGuaranteeLabels_legend']);
-        self::assertSame(self::GUARANTEE_LEGEND_EN, $settingsLanguage['legalGuarantee_legend']);
-        self::assertSame(self::TRUNCATION_LENGTH_EN, $settingsLanguage['garanLabelTruncationLength']);
+        self::assertArrayNotHasKey('legalGuarantee_legend', $settingsLanguage);
+        self::assertArrayNotHasKey('garanLabelTruncationLength', $settingsLanguage);
         self::assertSame('Standard user group', $settingsLanguage['ls_shop_standardGroup'][0]);
         self::assertSame('Brand/Trademark', $productLanguage['guaranteeBrand'][0]);
         self::assertSame('Model identifier', $productLanguage['guaranteeModelIdentifier'][0]);
@@ -144,7 +133,7 @@ final class LegalGuaranteeBackendMaskLanguageTest extends TestCase
     }
 
     #[DataProvider('languageProvider')]
-    public function testGaranSuffixAppearsOnlyAtTheThreeSpecifiedLocations(string $language): void
+    public function testGaranSuffixAppearsOnlyAtTheTwoSpecifiedLocations(string $language): void
     {
         $locationsWithSuffix = [];
 
@@ -192,8 +181,6 @@ final class LegalGuaranteeBackendMaskLanguageTest extends TestCase
                 'lsShopLgnModeBlankOption',
             ],
             'tl_lsShopSettings' => [
-                'legalGuarantee_legend',
-                'garanLabelTruncationLength',
                 'ls_shop_standardGroup',
             ],
         ];

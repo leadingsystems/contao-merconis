@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LeadingSystems\MerconisBundle\Tests\Functional;
 
 require_once __DIR__ . '/../../src/Resources/contao/helpers/ls_shop_generalHelper.php';
+require_once __DIR__ . '/../Support/RecordingLegalGuaranteeTemplateRenderer.php';
 
 use Contao\Database;
 use Contao\System;
@@ -14,11 +15,13 @@ use LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\LegalGuaranteeMarkupBu
 use LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\LegalGuaranteeMarkupProvider;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\ProductGuaranteeDisplayResolver;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranLabelRenderer;
+use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranNestedLabelRenderer;
 use LeadingSystems\MerconisBundle\LegalGuarantee\GaranLabelGrouping;
 use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\CurrentMemberGroupLgnModeProvider;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeLanguageResolver;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Order\OrderLabelSnapshotBuilder;
+use LeadingSystems\MerconisBundle\Tests\Support\RecordingLegalGuaranteeTemplateRenderer;
 use Merconis\Core\ls_shop_cartX;
 use Merconis\Core\ls_shop_product;
 use PHPUnit\Framework\TestCase;
@@ -42,6 +45,7 @@ final class LegalGuaranteeMemberGroupLgnModeHookTest extends TestCase
      */
     private array $originalGlobals = [];
     private mixed $originalContainer;
+    private RecordingLegalGuaranteeTemplateRenderer $templateRenderer;
 
     protected function setUp(): void
     {
@@ -66,6 +70,7 @@ final class LegalGuaranteeMemberGroupLgnModeHookTest extends TestCase
         $GLOBALS['TL_CSS'] = [];
         $GLOBALS['objPage'] = (object) ['language' => 'de_DE'];
         LegalGuaranteeMemberGroupLgnModeTestHook::$lgnModeToSet = '';
+        $this->templateRenderer = new RecordingLegalGuaranteeTemplateRenderer();
     }
 
     protected function tearDown(): void
@@ -107,8 +112,11 @@ final class LegalGuaranteeMemberGroupLgnModeHookTest extends TestCase
         $product = $this->createProduct('inherit', 10, 'Kissen', 'ART-100');
         $markupProvider = $this->createMarkupProvider();
 
-        self::assertStringContainsString('EU-Information zur gesetzlichen Gewährleistung', $markupProvider->renderProductLgnNotice($product));
-        self::assertStringContainsString('Herstellergarantie von ACME für X100 mit 3 Jahren', $markupProvider->renderProductGaranLabel($product));
+        $lgnUnitData = $this->templateRenderer->getTemplateDataForOutput($markupProvider->renderProductLgnNotice($product));
+        $garanUnitData = $this->templateRenderer->getTemplateDataForOutput($markupProvider->renderProductGaranLabel($product));
+
+        self::assertSame('EU-Information zur gesetzlichen Gewährleistung', $lgnUnitData['euLinkText']);
+        self::assertStringContainsString('Herstellergarantie von ACME für X100 mit 3 Jahren', $garanUnitData['svgMarkup']);
     }
 
     public function testHookAdjustmentEnablesLastOrderPageOutput(): void
@@ -119,7 +127,13 @@ final class LegalGuaranteeMemberGroupLgnModeHookTest extends TestCase
         $markupProvider = $this->createMarkupProvider();
 
         self::assertNotSame('', $markupProvider->checkoutLgnNotice());
-        self::assertStringContainsString('Kissen - ART-100', $markupProvider->checkoutGaranBlock());
+
+        $assignmentData = $this->templateRenderer->getTemplateDataForOutput($markupProvider->checkoutGaranBlock());
+
+        self::assertSame(
+            [['productName' => 'Kissen', 'variantName' => '', 'articleNumber' => 'ART-100']],
+            $assignmentData['items'][0]['positions']
+        );
     }
 
     public function testHookAdjustmentReachesOrderSnapshot(): void
@@ -215,9 +229,11 @@ final class LegalGuaranteeMemberGroupLgnModeHookTest extends TestCase
             new ProductGuaranteeDisplayResolver(),
             new GaranLabelGrouping(),
             new LegalGuaranteeMarkupBuilder(),
+            $this->templateRenderer,
             new NullLogger(),
             new CurrentMemberGroupLgnModeProvider(),
             [new GaranLabelRenderer($assetLocator, OfficialGuaranteeAssetLocator::GARAN_VERSION)],
+            [new GaranNestedLabelRenderer($assetLocator, OfficialGuaranteeAssetLocator::GARAN_VERSION)],
         );
     }
 

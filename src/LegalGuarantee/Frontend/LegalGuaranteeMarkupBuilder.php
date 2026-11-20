@@ -10,12 +10,97 @@ use RuntimeException;
 
 final class LegalGuaranteeMarkupBuilder
 {
-    private int $renderSequence = 0;
+    private const SVG_ID_PREFIX = 'merconis-legal-guarantee-svg-';
+    private const POPOVER_ID_PREFIX = 'merconis-legal-guarantee-popover-';
 
     /**
-     * @param array<string, string> $attributes
+     * Anzahl der Verwendungen je Kennung im aktuellen Request. Ab der zweiten Verwendung
+     * erhält die Kennung einen fortlaufenden Zähler (Spec 27, Abschnitt 8.3).
+     *
+     * @var array<string, int>
      */
-    public function buildSvgMarkup(string $svgMarkup, string $title, array $attributes = []): string
+    private array $usageCountByIdentifier = [];
+
+    /**
+     * Bereitet ein SVG für die Ausgabe als Inline-SVG mit `<title>`, `role="img"` und
+     * `aria-labelledby` auf. Das Präfix der Fragment-IDs bildet `$idScope` (Typ und Bezug,
+     * zum Beispiel `garan-6560`).
+     *
+     * @param array<string, string> $attributes
+     *
+     * @throws RuntimeException Wenn das SVG nicht gelesen oder geschrieben werden kann
+     */
+    public function buildSvgMarkup(string $svgMarkup, string $title, string $idScope, array $attributes = []): string
+    {
+        $document = $this->loadSvgDocument($svgMarkup);
+        $svgElement = $document->documentElement;
+        $renderPrefix = $this->reserveIdentifier(self::SVG_ID_PREFIX . $idScope) . '-';
+        $this->rewriteFragmentIdentifiers($document, $renderPrefix);
+        $this->removeTitleElements($svgElement);
+
+        $titleId = $renderPrefix . 'title';
+
+        $svgElement->setAttribute('role', 'img');
+        $svgElement->setAttribute('aria-labelledby', $titleId);
+        $svgElement->setAttribute('focusable', 'false');
+
+        foreach ($attributes as $name => $value) {
+            $svgElement->setAttribute($name, $value);
+        }
+
+        $titleElement = $document->createElementNS('http://www.w3.org/2000/svg', 'title');
+        $titleElement->setAttribute('id', $titleId);
+        $titleElement->appendChild($document->createTextNode($title));
+        $svgElement->insertBefore($titleElement, $svgElement->firstChild);
+
+        return $this->serializeSvgElement($document, $svgElement);
+    }
+
+    /**
+     * Variante für das Nested Label im GARAN-Button: ohne `<title>`, für Screenreader
+     * ausgeblendet (Spec 27, Abschnitt 12). Den Namen trägt der Button.
+     *
+     * @throws RuntimeException Wenn das SVG nicht gelesen oder geschrieben werden kann
+     */
+    public function buildDecorativeSvgMarkup(string $svgMarkup, string $idScope): string
+    {
+        $document = $this->loadSvgDocument($svgMarkup);
+        $svgElement = $document->documentElement;
+        $this->rewriteFragmentIdentifiers(
+            $document,
+            $this->reserveIdentifier(self::SVG_ID_PREFIX . $idScope) . '-'
+        );
+        $this->removeTitleElements($svgElement);
+
+        $svgElement->removeAttribute('role');
+        $svgElement->removeAttribute('aria-labelledby');
+        $svgElement->setAttribute('aria-hidden', 'true');
+        $svgElement->setAttribute('focusable', 'false');
+
+        return $this->serializeSvgElement($document, $svgElement);
+    }
+
+    /**
+     * Liefert die ID der geöffneten Ansicht eines Buttons aus Typ und Bezug, zum Beispiel
+     * `merconis-legal-guarantee-popover-lgn-6560`.
+     */
+    public function reservePopoverId(string $idScope): string
+    {
+        return $this->reserveIdentifier(self::POPOVER_ID_PREFIX . $idScope);
+    }
+
+    private function reserveIdentifier(string $identifier): string
+    {
+        $usageCount = ($this->usageCountByIdentifier[$identifier] ?? 0) + 1;
+        $this->usageCountByIdentifier[$identifier] = $usageCount;
+
+        return 1 === $usageCount ? $identifier : $identifier . '-' . $usageCount;
+    }
+
+    /**
+     * @throws RuntimeException Wenn das SVG nicht gelesen werden kann
+     */
+    private function loadSvgDocument(string $svgMarkup): DOMDocument
     {
         $document = new DOMDocument('1.0', 'UTF-8');
         $document->preserveWhiteSpace = true;
@@ -30,20 +115,11 @@ final class LegalGuaranteeMarkupBuilder
             throw new RuntimeException('SVG markup could not be parsed.');
         }
 
-        $svgElement = $document->documentElement;
-        $renderPrefix = $this->generateRenderPrefix();
-        $this->rewriteFragmentIdentifiers($document, $renderPrefix);
+        return $document;
+    }
 
-        $titleId = $renderPrefix . 'title';
-
-        $svgElement->setAttribute('role', 'img');
-        $svgElement->setAttribute('aria-labelledby', $titleId);
-        $svgElement->setAttribute('focusable', 'false');
-
-        foreach ($attributes as $name => $value) {
-            $svgElement->setAttribute($name, $value);
-        }
-
+    private function removeTitleElements(DOMElement $svgElement): void
+    {
         $existingTitleNodes = $svgElement->getElementsByTagName('title');
 
         while ($existingTitleNodes->length > 0) {
@@ -55,81 +131,20 @@ final class LegalGuaranteeMarkupBuilder
 
             $existingTitleNode->parentNode->removeChild($existingTitleNode);
         }
+    }
 
-        $titleElement = $document->createElementNS('http://www.w3.org/2000/svg', 'title');
-        $titleElement->setAttribute('id', $titleId);
-        $titleElement->appendChild($document->createTextNode($title));
-        $svgElement->insertBefore($titleElement, $svgElement->firstChild);
-
+    /**
+     * @throws RuntimeException Wenn das SVG nicht geschrieben werden kann
+     */
+    private function serializeSvgElement(DOMDocument $document, DOMElement $svgElement): string
+    {
         $serializedSvg = $document->saveXML($svgElement);
 
         if (false === $serializedSvg) {
             throw new RuntimeException('SVG markup could not be serialized.');
         }
 
-        return '<div class="merconis-legal-guarantee-label">' . $serializedSvg . '</div>';
-    }
-
-    /**
-     * @param array<string, string> $attributes
-     */
-    public function buildLabelMarkup(
-        string $svgMarkup,
-        string $title,
-        string $euUrl,
-        string $euLinkText,
-        array $attributes = [],
-    ): string {
-        return $this->buildSvgMarkup($svgMarkup, $title, $attributes)
-            . sprintf(
-                '<p class="merconis-legal-guarantee-link">'
-                . '<a href="%s" target="_blank" rel="noreferrer noopener">%s</a>'
-                . '</p>',
-                $this->escape($euUrl),
-                $this->escape($euLinkText)
-            );
-    }
-
-    /**
-     * @param list<array{
-     *   productNames: list<string>,
-     *   labelMarkup: string
-     * }> $items
-     * @param array<string, string> $translations
-     */
-    public function buildCheckoutGaranBlock(array $items, array $translations): string
-    {
-        if ([] === $items) {
-            return '';
-        }
-
-        $html = '<div class="merconis-legal-guarantee-checkout-block">';
-        $html .= '<h3>' . $this->escape($translations['garanBlockHeadline'] ?? '') . '</h3>';
-
-        foreach ($items as $item) {
-            $html .= '<div class="merconis-legal-guarantee-checkout-item">';
-            $html .= '<p class="merconis-legal-guarantee-checkout-item-title">';
-            $html .= implode('<br>', array_map([$this, 'escape'], $item['productNames']));
-            $html .= '</p>';
-            $html .= $item['labelMarkup'];
-            $html .= '</div>';
-        }
-
-        $html .= '</div>';
-
-        return $html;
-    }
-
-    private function escape(string $value): string
-    {
-        return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-    }
-
-    private function generateRenderPrefix(): string
-    {
-        ++$this->renderSequence;
-
-        return 'merconis-legal-guarantee-svg-' . $this->renderSequence . '-';
+        return $serializedSvg;
     }
 
     private function rewriteFragmentIdentifiers(DOMDocument $document, string $renderPrefix): void

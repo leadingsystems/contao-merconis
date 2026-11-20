@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LeadingSystems\MerconisBundle\Tests\Integration;
 
 use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranLabelRenderer;
+use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranNestedLabelRenderer;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeLanguageResolver;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Order\GaranV1OrderSnapshotRenderer;
@@ -168,6 +169,61 @@ final class LegalGuaranteeOrderSnapshotWiringTest extends TestCase
             OfficialGuaranteeAssetLocator::GARAN_VERSION,
             $registeredRenderer->getVersion()
         );
+    }
+
+    public function testCurrentGaranVersionHasRegisteredNestedLabelRenderer(): void
+    {
+        $servicesContents = (string) file_get_contents(self::SERVICES_PATH);
+        $serviceId = 'merconis.legal_guarantee.garan_nested_label_renderer.'
+            . str_replace('.', '_', OfficialGuaranteeAssetLocator::GARAN_VERSION);
+        $expectedServiceDefinition = sprintf(
+            "  %s:\n"
+            . "    class: LeadingSystems\\MerconisBundle\\LegalGuarantee\\Garan\\V1_0\\GaranNestedLabelRenderer\n"
+            . "    arguments:\n"
+            . "      \$version: '%s'\n"
+            . "    tags:\n"
+            . "      - { name: 'merconis.legal_guarantee.garan_nested_label_renderer' }\n",
+            $serviceId,
+            OfficialGuaranteeAssetLocator::GARAN_VERSION
+        );
+        $registeredNestedLabelRenderer = new GaranNestedLabelRenderer(
+            $this->createAssetLocator(),
+            OfficialGuaranteeAssetLocator::GARAN_VERSION
+        );
+
+        self::assertStringContainsString($expectedServiceDefinition, $servicesContents);
+        self::assertStringContainsString(
+            "LeadingSystems\\MerconisBundle\\LegalGuarantee\\Frontend\\LegalGuaranteeMarkupProvider:\n"
+            . "    arguments:\n"
+            . "      \$contaoErrorLogger: '@monolog.logger.contao.error'\n"
+            . "      \$garanLabelRenderers: !tagged_iterator merconis.legal_guarantee.garan_label_renderer\n"
+            . "      \$garanNestedLabelRenderers: !tagged_iterator merconis.legal_guarantee.garan_nested_label_renderer\n",
+            $servicesContents
+        );
+        self::assertSame(
+            OfficialGuaranteeAssetLocator::GARAN_VERSION,
+            $registeredNestedLabelRenderer->getVersion()
+        );
+        self::assertStringContainsString(
+            'data-field="duration"',
+            $registeredNestedLabelRenderer->render('36')
+        );
+    }
+
+    public function testOrderSnapshotAndGaranPdfDoNotUseTheNestedLabel(): void
+    {
+        $orderDirectory = __DIR__ . '/../../src/LegalGuarantee/Order/';
+        $pdfWriterPath = __DIR__ . '/../../src/LegalGuarantee/Garan/V1_0/MpdfGaranPdfAttachmentWriter.php';
+
+        foreach (glob($orderDirectory . '*.php') ?: [] as $orderClassPath) {
+            $orderClassContents = (string) file_get_contents($orderClassPath);
+
+            self::assertStringNotContainsString('Nested', $orderClassContents, basename($orderClassPath));
+            self::assertStringNotContainsString('garan-label-nested', $orderClassContents, basename($orderClassPath));
+        }
+
+        self::assertStringNotContainsString('Nested', (string) file_get_contents($pdfWriterPath));
+        self::assertStringNotContainsString('garan-label-nested', (string) file_get_contents($pdfWriterPath));
     }
 
     private function createAssetLocator(): OfficialGuaranteeAssetLocator

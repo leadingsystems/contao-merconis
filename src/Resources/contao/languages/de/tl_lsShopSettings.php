@@ -57,7 +57,6 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchResultPages'] = array('Seite "Ergebnisse der Produktsuche"', 'Wählen Sie hier die Seite aus, auf der die Ergebnisse einer Produktsuche dargestellt werden. Falls Sie einen mehrsprachigen Shop betreiben, wählen Sie bitte für jede Sprache die entsprechende Seite aus.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_myOrdersPages'] = array('Seite "Meine Bestellungen"', 'Wählen Sie hier die Seite aus, in der das Modul "Meine Bestellungen" eingebunden ist. Falls Sie einen mehrsprachigen Shop betreiben, wählen Sie bitte für jede Sprache die entsprechende Seite aus.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_myOrderDetailsPages'] = array('Seite "Meine Bestellungen - Details"', 'Wählen Sie hier die Seite aus, in der das Modul "Meine Bestellungen - Details" eingebunden ist. Falls Sie einen mehrsprachigen Shop betreiben, wählen Sie bitte für jede Sprache die entsprechende Seite aus.');
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['garanLabelTruncationLength'] = ['Kürzung von Marke und Modell (Zeichen)', 'Längere Angaben zu Marke oder Modell werden in der Kennzeichnung der Herstellergarantie nach dieser Zeichenzahl mit "..." gekürzt. Gespeichert bleibt der vollständige Wert. Standard: 30.'];
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_defaultProductPages'] = array('Seite "Standard Produkt Seite"', 'Wählen Sie hier die Seite aus, auf der Produkte angezeigt werden sollen, die keiner oder nur unveröffentlichten Seiten zugeordnet sind.');
 
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_systemImages_videoDummyCover']	= array('Default-Cover für Videos', 'Wählen Sie hier eine Grafik aus, die als Coverbild für Videos verwendet werden soll, wenn keine zum Video passende Cover-Grafik ermittelt werden kann.');
@@ -164,7 +163,6 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['systemImages_legend']   = 'Systembilder';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['orderNr_legend']   = 'Bestellnummer';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['systemSettings_legend']   = 'System-Einstellungen';
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['legalGuarantee_legend'] = 'Gewährleistung und Herstellergarantie (GARAN-Label)';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['liveHits_legend']   = 'Einstellungen für MERCONIS LiveHits';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['orderStatusTypes_legend'] = 'Statusmöglichkeiten';
 	

@@ -7,6 +7,7 @@ namespace LeadingSystems\MerconisBundle\Tests\Unit;
 use DOMDocument;
 use DOMElement;
 use DOMXPath;
+use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\BrandModelTruncator;
 use LeadingSystems\MerconisBundle\LegalGuarantee\Garan\V1_0\GaranLabelRenderer;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeAssetLocator;
 use LeadingSystems\MerconisBundle\LegalGuarantee\OfficialGuaranteeLanguageResolver;
@@ -15,12 +16,6 @@ use RuntimeException;
 
 final class GaranLabelRendererTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-        unset($GLOBALS['TL_CONFIG']['garanLabelTruncationLength']);
-    }
-
     public function testRenderReplacesOnlyTheThreeEditableTextFields(): void
     {
         $renderer = new GaranLabelRenderer($this->createAssetLocator(), 'v1.0');
@@ -58,7 +53,7 @@ final class GaranLabelRendererTest extends TestCase
         self::assertStringContainsString('data-field="model"', $renderedSvg);
         self::assertStringContainsString('data-field="duration"', $renderedSvg);
         self::assertStringContainsString('text-anchor="end"', $renderedSvg);
-        self::assertStringContainsString('id="garan-duration-clip"', $renderedSvg);
+        self::assertStringNotContainsString('clip-path', $renderedSvg);
         self::assertStringContainsString('M229.14,0v39.02', $renderedSvg);
         self::assertStringNotContainsString('garan-label-nested', $renderedSvg);
         self::assertStringNotContainsString('class="cls-', $renderedSvg);
@@ -71,26 +66,23 @@ final class GaranLabelRendererTest extends TestCase
         $templateXpath = new DOMXPath($templateDocument);
         $templateXpath->registerNamespace('svg', 'http://www.w3.org/2000/svg');
 
-        self::assertSame(
-            $templateXpath->query('//svg:clipPath')?->length,
-            $xpath->query('//svg:clipPath')?->length
-        );
-        self::assertSame(3, $xpath->query('//svg:clipPath')?->length);
+        self::assertSame(0, $templateXpath->query('//svg:clipPath')?->length);
+        self::assertSame(0, $xpath->query('//svg:clipPath')?->length);
         self::assertSame(0, $xpath->query('//svg:style')?->length);
         self::assertSame(3, $xpath->query('//svg:text')?->length);
         self::assertSame(3, $templateXpath->query('//svg:text')?->length);
     }
 
-    public function testRenderTruncatesBrandAndModelUsingConfiguredThreshold(): void
+    public function testRenderInsertsBrandAndModelTruncatedByWidth(): void
     {
-        $GLOBALS['TL_CONFIG']['garanLabelTruncationLength'] = '5';
         $renderer = new GaranLabelRenderer($this->createAssetLocator(), 'v1.0');
-
-        $renderedSvg = $renderer->render(
-            'ABCDEFGHIJ',
-            '1234567890',
-            '30'
+        $truncator = BrandModelTruncator::fromWidthTableFile(
+            $this->createAssetLocator()->getGaranVersionDirectory('v1.0') . '/' . BrandModelTruncator::WIDTH_TABLE_FILENAME
         );
+        $brand = 'Mustermann Qualitätshersteller GmbH & Co. KG';
+        $modelIdentifier = 'Professional Series X-2000 Ultra Silent Edition';
+
+        $renderedSvg = $renderer->render($brand, $modelIdentifier, '36');
 
         $document = new DOMDocument('1.0', 'UTF-8');
         $document->loadXML($renderedSvg);
@@ -98,8 +90,41 @@ final class GaranLabelRendererTest extends TestCase
         $xpath = new DOMXPath($document);
         $xpath->registerNamespace('svg', 'http://www.w3.org/2000/svg');
 
-        self::assertSame('ABCDE...', $this->getTextContent($xpath, '//svg:text[@data-field="brand"]'));
-        self::assertSame('12345...', $this->getTextContent($xpath, '//svg:text[@data-field="model"]'));
+        self::assertSame(
+            ['brand' => 'Mustermann Qu...', 'model' => 'Professional Series X-2000 Ultra Sile...'],
+            $truncator->truncate($brand, $modelIdentifier)
+        );
+        self::assertSame('Mustermann Qu...', $this->getTextContent($xpath, '//svg:text[@data-field="brand"]'));
+        self::assertSame(
+            'Professional Series X-2000 Ultra Sile...',
+            $this->getTextContent($xpath, '//svg:text[@data-field="model"]')
+        );
+        self::assertSame('3', $this->getTextContent($xpath, '//svg:text[@data-field="duration"]'));
+    }
+
+    public function testRenderKeepsLongBrandWhenTheModelLeavesRoom(): void
+    {
+        $renderer = new GaranLabelRenderer($this->createAssetLocator(), 'v1.0');
+
+        $renderedSvg = $renderer->render('Mustermann Qualitätshersteller GmbH & Co. KG', 'FooBar', '30');
+
+        self::assertStringContainsString('>Mustermann Qualitätshersteller GmbH &amp; Co. KG<', $renderedSvg);
+        self::assertStringContainsString('>FooBar<', $renderedSvg);
+        self::assertStringNotContainsString('...', $renderedSvg);
+    }
+
+    public function testRenderFailsWithoutWidthTableOfTheVersion(): void
+    {
+        $projectDir = $this->createTempProjectDirWithGaranTemplateOverride('v1.1', '', '', false);
+        $renderer = new GaranLabelRenderer(
+            new OfficialGuaranteeAssetLocator($projectDir, new OfficialGuaranteeLanguageResolver()),
+            'v1.1'
+        );
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('GARAN width table could not be read');
+
+        $renderer->render('ACME', 'X100', '36');
     }
 
     public function testRenderUsesCanonicalAnchorsForBrandModelAndDuration(): void
@@ -135,8 +160,8 @@ final class GaranLabelRendererTest extends TestCase
     {
         $projectDir = $this->createTempProjectDirWithGaranTemplateOverride(
             'v1.0',
-            'data-field="duration" clip-path="url(#garan-duration-clip)"><tspan x="0" y="0">XX</tspan>',
-            'data-field="duration" clip-path="url(#garan-duration-clip)"><tspan x="42" y="99">XX</tspan>'
+            'data-field="duration"><tspan x="0" y="0">XX</tspan>',
+            'data-field="duration"><tspan x="42" y="99">XX</tspan>'
         );
         $renderer = new GaranLabelRenderer(
             new OfficialGuaranteeAssetLocator($projectDir, new OfficialGuaranteeLanguageResolver()),
@@ -240,20 +265,27 @@ final class GaranLabelRendererTest extends TestCase
     private function createTempProjectDirWithGaranTemplateOverride(
         string $version,
         string $search,
-        string $replace
+        string $replace,
+        bool $copyWidthTable = true
     ): string {
         $projectDir = sys_get_temp_dir() . '/merconis-garan-label-' . uniqid('', true);
+        $sourceDirectory = dirname(__DIR__, 2) . '/src/Resources/legal-guarantee/garan/v1.0';
         $targetDirectory = $projectDir . '/src/Resources/legal-guarantee/garan/' . $version;
 
         mkdir($targetDirectory, 0777, true);
 
-        $templateContents = (string) file_get_contents(
-            dirname(__DIR__, 2) . '/src/Resources/legal-guarantee/garan/v1.0/garan-label-colour.svg'
-        );
+        $templateContents = (string) file_get_contents($sourceDirectory . '/garan-label-colour.svg');
         file_put_contents(
             $targetDirectory . '/garan-label-colour.svg',
-            str_replace($search, $replace, $templateContents)
+            '' === $search ? $templateContents : str_replace($search, $replace, $templateContents)
         );
+
+        if ($copyWidthTable) {
+            copy(
+                $sourceDirectory . '/' . BrandModelTruncator::WIDTH_TABLE_FILENAME,
+                $targetDirectory . '/' . BrandModelTruncator::WIDTH_TABLE_FILENAME
+            );
+        }
 
         return $projectDir;
     }

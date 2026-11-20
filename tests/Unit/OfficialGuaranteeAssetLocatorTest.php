@@ -50,6 +50,21 @@ final class OfficialGuaranteeAssetLocatorTest extends TestCase
         self::assertFileExists((string) $assetLocator->resolveLgnPdfPath('xx_YY'));
     }
 
+    public function testBuildsPublicLgnSvgPathMatchingTheVersionedCoreFile(): void
+    {
+        $assetLocator = $this->createAssetLocator();
+        $publicPath = $assetLocator->getLgnSvgPublicPathByLanguage('de');
+
+        self::assertSame(
+            'bundles/leadingsystemsmerconis/legal-guarantee/lgn/v1.0/legal-guarantee-notice-de.svg',
+            $publicPath
+        );
+        self::assertFileExists(
+            dirname(__DIR__, 2) . '/src/Resources/public/legal-guarantee/'
+            . substr($publicPath, strlen('bundles/leadingsystemsmerconis/legal-guarantee/'))
+        );
+    }
+
     public function testProvidesPdfForEveryOfficialSvgLanguage(): void
     {
         $assetLocator = $this->createAssetLocator();
@@ -138,7 +153,7 @@ final class OfficialGuaranteeAssetLocatorTest extends TestCase
         self::assertStringContainsString('format("truetype")', $stylesheetContents);
         self::assertStringNotContainsString('.otf', $stylesheetContents);
         self::assertStringNotContainsString('format("opentype")', $stylesheetContents);
-        self::assertStringNotContainsString('.merconis-legal-guarantee-label', $stylesheetContents);
+        self::assertStringNotContainsString('.merconis-legal-guarantee-', $stylesheetContents);
         self::assertStringNotContainsString('max-width: 600px', $stylesheetContents);
         self::assertDoesNotMatchRegularExpression(
             '/\b(body|html)\b[^{]*\{[^}]*font-family\s*:/s',

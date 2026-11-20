@@ -118,8 +118,8 @@ final class MemberGroupLgnModeLanguageTest extends TestCase
 
         self::assertArrayNotHasKey(self::FORMER_GLL_MIGRATION_CONTROL_FIELD, $settingsLanguageDe);
         self::assertArrayNotHasKey(self::FORMER_GLL_MIGRATION_CONTROL_FIELD, $settingsLanguageEn);
-        self::assertArrayHasKey('garanLabelTruncationLength', $settingsLanguageDe);
-        self::assertArrayHasKey('garanLabelTruncationLength', $settingsLanguageEn);
+        self::assertArrayHasKey('ls_shop_standardGroup', $settingsLanguageDe);
+        self::assertArrayHasKey('ls_shop_standardGroup', $settingsLanguageEn);
     }
 
     public function testDashboardAnnouncementFollowsSpecWording(): void

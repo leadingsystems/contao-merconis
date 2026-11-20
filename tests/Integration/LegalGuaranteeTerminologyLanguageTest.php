@@ -49,8 +49,6 @@ final class LegalGuaranteeTerminologyLanguageTest extends TestCase
         ],
         'tl_lsShopSettings' => [
             'ls_shop_standardGroup',
-            'garanLabelTruncationLength',
-            'legalGuarantee_legend',
         ],
     ];
 
@@ -69,14 +67,12 @@ final class LegalGuaranteeTerminologyLanguageTest extends TestCase
 
     /*
      * Die Stellen, an denen Spec 27, Abschnitt "Terminologie", den Klammerzusatz erlaubt:
-     * Titel von `enableGaran`, Legende der Palette an Produkt und an Variante, Legende der
-     * Grundeinstellungen.
+     * Titel von `enableGaran` und Legende der Palette an Produkt und an Variante.
      */
     private const GARAN_SUFFIX_LOCATIONS = [
         'tl_ls_shop_product.enableGaran.0',
         'tl_ls_shop_product.lsShopGuaranteeLabels_legend',
         'tl_ls_shop_variant.lsShopGuaranteeLabels_legend',
-        'tl_lsShopSettings.legalGuarantee_legend',
     ];
 
     private const FORBIDDEN_TERMS = [
@@ -96,7 +92,6 @@ final class LegalGuaranteeTerminologyLanguageTest extends TestCase
         'guaranteeBrand',
         'guaranteeModelIdentifier',
         'ls_shop_standardGroup',
-        'garanLabelTruncationLength',
     ];
 
     private const LABEL_FIELD_DESIGNATIONS = ['Brand/Trademark', 'Model identifier'];

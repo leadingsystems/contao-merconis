@@ -57,7 +57,6 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_searchResultPages'] = array('Page "Product search results"', 'Select the page on which the product search results shall be displayed here. Should you run a multilingual shop, please select the corresponding page for each language.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_myOrdersPages'] = array('Page "My orders"', 'Select the page which contains the module "My orders". Should you run a multilingual shop, please select the corresponding page for each language.');
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_myOrderDetailsPages'] = array('Page "My orders - details"', 'Select the page which contains the module "My orders - details". Should you run a multilingual shop, please select the corresponding page for each language.');
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['garanLabelTruncationLength'] = ['Shorten brand and model after (characters)', 'Longer brand or model values are shortened with "..." after this number of characters in the manufacturer guarantee label. The full value remains stored. Default: 30.'];
     $GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_defaultProductPages'] = array('Page "Standard Product Page"', 'Select the page on which products are to be displayed that are not assigned to any pages or are only assigned to unpublished pages.');
 
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['ls_shop_systemImages_videoDummyCover']	= array('Default cover for videos', 'Select a graphic to be used as cover image for videos if no cover graphic matching the video can be found.');
@@ -163,7 +162,6 @@
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['systemImages_legend']   = 'System images';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['orderNr_legend']   = 'Order number';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['systemSettings_legend']   = 'System settings';
-	$GLOBALS['TL_LANG']['tl_lsShopSettings']['legalGuarantee_legend'] = 'Legal guarantee and manufacturer guarantee (GARAN label)';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['liveHits_legend']   = 'MERCONIS LiveHits settings';
 	$GLOBALS['TL_LANG']['tl_lsShopSettings']['orderStatusTypes_legend'] = 'Status options';
 	

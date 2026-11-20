@@ -7,13 +7,16 @@ namespace LeadingSystems\MerconisBundle\LegalGuarantee;
 final class GaranLabelGrouping
 {
     /**
+     * Fasst Positionen mit gleichem Label zusammen (Spec 27, Abschnitt 7.3). Die Gruppen
+     * folgen ihrer ersten Position, die Positionen ihrer Reihenfolge.
+     *
      * @param list<array{
      *   productId: string,
      *   garanVersion: string,
      *   brand: string,
      *   modelIdentifier: string,
      *   durationMonths: string,
-     *   productName: string
+     *   position: array{productName: string, variantName: string, articleNumber: string}
      * }> $entries
      *
      * @return list<array{
@@ -22,7 +25,7 @@ final class GaranLabelGrouping
      *   brand: string,
      *   modelIdentifier: string,
      *   durationMonths: string,
-     *   productNames: list<string>
+     *   positions: list<array{productName: string, variantName: string, articleNumber: string}>
      * }>
      */
     public function groupEntries(array $entries): array
@@ -41,12 +44,12 @@ final class GaranLabelGrouping
                     'brand' => $normalizedEntry['brand'],
                     'modelIdentifier' => $normalizedEntry['modelIdentifier'],
                     'durationMonths' => $normalizedEntry['durationMonths'],
-                    'productNames' => [],
+                    'positions' => [],
                 ];
                 $groupOrder[] = $groupKey;
             }
 
-            $groupsByKey[$groupKey]['productNames'][] = $normalizedEntry['productName'];
+            $groupsByKey[$groupKey]['positions'][] = $normalizedEntry['position'];
         }
 
         return array_values(array_map(
@@ -62,7 +65,7 @@ final class GaranLabelGrouping
      *   brand: string,
      *   modelIdentifier: string,
      *   durationMonths: string,
-     *   productName: string
+     *   position: array{productName: string, variantName: string, articleNumber: string}
      * } $entry
      *
      * @return array{
@@ -71,7 +74,7 @@ final class GaranLabelGrouping
      *   brand: string,
      *   modelIdentifier: string,
      *   durationMonths: string,
-     *   productName: string
+     *   position: array{productName: string, variantName: string, articleNumber: string}
      * }
      */
     private function normalizeEntry(array $entry): array
@@ -82,7 +85,11 @@ final class GaranLabelGrouping
             'brand' => trim($entry['brand']),
             'modelIdentifier' => trim($entry['modelIdentifier']),
             'durationMonths' => trim($entry['durationMonths']),
-            'productName' => trim($entry['productName']),
+            'position' => [
+                'productName' => trim($entry['position']['productName']),
+                'variantName' => trim($entry['position']['variantName']),
+                'articleNumber' => trim($entry['position']['articleNumber']),
+            ],
         ];
     }
 
@@ -92,8 +99,7 @@ final class GaranLabelGrouping
      *   garanVersion: string,
      *   brand: string,
      *   modelIdentifier: string,
-     *   durationMonths: string,
-     *   productName: string
+     *   durationMonths: string
      * } $entry
      */
     private function buildGroupKey(array $entry): string

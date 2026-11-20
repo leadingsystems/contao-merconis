@@ -46,11 +46,11 @@ echo $this->strTemplate ?>">
         include(__DIR__.'/template_cart--big_include_cart.html5');
         include(__DIR__.'/template_cart--big_include_calculation.html5');
 
-        if ($this->checkoutLgnNotice || $this->checkoutGaranBlock) {
+        if ($this->checkoutGaranBlock || $this->checkoutLgnNoticeButton) {
             ?>
-            <div class="merconis-legal-guarantee-checkout-output">
-                <?php echo $this->checkoutLgnNotice; ?>
+            <div class="merconis-legal-guarantee-checkout">
                 <?php echo $this->checkoutGaranBlock; ?>
+                <?php echo $this->checkoutLgnNoticeButton; ?>
             </div>
             <?php
         }

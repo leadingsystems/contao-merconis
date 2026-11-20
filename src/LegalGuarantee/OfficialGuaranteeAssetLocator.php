@@ -13,6 +13,7 @@ final class OfficialGuaranteeAssetLocator
     public const GARAN_VERSION = 'v1.0';
 
     private const LGN_BASE_RELATIVE_PATH = 'src/Resources/public/legal-guarantee/lgn/';
+    private const LGN_PUBLIC_BASE_PATH = 'bundles/leadingsystemsmerconis/legal-guarantee/lgn/';
     private const GARAN_BASE_RELATIVE_PATH = 'src/Resources/legal-guarantee/garan/';
     private const FONT_BASE_RELATIVE_PATH = 'src/Resources/public/legal-guarantee/fonts/inter';
     private const FONT_STYLESHEET_RELATIVE_PATH = 'src/Resources/public/legal-guarantee/legal-guarantee-fonts.css';
@@ -88,6 +89,18 @@ final class OfficialGuaranteeAssetLocator
     public function getLgnSvgPathByLanguage(string $officialLanguage, ?string $version = null): string
     {
         return $this->getLgnVersionDirectory($version) . '/' . sprintf(
+            self::LGN_SVG_FILENAME_PATTERN,
+            $officialLanguage
+        );
+    }
+
+    /**
+     * Öffentlicher Pfad der amtlichen LGN-SVG relativ zum Web-Root, wie ihn der Browser
+     * anfordert (Spec 27, Abschnitt 5.4).
+     */
+    public function getLgnSvgPublicPathByLanguage(string $officialLanguage, ?string $version = null): string
+    {
+        return self::LGN_PUBLIC_BASE_PATH . ($version ?? self::LGN_VERSION) . '/' . sprintf(
             self::LGN_SVG_FILENAME_PATTERN,
             $officialLanguage
         );

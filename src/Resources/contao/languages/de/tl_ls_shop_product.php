@@ -60,8 +60,8 @@
 	];
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['enableGaran']									=	['Herstellergarantie anzeigen (GARAN-Label)', 'Zeigt die Kennzeichnung der Herstellergarantie, wenn Dauer, Marke und Modell ausgefüllt sind und die gesetzliche Gewährleistung angezeigt wird.'];
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeDurationMonths']							=	array('Garantiedauer in Monaten', 'Eingabe in ganzen Monaten, von 30 bis 360, in Schritten von 6. Die Ausgabe zeigt Jahre mit Komma als Dezimaltrennzeichen: 30 Monate ergeben 2,5 Jahre, 36 Monate ergeben 3 Jahre.');
-	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeBrand']									=	['Marke (Brand/Trademark)', 'Der volle Wert wird gespeichert. Bei Überlänge wird der Markenname in der Labeldarstellung mit \'...\' gekürzt. Die Kürzungslänge ist in den Grundeinstellungen konfigurierbar.'];
-	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeModelIdentifier']						=	['Modell (Model identifier)', 'Der volle Wert wird gespeichert. Bei Überlänge wird die Modellkennung in der Labeldarstellung mit \'...\' gekürzt. Die Kürzungslänge ist in den Grundeinstellungen konfigurierbar.'];
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeBrand']									=	['Marke (Brand/Trademark)', 'Der volle Wert wird gespeichert. Bei Überlänge wird der Markenname in der Labeldarstellung mit \'...\' gekürzt.'];
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeModelIdentifier']						=	['Modell (Model identifier)', 'Der volle Wert wird gespeichert. Bei Überlänge wird die Modellkennung in der Labeldarstellung mit \'...\' gekürzt.'];
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['legalGuaranteeMessages']							=	[
 		'lgnModeChangedForManufacturerGuarantee' => 'Die Einstellung zur gesetzlichen Gewährleistung wurde auf "%s" gestellt, weil die Herstellergarantie eingeschaltet ist und die Mitteilung über die gesetzliche Gewährleistung voraussetzt.',
 		'manufacturerGuaranteeDisabledByLgnMode' => 'Die Herstellergarantie wurde ausgeschaltet, weil die Mitteilung über die gesetzliche Gewährleistung mit der gewählten Einstellung in der Standard-Benutzergruppe nicht angezeigt wird. Dauer, Marke und Modell bleiben gespeichert.',
