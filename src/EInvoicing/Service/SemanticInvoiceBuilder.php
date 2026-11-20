@@ -6,6 +6,8 @@ namespace LeadingSystems\MerconisBundle\EInvoicing\Service;
 use DateInterval;
 use DateTimeImmutable;
 use LeadingSystems\MerconisBundle\EInvoicing\Exception\InvoiceValidationException;
+use LeadingSystems\MerconisBundle\EInvoicing\Failure\EInvoicingErrorCode;
+use LeadingSystems\MerconisBundle\EInvoicing\Failure\EInvoicingFailureReason;
 use LeadingSystems\MerconisBundle\EInvoicing\Model\SemanticInvoice;
 use LeadingSystems\MerconisBundle\EInvoicing\Support\EInvoicingCodeLists;
 use LeadingSystems\MerconisBundle\EInvoicing\Support\EInvoicingSnapshotFields;
@@ -41,29 +43,29 @@ final class SemanticInvoiceBuilder
     ): SemanticInvoice {
         $violations = [];
 
-        $invoiceNumber = $this->requireString($invoiceNumber, 'Die Rechnungsnummer (BT-1) fehlt.', $violations);
-        $currencyCode = strtoupper($this->requireValue($shopSettings, 'ls_shop_currencyCode', 'Der Währungscode (BT-5) fehlt.', $violations));
+        $invoiceNumber = $this->requireString($invoiceNumber, EInvoicingErrorCode::MISSING_BT_1, $violations);
+        $currencyCode = strtoupper($this->requireValue($shopSettings, 'ls_shop_currencyCode', EInvoicingErrorCode::MISSING_BT_5, $violations));
 
         $seller = $this->buildSeller($shopSettings, $violations);
         $buyer = $this->buildBuyer($orderData, $violations);
         $taxCountry = strtoupper($this->requireString(
             $orderData[EInvoicingSnapshotFields::ORDER_TAX_COUNTRY_ORDER_KEY] ?? null,
-            'Der Checkout-Snapshot für das Steuerland fehlt.',
+            EInvoicingErrorCode::SNAPSHOT_MISSING_TAX_COUNTRY,
             $violations
         ));
         $vatExemptionStatus = $this->requireString(
             $orderData[EInvoicingSnapshotFields::ORDER_VAT_EXEMPTION_STATUS_ORDER_KEY] ?? null,
-            'Der Checkout-Snapshot für den Befreiungsstatus fehlt.',
+            EInvoicingErrorCode::SNAPSHOT_MISSING_VAT_EXEMPTION_STATUS,
             $violations
         );
 
-        if (!in_array($vatExemptionStatus, [
+        if ($vatExemptionStatus !== '' && !in_array($vatExemptionStatus, [
             EInvoicingTaxResolver::VAT_EXEMPTION_STATUS_EXEMPT_EU,
             EInvoicingTaxResolver::VAT_EXEMPTION_STATUS_EXEMPT_NON_EU,
             EInvoicingTaxResolver::VAT_EXEMPTION_STATUS_NOT_EXEMPT_EU,
             EInvoicingTaxResolver::VAT_EXEMPTION_STATUS_NOT_EXEMPT_NON_EU,
         ], true)) {
-            $violations[] = 'Der Checkout-Snapshot für den Befreiungsstatus ist ungültig.';
+            $violations[] = new EInvoicingFailureReason(EInvoicingErrorCode::SNAPSHOT_INVALID_VAT_EXEMPTION_STATUS);
         }
 
         $shipTo = $this->buildShipTo($orderData, $taxCountry, $violations);
@@ -77,11 +79,11 @@ final class SemanticInvoiceBuilder
         $totals = $this->buildTotals($orderData, $lineItems, $documentCharges, $taxSummaries);
 
         if ($lineItems === []) {
-            $violations[] = 'Es muss mindestens eine Rechnungsposition vorhanden sein.';
+            $violations[] = new EInvoicingFailureReason(EInvoicingErrorCode::MISSING_BG_25);
         }
 
         if ($taxSummaries === []) {
-            $violations[] = 'Es muss mindestens eine Steueraufschlüsselung (BG-23) vorhanden sein.';
+            $violations[] = new EInvoicingFailureReason(EInvoicingErrorCode::MISSING_BG_23);
         }
 
         if ($violations !== []) {
@@ -109,8 +111,8 @@ final class SemanticInvoiceBuilder
     }
 
     /**
-     * @param array<string, mixed> $shopSettings
-     * @param list<string>         $violations
+     * @param array<string, mixed>          $shopSettings
+     * @param list<EInvoicingFailureReason> $violations
      *
      * @return array<string, mixed>
      */
@@ -123,25 +125,30 @@ final class SemanticInvoiceBuilder
         );
 
         if ($vatId === null && $taxNumber === null) {
-            $violations[] = 'Es fehlt mindestens eine Verkäufer-Steuerkennung (BT-31 oder BT-32).';
+            $violations[] = new EInvoicingFailureReason(EInvoicingErrorCode::MISSING_BT_31_OR_BT_32);
         }
 
-        if ($electronicAddressScheme === null || !EInvoicingCodeLists::hasElectronicAddressScheme($electronicAddressScheme)) {
-            $violations[] = 'Das Schema der Verkäufer-E-Adresse (BT-34-1) ist ungültig.';
+        if ($electronicAddressScheme === null) {
+            $violations[] = new EInvoicingFailureReason(EInvoicingErrorCode::MISSING_BT_34_1);
+        } elseif (!EInvoicingCodeLists::hasElectronicAddressScheme($electronicAddressScheme)) {
+            $violations[] = new EInvoicingFailureReason(
+                EInvoicingErrorCode::INVALID_BT_34_1,
+                ['scheme' => $electronicAddressScheme]
+            );
         }
 
         return [
-            'name' => $this->requireValue($shopSettings, 'ls_shop_einvoicingSellerName', 'Der Verkäufername (BT-27) fehlt.', $violations),
-            'street' => $this->requireValue($shopSettings, 'ls_shop_einvoicingSellerStreet', 'Die Verkäuferstraße (BT-35) fehlt.', $violations),
-            'postalCode' => $this->requireValue($shopSettings, 'ls_shop_einvoicingSellerPostalCode', 'Die Verkäufer-PLZ (BT-38) fehlt.', $violations),
-            'city' => $this->requireValue($shopSettings, 'ls_shop_einvoicingSellerCity', 'Der Verkäufer-Ort (BT-37) fehlt.', $violations),
-            'countryCode' => strtoupper($this->requireValue($shopSettings, 'ls_shop_country', 'Das Verkäuferland (BT-40) fehlt.', $violations)),
+            'name' => $this->requireValue($shopSettings, 'ls_shop_einvoicingSellerName', EInvoicingErrorCode::MISSING_BT_27, $violations),
+            'street' => $this->requireValue($shopSettings, 'ls_shop_einvoicingSellerStreet', EInvoicingErrorCode::MISSING_BT_35, $violations),
+            'postalCode' => $this->requireValue($shopSettings, 'ls_shop_einvoicingSellerPostalCode', EInvoicingErrorCode::MISSING_BT_38, $violations),
+            'city' => $this->requireValue($shopSettings, 'ls_shop_einvoicingSellerCity', EInvoicingErrorCode::MISSING_BT_37, $violations),
+            'countryCode' => strtoupper($this->requireValue($shopSettings, 'ls_shop_country', EInvoicingErrorCode::MISSING_BT_40, $violations)),
             'vatId' => $vatId,
             'taxNumber' => $taxNumber,
             'electronicAddress' => $this->requireValue(
                 $shopSettings,
                 'ls_shop_einvoicingSellerElectronicAddress',
-                'Die Verkäufer-E-Adresse (BT-34) fehlt.',
+                EInvoicingErrorCode::MISSING_BT_34,
                 $violations
             ),
             'electronicAddressScheme' => $electronicAddressScheme ?? '',
@@ -152,8 +159,8 @@ final class SemanticInvoiceBuilder
     }
 
     /**
-     * @param array<string, mixed> $orderData
-     * @param list<string>         $violations
+     * @param array<string, mixed>          $orderData
+     * @param list<EInvoicingFailureReason> $violations
      *
      * @return array<string, mixed>
      */
@@ -181,18 +188,18 @@ final class SemanticInvoiceBuilder
         }
 
         if ($buyerName === null) {
-            $violations[] = 'Der Käufername (BT-44) fehlt.';
+            $violations[] = new EInvoicingFailureReason(EInvoicingErrorCode::MISSING_BT_44);
         }
 
         if ($countryCode === null) {
-            $violations[] = 'Der Käufer-Ländercode (BT-55) fehlt.';
+            $violations[] = new EInvoicingFailureReason(EInvoicingErrorCode::MISSING_BT_55);
         }
 
         return [
             'name' => $buyerName ?? '',
-            'street' => $this->requireString($personalData['street'] ?? null, 'Die Käuferstraße (BT-50) fehlt.', $violations),
-            'postalCode' => $this->requireString($personalData['postal'] ?? null, 'Die Käufer-PLZ (BT-53) fehlt.', $violations),
-            'city' => $this->requireString($personalData['city'] ?? null, 'Der Käufer-Ort (BT-52) fehlt.', $violations),
+            'street' => $this->requireString($personalData['street'] ?? null, EInvoicingErrorCode::MISSING_BT_50, $violations),
+            'postalCode' => $this->requireString($personalData['postal'] ?? null, EInvoicingErrorCode::MISSING_BT_53, $violations),
+            'city' => $this->requireString($personalData['city'] ?? null, EInvoicingErrorCode::MISSING_BT_52, $violations),
             'countryCode' => strtoupper((string) $countryCode),
             'vatId' => $this->optionalString($personalData['VATID'] ?? null),
             'taxNumber' => null,
@@ -205,8 +212,8 @@ final class SemanticInvoiceBuilder
     }
 
     /**
-     * @param array<string, mixed> $orderData
-     * @param list<string>         $violations
+     * @param array<string, mixed>          $orderData
+     * @param list<EInvoicingFailureReason> $violations
      *
      * @return array<string, mixed>
      */
@@ -237,7 +244,7 @@ final class SemanticInvoiceBuilder
             if ($taxCountry !== '') {
                 $shipToCountry = $taxCountry;
             } else {
-                $violations[] = 'Der Liefer-Ländercode (BT-80) fehlt.';
+                $violations[] = new EInvoicingFailureReason(EInvoicingErrorCode::MISSING_BT_80);
                 $shipToCountry = '';
             }
         }
@@ -254,8 +261,8 @@ final class SemanticInvoiceBuilder
     /**
      * @param array<string, mixed>      $shopSettings
      * @param array<string, mixed>      $paymentMethod
-     * @param array<string, mixed>|null $memberGroup
-     * @param list<string>              $violations
+     * @param array<string, mixed>|null     $memberGroup
+     * @param list<EInvoicingFailureReason> $violations
      *
      * @return array<string, mixed>
      */
@@ -272,17 +279,20 @@ final class SemanticInvoiceBuilder
         );
 
         if ($meansCode === null) {
-            $violations[] = 'Der Checkout-Snapshot für Payment Means Code (BT-81) fehlt.';
+            $violations[] = new EInvoicingFailureReason(EInvoicingErrorCode::SNAPSHOT_MISSING_BT_81);
             $meansCode = EInvoicingCodeLists::normalizeCode(
                 $paymentMethod[EInvoicingSnapshotFields::PAYMENT_METHOD_MEANS_CODE_FIELD] ?? null
             );
         }
 
         if ($meansCode === null) {
-            $violations[] = 'Der Payment Means Code (BT-81) fehlt.';
+            $violations[] = new EInvoicingFailureReason(EInvoicingErrorCode::MISSING_BT_81);
             $meansCode = EInvoicingCodeLists::DEFAULT_PAYMENT_MEANS_CODE;
         } elseif (!EInvoicingCodeLists::hasPaymentMeansCode($meansCode)) {
-            $violations[] = 'Der Payment Means Code (BT-81) ist ungültig.';
+            $violations[] = new EInvoicingFailureReason(
+                EInvoicingErrorCode::INVALID_BT_81,
+                ['paymentMeansCode' => $meansCode]
+            );
             $meansCode = EInvoicingCodeLists::DEFAULT_PAYMENT_MEANS_CODE;
         }
 
@@ -321,31 +331,40 @@ final class SemanticInvoiceBuilder
             EInvoicingCodeLists::DEFAULT_PAYMENT_MEANS_CODE,
             EInvoicingCodeLists::SEPA_DIRECT_DEBIT_CODE,
         ], true) && $iban === null) {
-            $violations[] = 'Für Payment Means Code ' . $meansCode . ' ist eine Verkäufer-IBAN (BT-84) erforderlich.';
+            $violations[] = new EInvoicingFailureReason(
+                EInvoicingErrorCode::MISSING_BT_84,
+                ['paymentMeansCode' => $meansCode]
+            );
         }
 
         if ($meansCode === EInvoicingCodeLists::SEPA_DIRECT_DEBIT_CODE) {
             if ($mandateReference === null) {
-                $violations[] = 'Für Payment Means Code '
-                    . EInvoicingCodeLists::SEPA_DIRECT_DEBIT_CODE
-                    . ' ist die Mandatsreferenz (BT-89) erforderlich.';
+                $violations[] = new EInvoicingFailureReason(
+                    EInvoicingErrorCode::MISSING_BT_89,
+                    ['paymentMeansCode' => $meansCode]
+                );
             }
 
             if ($creditorId === null) {
-                $violations[] = 'Für Payment Means Code '
-                    . EInvoicingCodeLists::SEPA_DIRECT_DEBIT_CODE
-                    . ' ist die Gläubiger-ID (BT-90) erforderlich.';
+                $violations[] = new EInvoicingFailureReason(
+                    EInvoicingErrorCode::MISSING_BT_90,
+                    ['paymentMeansCode' => $meansCode]
+                );
             }
 
             if ($debtorIban === null) {
-                $violations[] = 'Für Payment Means Code '
-                    . EInvoicingCodeLists::SEPA_DIRECT_DEBIT_CODE
-                    . ' ist die Käufer-IBAN (BT-91) erforderlich.';
+                $violations[] = new EInvoicingFailureReason(
+                    EInvoicingErrorCode::MISSING_BT_91,
+                    ['paymentMeansCode' => $meansCode]
+                );
             }
         }
 
         if (in_array($meansCode, ['48', '54', '55'], true)) {
-            $violations[] = 'Payment Means Code ' . $meansCode . ' wird nicht unterstützt, weil die Kartennummer (BT-87) in Merconis nicht verfügbar ist.';
+            $violations[] = new EInvoicingFailureReason(
+                EInvoicingErrorCode::MISSING_BT_87,
+                ['paymentMeansCode' => $meansCode]
+            );
         }
 
         return [
@@ -361,8 +380,8 @@ final class SemanticInvoiceBuilder
     }
 
     /**
-     * @param array<string, mixed>                    $orderData
-     * @param list<string>                            $violations
+     * @param array<string, mixed>          $orderData
+     * @param list<EInvoicingFailureReason> $violations
      *
      * @return list<array<string, mixed>>
      */
@@ -381,8 +400,10 @@ final class SemanticInvoiceBuilder
 
             $taxRate = $this->floatValue($item['taxPercentage'] ?? null);
 
+            $lineIdParameter = ['lineId' => (string) $lineId];
+
             if ($taxRate === null) {
-                $violations[] = 'Für Position ' . $lineId . ' fehlt der Steuersatz (BT-152).';
+                $violations[] = new EInvoicingFailureReason(EInvoicingErrorCode::MISSING_BT_152, $lineIdParameter);
                 continue;
             }
 
@@ -390,22 +411,27 @@ final class SemanticInvoiceBuilder
 
             $quantity = $this->floatValue($item['quantity'] ?? null);
 
-            if ($quantity === null || $quantity <= 0) {
-                $violations[] = 'Für Position ' . $lineId . ' fehlt eine gültige Menge (BT-129).';
+            if ($quantity === null) {
+                $violations[] = new EInvoicingFailureReason(EInvoicingErrorCode::MISSING_BT_129, $lineIdParameter);
+                continue;
+            }
+
+            if ($quantity <= 0) {
+                $violations[] = new EInvoicingFailureReason(EInvoicingErrorCode::INVALID_BT_129, $lineIdParameter);
                 continue;
             }
 
             $itemName = $this->resolveItemName($item);
 
             if ($itemName === null) {
-                $violations[] = 'Für Position ' . $lineId . ' fehlt der Produktname.';
+                $violations[] = new EInvoicingFailureReason(EInvoicingErrorCode::MISSING_BT_153, $lineIdParameter);
                 continue;
             }
 
             $unitPrice = $this->floatValue($item['price'] ?? null);
 
             if ($unitPrice === null) {
-                $violations[] = 'Für Position ' . $lineId . ' fehlt der Positionspreis.';
+                $violations[] = new EInvoicingFailureReason(EInvoicingErrorCode::MISSING_BT_146, $lineIdParameter);
                 continue;
             }
 
@@ -434,8 +460,8 @@ final class SemanticInvoiceBuilder
     /**
      * @param array<string, mixed>                    $orderData
      * @param array<string, mixed>                    $paymentMethod
-     * @param array<string, mixed>                    $shippingMethod
-     * @param list<string>                            $violations
+     * @param array<string, mixed>          $shippingMethod
+     * @param list<EInvoicingFailureReason> $violations
      *
      * @return list<array<string, mixed>>
      */
@@ -626,8 +652,8 @@ final class SemanticInvoiceBuilder
     }
 
     /**
-     * @param array<string, mixed>                    $methodData
-     * @param list<string>                            $violations
+     * @param array<string, mixed>          $methodData
+     * @param list<EInvoicingFailureReason> $violations
      *
      * @return array<string, mixed>|null
      */
@@ -649,22 +675,24 @@ final class SemanticInvoiceBuilder
         $taxedWith = is_array($taxedWithValue) ? $taxedWithValue : [];
         $taxEntry = $this->firstTaxedAmountEntry($taxedWith);
 
+        $chargeReasonParameter = ['chargeReason' => $reason];
+
         if ($taxEntry === null) {
-            $violations[] = 'Für den Dokumentzuschlag "' . $reason . '" fehlt die Steuerzuordnung.';
+            $violations[] = new EInvoicingFailureReason(EInvoicingErrorCode::MISSING_BT_103, $chargeReasonParameter);
             return null;
         }
 
         $taxRate = $this->floatValue($taxEntry['taxRate'] ?? null);
 
         if ($taxRate === null) {
-            $violations[] = 'Für den Dokumentzuschlag "' . $reason . '" fehlt der Steuersatz.';
+            $violations[] = new EInvoicingFailureReason(EInvoicingErrorCode::MISSING_BT_103, $chargeReasonParameter);
             return null;
         }
 
         $taxCategoryCode = strtoupper($taxCategorySnapshot ?? '');
 
         if ($taxCategoryCode === '') {
-            $violations[] = 'Für den Dokumentzuschlag "' . $reason . '" fehlt der Checkout-Snapshot der Steuerkategorie (BT-118).';
+            $violations[] = new EInvoicingFailureReason(EInvoicingErrorCode::SNAPSHOT_MISSING_BT_102, $chargeReasonParameter);
             return null;
         }
 
@@ -678,8 +706,8 @@ final class SemanticInvoiceBuilder
     }
 
     /**
-     * @param array<string, mixed> $item
-     * @param list<string>         $violations
+     * @param array<string, mixed>          $item
+     * @param list<EInvoicingFailureReason> $violations
      */
     private function resolveLineItemTaxCategoryCode(array $item, string $lineId, array &$violations): string
     {
@@ -687,7 +715,7 @@ final class SemanticInvoiceBuilder
         $taxCategoryCode = $this->optionalString($extendedInfo[EInvoicingSnapshotFields::ITEM_TAX_CATEGORY_CODE] ?? null);
 
         if ($taxCategoryCode === null) {
-            $violations[] = 'Für Position ' . $lineId . ' fehlt der Checkout-Snapshot der Steuerkategorie (BT-118).';
+            $violations[] = new EInvoicingFailureReason(EInvoicingErrorCode::SNAPSHOT_MISSING_BT_151, ['lineId' => $lineId]);
 
             return 'S';
         }
@@ -759,23 +787,23 @@ final class SemanticInvoiceBuilder
     }
 
     /**
-     * @param array<string, mixed> $values
-     * @param list<string>         $violations
+     * @param array<string, mixed>          $values
+     * @param list<EInvoicingFailureReason> $violations
      */
-    private function requireValue(array $values, string $key, string $message, array &$violations): string
+    private function requireValue(array $values, string $key, EInvoicingErrorCode $missingValueCode, array &$violations): string
     {
-        return $this->requireString($values[$key] ?? null, $message, $violations);
+        return $this->requireString($values[$key] ?? null, $missingValueCode, $violations);
     }
 
     /**
-     * @param list<string> $violations
+     * @param list<EInvoicingFailureReason> $violations
      */
-    private function requireString(mixed $value, string $message, array &$violations): string
+    private function requireString(mixed $value, EInvoicingErrorCode $missingValueCode, array &$violations): string
     {
         $value = $this->optionalString($value);
 
         if ($value === null) {
-            $violations[] = $message;
+            $violations[] = new EInvoicingFailureReason($missingValueCode);
             return '';
         }
 

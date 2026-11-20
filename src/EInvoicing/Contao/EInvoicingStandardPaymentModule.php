@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace LeadingSystems\MerconisBundle\EInvoicing\Contao;
 
 use Contao\Database;
+use Contao\FrontendTemplate;
 use Contao\FrontendUser;
-use Contao\StringUtil;
 use Contao\System;
 use LeadingSystems\MerconisBundle\EInvoicing\Support\EInvoicingCodeLists;
 use LeadingSystems\MerconisBundle\EInvoicing\Support\EInvoicingSnapshotFields;
@@ -14,6 +14,8 @@ use Merconis\Core\ls_shop_paymentModule_standard;
 
 final class EInvoicingStandardPaymentModule extends ls_shop_paymentModule_standard
 {
+    public const STORED_SEPA_MANDATE_TEMPLATE = 'template_einvoicingStoredSepaMandate_default';
+
     public array $arrCurrentSettings = [];
 
     /**
@@ -58,53 +60,22 @@ final class EInvoicingStandardPaymentModule extends ls_shop_paymentModule_standa
 
         $memberRecord = $this->loadFrontendMemberRecord();
 
-        $heading = $this->escapeHtml($this->translate(
-            'einvoicing_sepa_mandate_heading',
-            'Hinterlegtes SEPA-Mandat'
-        ));
-        $accountHolderLabel = $this->escapeHtml($this->translate(
-            'einvoicing_sepa_mandate_account_holder_label',
-            'Kontoinhaber'
-        ));
-        $ibanLabel = $this->escapeHtml($this->translate(
-            'einvoicing_sepa_mandate_iban_label',
-            'IBAN'
-        ));
-        $mandateReferenceLabel = $this->escapeHtml($this->translate(
-            'einvoicing_sepa_mandate_reference_label',
-            'Mandatsreferenz'
-        ));
-        $changeNotice = $this->escapeHtml($this->translate(
-            'einvoicing_sepa_mandate_change_notice',
-            'Wenn Sie ein anderes Konto verwenden möchten, wählen Sie bitte eine andere Zahlungsmethode oder klären Sie die Änderung außerhalb der Bestellung.'
-        ));
-        $fallbackValue = $this->translate(
-            'einvoicing_sepa_mandate_value_unavailable',
-            'nicht hinterlegt'
+        $storedSepaMandateTemplate = new FrontendTemplate(self::STORED_SEPA_MANDATE_TEMPLATE);
+        $storedSepaMandateTemplate->headline = $this->translate('einvoicing_sepa_mandate_heading');
+        $storedSepaMandateTemplate->accountHolderLabel = $this->translate('einvoicing_sepa_mandate_account_holder_label');
+        $storedSepaMandateTemplate->ibanLabel = $this->translate('einvoicing_sepa_mandate_iban_label');
+        $storedSepaMandateTemplate->mandateReferenceLabel = $this->translate('einvoicing_sepa_mandate_reference_label');
+        $storedSepaMandateTemplate->changeNotice = $this->translate('einvoicing_sepa_mandate_change_notice');
+        $storedSepaMandateTemplate->valueUnavailableText = $this->translate('einvoicing_sepa_mandate_value_unavailable');
+        $storedSepaMandateTemplate->accountHolder = StoredSepaMandateFormatter::resolveAccountHolder($memberRecord);
+        $storedSepaMandateTemplate->maskedIban = StoredSepaMandateFormatter::maskIban(
+            $memberRecord[EInvoicingSnapshotFields::MEMBER_DEBTOR_IBAN_FIELD] ?? null
+        );
+        $storedSepaMandateTemplate->mandateReference = $this->optionalString(
+            $memberRecord[EInvoicingSnapshotFields::MEMBER_MANDATE_REFERENCE_FIELD] ?? null
         );
 
-        $accountHolder = $this->escapeHtml(
-            StoredSepaMandateFormatter::resolveAccountHolder($memberRecord) ?? $fallbackValue
-        );
-        $maskedIban = $this->escapeHtml(
-            StoredSepaMandateFormatter::maskIban(
-                $memberRecord[EInvoicingSnapshotFields::MEMBER_DEBTOR_IBAN_FIELD] ?? null
-            ) ?? $fallbackValue
-        );
-        $mandateReference = $this->escapeHtml(
-            $this->optionalString(
-                $memberRecord[EInvoicingSnapshotFields::MEMBER_MANDATE_REFERENCE_FIELD]
-                ?? null
-            ) ?? $fallbackValue
-        );
-
-        return '<div class="lsShopStoredSepaMandate">'
-            . '<p class="lsShopStoredSepaMandate__headline">' . $heading . '</p>'
-            . '<p class="lsShopStoredSepaMandate__row"><span class="lsShopStoredSepaMandate__label">' . $accountHolderLabel . ':</span> <span class="lsShopStoredSepaMandate__value">' . $accountHolder . '</span></p>'
-            . '<p class="lsShopStoredSepaMandate__row"><span class="lsShopStoredSepaMandate__label">' . $ibanLabel . ':</span> <span class="lsShopStoredSepaMandate__value">' . $maskedIban . '</span></p>'
-            . '<p class="lsShopStoredSepaMandate__row"><span class="lsShopStoredSepaMandate__label">' . $mandateReferenceLabel . ':</span> <span class="lsShopStoredSepaMandate__value">' . $mandateReference . '</span></p>'
-            . '<p class="lsShopStoredSepaMandate__hint">' . $changeNotice . '</p>'
-            . '</div>';
+        return $storedSepaMandateTemplate->parse();
     }
 
     private function usesStoredSepaMandate(): bool
@@ -158,14 +129,9 @@ final class EInvoicingStandardPaymentModule extends ls_shop_paymentModule_standa
         return $this->frontendMemberRecord;
     }
 
-    private function translate(string $key, string $fallback): string
+    private function translate(string $key): string
     {
-        return $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis'][$key] ?? $fallback;
-    }
-
-    private function escapeHtml(string $value): string
-    {
-        return StringUtil::specialchars($value);
+        return $GLOBALS['TL_LANG']['MSC']['ls_contao-merconis'][$key];
     }
 
     private function optionalString(mixed $value): ?string

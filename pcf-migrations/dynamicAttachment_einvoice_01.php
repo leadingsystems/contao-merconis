@@ -5,6 +5,9 @@ namespace Merconis\Core;
 
 use Contao\Controller;
 use Contao\System;
+use LeadingSystems\MerconisBundle\EInvoicing\Exception\EInvoicingGenerationException;
+use LeadingSystems\MerconisBundle\EInvoicing\Failure\EInvoicingErrorCode;
+use LeadingSystems\MerconisBundle\EInvoicing\Failure\EInvoicingFailureReason;
 use LeadingSystems\MerconisBundle\EInvoicing\Service\EInvoicingDocumentWriter;
 use LeadingSystems\MerconisBundle\EInvoicing\Service\EInvoicingFailureReporter;
 use LeadingSystems\MerconisBundle\EInvoicing\Service\OrderEInvoicingDocumentGenerator;
@@ -29,27 +32,19 @@ class dynamicAttachment_einvoice_01 extends Controller
     {
         $orderId = (int) ($this->arrOrder['id'] ?? 0);
         $invoiceNumber = is_scalar($this->counterNr) ? trim((string) $this->counterNr) : '';
+        $assignedInvoiceNumber = $invoiceNumber !== '' ? $invoiceNumber : null;
+        $missingInputReasons = [];
 
         if ($orderId <= 0) {
-            /** @var EInvoicingFailureReporter $failureReporter */
-            $failureReporter = System::getContainer()->get(EInvoicingFailureReporter::class);
-            $failureReporter->reportFailureForOrder(
-                $this->arrOrder,
-                new \RuntimeException('Unable to generate dynamic e-invoice attachment because the order ID is missing.'),
-                'dynamic attachment'
-            );
-
-            return null;
+            $missingInputReasons[] = new EInvoicingFailureReason(EInvoicingErrorCode::ORDER_ID_MISSING);
         }
 
-        if ($invoiceNumber === '') {
-            /** @var EInvoicingFailureReporter $failureReporter */
-            $failureReporter = System::getContainer()->get(EInvoicingFailureReporter::class);
-            $failureReporter->reportFailureForOrder(
-                $this->arrOrder,
-                new \RuntimeException('No invoice number was provided.'),
-                'dynamic attachment'
-            );
+        if ($assignedInvoiceNumber === null) {
+            $missingInputReasons[] = new EInvoicingFailureReason(EInvoicingErrorCode::INVOICE_NUMBER_MISSING);
+        }
+
+        if ($missingInputReasons !== []) {
+            $this->reportFailure(new EInvoicingGenerationException($missingInputReasons), $assignedInvoiceNumber);
 
             return null;
         }
@@ -65,11 +60,16 @@ class dynamicAttachment_einvoice_01 extends Controller
 
             return $documentWriter->writePdf($generatedDocument, self::OUTPUT_DIRECTORY, true);
         } catch (\Throwable $throwable) {
-            /** @var EInvoicingFailureReporter $failureReporter */
-            $failureReporter = System::getContainer()->get(EInvoicingFailureReporter::class);
-            $failureReporter->reportFailureForOrder($this->arrOrder, $throwable, 'dynamic attachment');
+            $this->reportFailure($throwable, $assignedInvoiceNumber);
 
             return null;
         }
+    }
+
+    private function reportFailure(\Throwable $throwable, ?string $assignedInvoiceNumber): void
+    {
+        /** @var EInvoicingFailureReporter $failureReporter */
+        $failureReporter = System::getContainer()->get(EInvoicingFailureReporter::class);
+        $failureReporter->reportMessageDispatchFailure($this->arrOrder, $throwable, $assignedInvoiceNumber);
     }
 }

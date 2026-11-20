@@ -7,9 +7,12 @@ require_once __DIR__ . '/../Support/EInvoicingFixtureLoader.php';
 
 use DateTimeImmutable;
 use LeadingSystems\MerconisBundle\EInvoicing\Exception\InvoiceValidationException;
+use LeadingSystems\MerconisBundle\EInvoicing\Failure\EInvoicingErrorCode;
+use LeadingSystems\MerconisBundle\EInvoicing\Failure\EInvoicingFailureReason;
 use LeadingSystems\MerconisBundle\EInvoicing\Service\SemanticInvoiceBuilder;
 use LeadingSystems\MerconisBundle\EInvoicing\Support\EInvoicingSnapshotFields;
 use LeadingSystems\MerconisBundle\Tests\Support\EInvoicingFixtureLoader;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class SemanticInvoiceBuilderTest extends TestCase
@@ -92,18 +95,142 @@ final class SemanticInvoiceBuilderTest extends TestCase
         [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup] = EInvoicingFixtureLoader::loadFixtureInput('S1-EINV-001');
         unset($shopSettings['ls_shop_einvoicingSellerName']);
 
-        $this->expectException(InvoiceValidationException::class);
-        $this->expectExceptionMessage('Der Verkäufername (BT-27) fehlt.');
-
-        (new SemanticInvoiceBuilder())->build(
-            $orderData,
-            $shopSettings,
-            $paymentMethod,
-            $shippingMethod,
-            $taxRates,
-            $memberGroup,
+        $failureReasons = $this->buildExpectingFailureReasons(
+            [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup],
             'RE-2026-0001',
             new DateTimeImmutable('2026-10-08')
+        );
+
+        self::assertSame(
+            [[EInvoicingErrorCode::MISSING_BT_27, []]],
+            $this->describeFailureReasons($failureReasons)
+        );
+    }
+
+    public function testBuildReportsMultipleMissingSellerFieldsAsIndividualReasons(): void
+    {
+        [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup] = EInvoicingFixtureLoader::loadFixtureInput('S1-EINV-001');
+        unset($shopSettings['ls_shop_einvoicingSellerStreet']);
+        unset($shopSettings['ls_shop_einvoicingSellerCity']);
+        $shopSettings['ls_shop_einvoicingSellerElectronicAddressScheme'] = 'XX';
+
+        $failureReasons = $this->buildExpectingFailureReasons(
+            [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup],
+            'RE-2026-0001',
+            new DateTimeImmutable('2026-10-08')
+        );
+
+        self::assertSame(
+            [
+                [EInvoicingErrorCode::INVALID_BT_34_1, ['scheme' => 'XX']],
+                [EInvoicingErrorCode::MISSING_BT_35, []],
+                [EInvoicingErrorCode::MISSING_BT_37, []],
+            ],
+            $this->describeFailureReasons($failureReasons)
+        );
+    }
+
+    public function testBuildReportsMissingElectronicAddressSchemeSeparatelyFromInvalidScheme(): void
+    {
+        [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup] = EInvoicingFixtureLoader::loadFixtureInput('S1-EINV-001');
+        unset($shopSettings['ls_shop_einvoicingSellerElectronicAddressScheme']);
+
+        $failureReasons = $this->buildExpectingFailureReasons(
+            [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup],
+            'RE-2026-0001',
+            new DateTimeImmutable('2026-10-08')
+        );
+
+        self::assertSame(
+            [[EInvoicingErrorCode::MISSING_BT_34_1, []]],
+            $this->describeFailureReasons($failureReasons)
+        );
+    }
+
+    public function testBuildReportsMissingVatExemptionStatusOnlyOnce(): void
+    {
+        [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup] = EInvoicingFixtureLoader::loadFixtureInput('S1-EINV-001');
+        unset($orderData[EInvoicingSnapshotFields::ORDER_VAT_EXEMPTION_STATUS_ORDER_KEY]);
+
+        $failureReasons = $this->buildExpectingFailureReasons(
+            [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup],
+            'RE-2026-0001',
+            new DateTimeImmutable('2026-10-08')
+        );
+
+        self::assertSame(
+            [[EInvoicingErrorCode::SNAPSHOT_MISSING_VAT_EXEMPTION_STATUS, []]],
+            $this->describeFailureReasons($failureReasons)
+        );
+    }
+
+    public function testBuildReportsInvalidVatExemptionStatus(): void
+    {
+        [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup] = EInvoicingFixtureLoader::loadFixtureInput('S1-EINV-001');
+        $orderData[EInvoicingSnapshotFields::ORDER_VAT_EXEMPTION_STATUS_ORDER_KEY] = 'unknownStatus';
+
+        $failureReasons = $this->buildExpectingFailureReasons(
+            [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup],
+            'RE-2026-0001',
+            new DateTimeImmutable('2026-10-08')
+        );
+
+        self::assertSame(
+            [[EInvoicingErrorCode::SNAPSHOT_INVALID_VAT_EXEMPTION_STATUS, []]],
+            $this->describeFailureReasons($failureReasons)
+        );
+    }
+
+    public function testBuildReportsLineItemQuantityAsMissingOrInvalidWithLineId(): void
+    {
+        [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup] = EInvoicingFixtureLoader::loadFixtureInput('S1-EINV-002');
+        $itemKeys = array_keys($orderData['items']);
+        unset($orderData['items'][$itemKeys[0]]['quantity']);
+        $orderData['items'][$itemKeys[1]]['quantity'] = 0;
+
+        $failureReasons = $this->buildExpectingFailureReasons(
+            [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup],
+            'RE-2026-0002',
+            new DateTimeImmutable('2026-10-08')
+        );
+
+        self::assertSame(
+            [
+                [EInvoicingErrorCode::MISSING_BT_129, ['lineId' => (string) $itemKeys[0]]],
+                [EInvoicingErrorCode::INVALID_BT_129, ['lineId' => (string) $itemKeys[1]]],
+            ],
+            $this->describeFailureReasons($failureReasons)
+        );
+    }
+
+    public function testBuildReportsMissingLineItemTaxRateNameAndPriceWithLineId(): void
+    {
+        [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup] = EInvoicingFixtureLoader::loadFixtureInput('S1-EINV-002');
+        $itemKeys = array_keys($orderData['items']);
+        unset($orderData['items'][$itemKeys[0]]['taxPercentage']);
+        unset(
+            $orderData['items'][$itemKeys[1]]['extendedInfo']['_productTitle_customerLanguage'],
+            $orderData['items'][$itemKeys[1]]['extendedInfo']['_productTitle'],
+            $orderData['items'][$itemKeys[1]]['productTitle'],
+            $orderData['items'][$itemKeys[1]]['artNr']
+        );
+        unset($orderData['items'][$itemKeys[2]]['price']);
+
+        $failureReasons = $this->buildExpectingFailureReasons(
+            [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup],
+            'RE-2026-0002',
+            new DateTimeImmutable('2026-10-08')
+        );
+
+        self::assertSame(
+            [
+                [EInvoicingErrorCode::MISSING_BT_152, ['lineId' => (string) $itemKeys[0]]],
+                [EInvoicingErrorCode::MISSING_BT_153, ['lineId' => (string) $itemKeys[1]]],
+                [EInvoicingErrorCode::MISSING_BT_146, ['lineId' => (string) $itemKeys[2]]],
+                [EInvoicingErrorCode::MISSING_BG_25, []],
+                [EInvoicingErrorCode::MISSING_BG_23, []],
+            ],
+            $this->describeFailureReasons($failureReasons)
         );
     }
 
@@ -184,18 +311,19 @@ final class SemanticInvoiceBuilderTest extends TestCase
         unset($shopSettings[EInvoicingSnapshotFields::SHOP_SETTINGS_CREDITOR_ID_FIELD]);
         unset($orderData[EInvoicingSnapshotFields::ORDER_DEBTOR_IBAN_ORDER_KEY]);
 
-        $this->expectException(InvoiceValidationException::class);
-        $this->expectExceptionMessage('BT-89');
-
-        (new SemanticInvoiceBuilder())->build(
-            $orderData,
-            $shopSettings,
-            $paymentMethod,
-            $shippingMethod,
-            $taxRates,
-            $memberGroup,
+        $failureReasons = $this->buildExpectingFailureReasons(
+            [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup],
             'RE-2026-0059',
             new DateTimeImmutable('2026-10-08')
+        );
+
+        self::assertSame(
+            [
+                [EInvoicingErrorCode::MISSING_BT_89, ['paymentMeansCode' => '59']],
+                [EInvoicingErrorCode::MISSING_BT_90, ['paymentMeansCode' => '59']],
+                [EInvoicingErrorCode::MISSING_BT_91, ['paymentMeansCode' => '59']],
+            ],
+            $this->describeFailureReasons($failureReasons)
         );
     }
 
@@ -208,18 +336,32 @@ final class SemanticInvoiceBuilderTest extends TestCase
         $orderData[EInvoicingSnapshotFields::ORDER_PAYMENT_MEANS_CODE_ORDER_KEY] = $meansCode;
         $paymentMethod[EInvoicingSnapshotFields::PAYMENT_METHOD_MEANS_CODE_FIELD] = $meansCode;
 
-        $this->expectException(InvoiceValidationException::class);
-        $this->expectExceptionMessage('BT-87');
-
-        (new SemanticInvoiceBuilder())->build(
-            $orderData,
-            $shopSettings,
-            $paymentMethod,
-            $shippingMethod,
-            $taxRates,
-            $memberGroup,
+        $failureReasons = $this->buildExpectingFailureReasons(
+            [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup],
             'RE-2026-0048',
             new DateTimeImmutable('2026-10-08')
+        );
+
+        self::assertSame(
+            [[EInvoicingErrorCode::MISSING_BT_87, ['paymentMeansCode' => $meansCode]]],
+            $this->describeFailureReasons($failureReasons)
+        );
+    }
+
+    public function testBuildReportsInvalidPaymentMeansCodeWithTheCodeAsParameter(): void
+    {
+        [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup] = EInvoicingFixtureLoader::loadFixtureInput('S1-EINV-001');
+        $orderData[EInvoicingSnapshotFields::ORDER_PAYMENT_MEANS_CODE_ORDER_KEY] = '999';
+
+        $failureReasons = $this->buildExpectingFailureReasons(
+            [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup],
+            'RE-2026-0001',
+            new DateTimeImmutable('2026-10-08')
+        );
+
+        self::assertSame(
+            [[EInvoicingErrorCode::INVALID_BT_81, ['paymentMeansCode' => '999']]],
+            $this->describeFailureReasons($failureReasons)
         );
     }
 
@@ -467,19 +609,17 @@ final class SemanticInvoiceBuilderTest extends TestCase
     public function testBuildRejectsRuleSixFixture(): void
     {
         [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup] = EInvoicingFixtureLoader::loadFixtureInput('S4-EINV-005');
+        $firstItemKey = (string) array_key_first($orderData['items']);
 
-        $this->expectException(InvoiceValidationException::class);
-        $this->expectExceptionMessage('Steuerkategorie');
-
-        (new SemanticInvoiceBuilder())->build(
-            $orderData,
-            $shopSettings,
-            $paymentMethod,
-            $shippingMethod,
-            $taxRates,
-            $memberGroup,
+        $failureReasons = $this->buildExpectingFailureReasons(
+            [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup],
             'RE-2026-0405',
             new DateTimeImmutable('2026-10-14')
+        );
+
+        self::assertSame(
+            [[EInvoicingErrorCode::SNAPSHOT_MISSING_BT_151, ['lineId' => $firstItemKey]]],
+            $this->describeFailureReasons($failureReasons)
         );
     }
 
@@ -490,18 +630,176 @@ final class SemanticInvoiceBuilderTest extends TestCase
         unset($orderData[EInvoicingSnapshotFields::ORDER_PAYMENT_MEANS_CODE_ORDER_KEY]);
         unset($orderData['items'][$firstItemKey]['extendedInfo'][EInvoicingSnapshotFields::ITEM_TAX_CATEGORY_CODE]);
 
-        $this->expectException(InvoiceValidationException::class);
-        $this->expectExceptionMessage('Checkout-Snapshot');
-
-        (new SemanticInvoiceBuilder())->build(
-            $orderData,
-            $shopSettings,
-            $paymentMethod,
-            $shippingMethod,
-            $taxRates,
-            $memberGroup,
+        $failureReasons = $this->buildExpectingFailureReasons(
+            [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup],
             'RE-2026-0005',
             new DateTimeImmutable('2026-10-08')
+        );
+
+        self::assertSame(
+            [
+                [EInvoicingErrorCode::SNAPSHOT_MISSING_BT_81, []],
+                [EInvoicingErrorCode::SNAPSHOT_MISSING_BT_151, ['lineId' => (string) $firstItemKey]],
+            ],
+            $this->describeFailureReasons($failureReasons)
+        );
+    }
+
+    /**
+     * @param \Closure(array<int, mixed>): array<int, mixed>                      $mutateFixtureInput
+     * @param list<array{0: EInvoicingErrorCode, 1: array<string, string>}> $expectedFailureReasons
+     */
+    #[DataProvider('failureScenarioProvider')]
+    public function testBuildReportsFailureScenarioWithCodesAndParameters(
+        string $fixtureId,
+        string $invoiceNumber,
+        \Closure $mutateFixtureInput,
+        array $expectedFailureReasons,
+    ): void {
+        $failureReasons = $this->buildExpectingFailureReasons(
+            $mutateFixtureInput(EInvoicingFixtureLoader::loadFixtureInput($fixtureId)),
+            $invoiceNumber,
+            new DateTimeImmutable('2026-10-08')
+        );
+
+        self::assertSame($expectedFailureReasons, $this->describeFailureReasons($failureReasons));
+    }
+
+    /**
+     * @return iterable<string, array{0: string, 1: string, 2: \Closure, 3: list<array{0: EInvoicingErrorCode, 1: array<string, string>}>}>
+     */
+    public static function failureScenarioProvider(): iterable
+    {
+        $unchanged = static fn (array $fixtureInput): array => $fixtureInput;
+
+        yield 'invoice number missing' => ['S1-EINV-001', '  ', $unchanged, [[EInvoicingErrorCode::MISSING_BT_1, []]]];
+
+        yield 'currency code missing' => ['S1-EINV-001', 'RE-1', static function (array $fixtureInput): array {
+            unset($fixtureInput[1]['ls_shop_currencyCode']);
+
+            return $fixtureInput;
+        }, [[EInvoicingErrorCode::MISSING_BT_5, []]]];
+
+        yield 'seller tax identifiers missing' => ['S1-EINV-001', 'RE-1', static function (array $fixtureInput): array {
+            unset($fixtureInput[1]['ls_shop_ownVATID'], $fixtureInput[1]['ls_shop_einvoicingSellerTaxNumber']);
+
+            return $fixtureInput;
+        }, [[EInvoicingErrorCode::MISSING_BT_31_OR_BT_32, []]]];
+
+        yield 'seller postal code, country and electronic address missing' => ['S1-EINV-001', 'RE-1', static function (array $fixtureInput): array {
+            unset(
+                $fixtureInput[1]['ls_shop_einvoicingSellerPostalCode'],
+                $fixtureInput[1]['ls_shop_country'],
+                $fixtureInput[1]['ls_shop_einvoicingSellerElectronicAddress']
+            );
+
+            return $fixtureInput;
+        }, [
+            [EInvoicingErrorCode::MISSING_BT_38, []],
+            [EInvoicingErrorCode::MISSING_BT_40, []],
+            [EInvoicingErrorCode::MISSING_BT_34, []],
+        ]];
+
+        yield 'buyer name and address missing' => ['S1-EINV-001', 'RE-1', static function (array $fixtureInput): array {
+            foreach (['firstname', 'lastname', 'company', 'street', 'postal', 'city'] as $personalDataKey) {
+                unset($fixtureInput[0]['customerData']['personalData'][$personalDataKey]);
+            }
+
+            return $fixtureInput;
+        }, [
+            [EInvoicingErrorCode::MISSING_BT_44, []],
+            [EInvoicingErrorCode::MISSING_BT_50, []],
+            [EInvoicingErrorCode::MISSING_BT_53, []],
+            [EInvoicingErrorCode::MISSING_BT_52, []],
+        ]];
+
+        yield 'buyer country, tax country and delivery country missing' => ['S1-EINV-001', 'RE-1', static function (array $fixtureInput): array {
+            unset(
+                $fixtureInput[0]['customerData']['personalData_originalOptionValues']['country'],
+                $fixtureInput[0][EInvoicingSnapshotFields::ORDER_TAX_COUNTRY_ORDER_KEY]
+            );
+
+            return $fixtureInput;
+        }, [
+            [EInvoicingErrorCode::MISSING_BT_55, []],
+            [EInvoicingErrorCode::SNAPSHOT_MISSING_TAX_COUNTRY, []],
+            [EInvoicingErrorCode::MISSING_BT_80, []],
+        ]];
+
+        yield 'payment means code missing in snapshot and payment method' => ['S1-EINV-001', 'RE-1', static function (array $fixtureInput): array {
+            unset(
+                $fixtureInput[0][EInvoicingSnapshotFields::ORDER_PAYMENT_MEANS_CODE_ORDER_KEY],
+                $fixtureInput[2][EInvoicingSnapshotFields::PAYMENT_METHOD_MEANS_CODE_FIELD]
+            );
+
+            return $fixtureInput;
+        }, [
+            [EInvoicingErrorCode::SNAPSHOT_MISSING_BT_81, []],
+            [EInvoicingErrorCode::MISSING_BT_81, []],
+        ]];
+
+        yield 'seller IBAN missing for credit transfer' => ['S1-EINV-001', 'RE-1', static function (array $fixtureInput): array {
+            unset($fixtureInput[1]['ls_shop_einvoicingSellerIban']);
+
+            return $fixtureInput;
+        }, [[EInvoicingErrorCode::MISSING_BT_84, ['paymentMeansCode' => '58']]]];
+
+        yield 'shipping charge without tax assignment' => ['S2-EINV-010', 'RE-1', static function (array $fixtureInput): array {
+            $fixtureInput[0]['shippingMethod_amountTaxedWith'] = [];
+
+            return $fixtureInput;
+        }, [[EInvoicingErrorCode::MISSING_BT_103, ['chargeReason' => 'Versandkosten']]]];
+
+        yield 'shipping charge without tax rate' => ['S2-EINV-010', 'RE-1', static function (array $fixtureInput): array {
+            $fixtureInput[0]['shippingMethod_amountTaxedWith'] = [3 => ['amountTaxedHerewith' => 5.9]];
+
+            return $fixtureInput;
+        }, [[EInvoicingErrorCode::MISSING_BT_103, ['chargeReason' => 'Versandkosten']]]];
+
+        yield 'shipping charge without tax category snapshot' => ['S2-EINV-010', 'RE-1', static function (array $fixtureInput): array {
+            unset($fixtureInput[0][EInvoicingSnapshotFields::ORDER_SHIPPING_TAX_CATEGORY_ORDER_KEY]);
+
+            return $fixtureInput;
+        }, [[EInvoicingErrorCode::SNAPSHOT_MISSING_BT_102, ['chargeReason' => 'Versandkosten']]]];
+    }
+
+    /**
+     * @param array{0: array<string, mixed>, 1: array<string, mixed>, 2: array<string, mixed>, 3: array<string, mixed>, 4: array<int|string, array<string, mixed>>, 5: array<string, mixed>|null} $fixtureInput
+     *
+     * @return list<EInvoicingFailureReason>
+     */
+    private function buildExpectingFailureReasons(array $fixtureInput, string $invoiceNumber, DateTimeImmutable $invoiceDate): array
+    {
+        [$orderData, $shopSettings, $paymentMethod, $shippingMethod, $taxRates, $memberGroup] = $fixtureInput;
+
+        try {
+            (new SemanticInvoiceBuilder())->build(
+                $orderData,
+                $shopSettings,
+                $paymentMethod,
+                $shippingMethod,
+                $taxRates,
+                $memberGroup,
+                $invoiceNumber,
+                $invoiceDate
+            );
+        } catch (InvoiceValidationException $invoiceValidationException) {
+            return $invoiceValidationException->failureReasons;
+        }
+
+        self::fail('Expected an InvoiceValidationException.');
+    }
+
+    /**
+     * @param list<EInvoicingFailureReason> $failureReasons
+     *
+     * @return list<array{0: EInvoicingErrorCode, 1: array<string, string>}>
+     */
+    private function describeFailureReasons(array $failureReasons): array
+    {
+        return array_map(
+            static fn (EInvoicingFailureReason $failureReason): array => [$failureReason->code, $failureReason->parameters],
+            $failureReasons
         );
     }
 

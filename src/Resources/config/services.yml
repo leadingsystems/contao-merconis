@@ -55,6 +55,11 @@ services:
     arguments:
       $projectDir: '%kernel.project_dir%'
     public: true
+  LeadingSystems\MerconisBundle\EInvoicing\Failure\EInvoicingFailureReasonFormatter: ~
+  LeadingSystems\MerconisBundle\EInvoicing\Service\EInvoicingMessageTypeContext:
+    public: true
+  LeadingSystems\MerconisBundle\EInvoicing\Contao\EInvoicingOrderMessageHook:
+    public: true
   LeadingSystems\MerconisBundle\EInvoicing\Service\EInvoicingFailureReporter:
     arguments:
       $contaoLogger: '@monolog.logger.contao'

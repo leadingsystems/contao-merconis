@@ -8,9 +8,11 @@ use Contao\CoreBundle\Framework\ContaoFramework;
 use DateTimeImmutable;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use LeadingSystems\MerconisBundle\EInvoicing\Exception\EInvoicingGenerationException;
+use LeadingSystems\MerconisBundle\EInvoicing\Exception\InvoiceValidationException;
+use LeadingSystems\MerconisBundle\EInvoicing\Failure\EInvoicingErrorCode;
 use LeadingSystems\MerconisBundle\EInvoicing\Model\GeneratedZugferdDocument;
 use Merconis\Core\ls_shop_generalHelper;
-use RuntimeException;
 
 class OrderEInvoicingDocumentGenerator
 {
@@ -22,6 +24,10 @@ class OrderEInvoicingDocumentGenerator
     ) {
     }
 
+    /**
+     * @throws EInvoicingGenerationException
+     * @throws InvoiceValidationException
+     */
     public function generateForOrderNumber(
         string $orderNumber,
         ?string $invoiceNumber = null,
@@ -31,13 +37,16 @@ class OrderEInvoicingDocumentGenerator
         $normalizedOrderNumber = trim($orderNumber);
 
         if ($normalizedOrderNumber === '') {
-            throw new RuntimeException('Order number must not be empty.');
+            throw EInvoicingGenerationException::forReason(EInvoicingErrorCode::ORDER_NUMBER_MISSING);
         }
 
         $orderId = $this->findOrderIdByOrderNumber($normalizedOrderNumber);
 
         if ($orderId === null) {
-            throw new RuntimeException(sprintf('Order "%s" was not found.', $normalizedOrderNumber));
+            throw EInvoicingGenerationException::forReason(
+                EInvoicingErrorCode::ORDER_NOT_FOUND,
+                ['orderNumber' => $normalizedOrderNumber]
+            );
         }
 
         return $this->generateForOrderId(
@@ -48,6 +57,10 @@ class OrderEInvoicingDocumentGenerator
         );
     }
 
+    /**
+     * @throws EInvoicingGenerationException
+     * @throws InvoiceValidationException
+     */
     public function generateForOrderId(
         int $orderId,
         string $invoiceNumber,
@@ -57,7 +70,7 @@ class OrderEInvoicingDocumentGenerator
         $normalizedInvoiceNumber = trim($invoiceNumber);
 
         if ($normalizedInvoiceNumber === '') {
-            throw new RuntimeException('Invoice number must not be empty.');
+            throw EInvoicingGenerationException::forReason(EInvoicingErrorCode::INVOICE_NUMBER_MISSING);
         }
 
         $semanticInvoice = $this->buildSemanticInvoiceForOrderId(
@@ -69,6 +82,10 @@ class OrderEInvoicingDocumentGenerator
         return $this->documentGenerator->generate($semanticInvoice, $visibleHtml);
     }
 
+    /**
+     * @throws EInvoicingGenerationException
+     * @throws InvoiceValidationException
+     */
     public function buildSemanticInvoiceForOrderId(
         int $orderId,
         string $invoiceNumber,
@@ -77,7 +94,7 @@ class OrderEInvoicingDocumentGenerator
         $normalizedInvoiceNumber = trim($invoiceNumber);
 
         if ($normalizedInvoiceNumber === '') {
-            throw new RuntimeException('Invoice number must not be empty.');
+            throw EInvoicingGenerationException::forReason(EInvoicingErrorCode::INVOICE_NUMBER_MISSING);
         }
 
         $this->framework->initialize();
@@ -85,7 +102,10 @@ class OrderEInvoicingDocumentGenerator
         $orderData = ls_shop_generalHelper::getOrder($orderId, 'id', true);
 
         if (!is_array($orderData) || $orderData === []) {
-            throw new RuntimeException(sprintf('Order with ID %d was not found.', $orderId));
+            throw EInvoicingGenerationException::forReason(
+                EInvoicingErrorCode::ORDER_ID_NOT_FOUND,
+                ['orderId' => (string) $orderId]
+            );
         }
 
         $paymentMethodId = (int) ($orderData['paymentMethod_id'] ?? 0);

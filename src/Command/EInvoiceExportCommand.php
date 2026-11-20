@@ -8,6 +8,7 @@ use LeadingSystems\MerconisBundle\EInvoicing\Service\EInvoicingDocumentWriter;
 use LeadingSystems\MerconisBundle\EInvoicing\Service\EInvoicingFailureReporter;
 use LeadingSystems\MerconisBundle\EInvoicing\Service\OrderEInvoicingDocumentGenerator;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -41,7 +42,7 @@ final class EInvoiceExportCommand extends Command
                 'invoice-number',
                 null,
                 InputOption::VALUE_REQUIRED,
-                'Invoice number to embed into the document. Defaults to the order number.'
+                'Invoice number to embed into the document. To regenerate an e-invoice that failed during message dispatch, pass the invoice number assigned there. Defaults to the order number, which is intended for development and evaluation only.'
             )
             ->addOption(
                 'output-dir',
@@ -67,12 +68,16 @@ final class EInvoiceExportCommand extends Command
             $xmlPath = $this->documentWriter->writeXml($generatedDocument, $outputDirectory);
             $pdfPath = $this->documentWriter->writePdf($generatedDocument, $outputDirectory);
         } catch (Throwable $throwable) {
-            $failureReason = $this->failureReporter->formatFailureReason($throwable);
+            $this->failureReporter->reportManualGenerationFailure($orderNumber, $throwable);
+
             $output->writeln(sprintf(
-                '<error>Export failed for order "%s". %s</error>',
-                $orderNumber,
-                $failureReason
+                '<error>Export failed for order "%s".</error>',
+                OutputFormatter::escape($orderNumber)
             ));
+
+            foreach ($this->failureReporter->formatFailureReasons($throwable) as $formattedFailureReason) {
+                $output->writeln('<error>' . OutputFormatter::escape($formattedFailureReason) . '</error>');
+            }
 
             return Command::FAILURE;
         }

@@ -8,13 +8,25 @@ use Contao\Database;
 use Contao\Date;
 use DateInterval;
 use DateTimeImmutable;
+use LeadingSystems\MerconisBundle\EInvoicing\Service\EInvoicingMessageTypeContext;
 use LeadingSystems\MerconisBundle\EInvoicing\Support\LocalizedFieldValueResolver;
 
+/**
+ * Als öffentlicher Service registriert, damit `System::importStatic()` die
+ * Container-Instanz liefert und Hook und Fehler-Reporter denselben
+ * `EInvoicingMessageTypeContext` verwenden.
+ */
 final class EInvoicingOrderMessageHook
 {
+    public function __construct(
+        private readonly EInvoicingMessageTypeContext $messageTypeContext,
+    ) {
+    }
+
     /**
-     * Ersetzt E-Invoicing-Platzhalter, bevor die Merconis-Wildcards
-     * für Betreff und Nachrichtentexte ausgewertet werden.
+     * Hinterlegt den Nachrichtentyp für den Fehler-Reporter und ersetzt
+     * E-Invoicing-Platzhalter, bevor die Merconis-Wildcards für Betreff und
+     * Nachrichtentexte ausgewertet werden.
      *
      * @param array<string, mixed> $messageModel
      * @param array<string, mixed> $order
@@ -23,6 +35,11 @@ final class EInvoicingOrderMessageHook
      */
     public function beforeSendingOrderMessage(array $messageModel, array $order): array
     {
+        $this->messageTypeContext->remember(
+            $this->optionalPositiveInt($order['id'] ?? null),
+            $this->optionalPositiveInt($messageModel['pid'] ?? null)
+        );
+
         $paymentMethod = $this->resolvePaymentMethod($order);
         $memberGroup = $this->resolveMemberGroup($order);
 
@@ -161,6 +178,17 @@ final class EInvoicingOrderMessageHook
             'tl_member_group',
             (int) ($order['memberGroupInfo_id'] ?? 0)
         );
+    }
+
+    private function optionalPositiveInt(mixed $value): ?int
+    {
+        $normalizedValue = $this->optionalString($value);
+
+        if ($normalizedValue === null || !ctype_digit($normalizedValue) || (int) $normalizedValue <= 0) {
+            return null;
+        }
+
+        return (int) $normalizedValue;
     }
 
     private function optionalString(mixed $value): ?string

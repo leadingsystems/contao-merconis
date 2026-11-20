@@ -1,0 +1,14 @@
+<?php
+/*
+ * Custom UI der Zahlungsmethode bei hinterlegtem SEPA-Mandat.
+ * `accountHolder`, `maskedIban` und `mandateReference` sind `null`, wenn am Mitglied
+ * kein Wert hinterlegt ist; dann wird `valueUnavailableText` ausgegeben.
+ */
+?>
+<div class="lsShopStoredSepaMandate">
+	<p class="lsShopStoredSepaMandate__headline"><?php echo \Contao\StringUtil::specialchars($this->headline); ?></p>
+	<p class="lsShopStoredSepaMandate__row"><span class="lsShopStoredSepaMandate__label"><?php echo \Contao\StringUtil::specialchars($this->accountHolderLabel); ?>:</span> <span class="lsShopStoredSepaMandate__value"><?php echo \Contao\StringUtil::specialchars($this->accountHolder ?? $this->valueUnavailableText); ?></span></p>
+	<p class="lsShopStoredSepaMandate__row"><span class="lsShopStoredSepaMandate__label"><?php echo \Contao\StringUtil::specialchars($this->ibanLabel); ?>:</span> <span class="lsShopStoredSepaMandate__value"><?php echo \Contao\StringUtil::specialchars($this->maskedIban ?? $this->valueUnavailableText); ?></span></p>
+	<p class="lsShopStoredSepaMandate__row"><span class="lsShopStoredSepaMandate__label"><?php echo \Contao\StringUtil::specialchars($this->mandateReferenceLabel); ?>:</span> <span class="lsShopStoredSepaMandate__value"><?php echo \Contao\StringUtil::specialchars($this->mandateReference ?? $this->valueUnavailableText); ?></span></p>
+	<p class="lsShopStoredSepaMandate__hint"><?php echo \Contao\StringUtil::specialchars($this->changeNotice); ?></p>
+</div>

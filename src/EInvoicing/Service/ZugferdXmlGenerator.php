@@ -12,8 +12,6 @@ final class ZugferdXmlGenerator
 {
     public function generate(SemanticInvoice $invoice): string
     {
-        $this->ensureLibraryIsLoaded();
-
         $builder = ZugferdDocumentBuilder::createNew(ZugferdProfiles::PROFILE_EN16931);
 
         $builder
@@ -197,18 +195,5 @@ final class ZugferdXmlGenerator
         );
 
         return $builder->getContent();
-    }
-
-    private function ensureLibraryIsLoaded(): void
-    {
-        if (class_exists(ZugferdDocumentBuilder::class)) {
-            return;
-        }
-
-        $bundleAutoloadPath = dirname(__DIR__, 3) . '/vendor/autoload.php';
-
-        if (is_file($bundleAutoloadPath)) {
-            require_once $bundleAutoloadPath;
-        }
     }
 }

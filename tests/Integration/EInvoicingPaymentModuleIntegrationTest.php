@@ -35,7 +35,29 @@ final class EInvoicingPaymentModuleIntegrationTest extends TestCase
         self::assertStringContainsString('statusOkayToShowAdditionalDataForm', $moduleContents);
         self::assertStringContainsString('getFormIDForAdditionalData', $moduleContents);
         self::assertStringContainsString('getCustomUserInterface', $moduleContents);
-        self::assertStringContainsString("=== '59'", $moduleContents);
+        self::assertStringContainsString('=== EInvoicingCodeLists::SEPA_DIRECT_DEBIT_CODE', $moduleContents);
         self::assertStringContainsString('StoredSepaMandateFormatter::hasStoredMandate', $moduleContents);
+    }
+
+    public function testStandardPaymentModuleRendersStoredMandateViaTemplateWithoutInlineMarkupOrFallbacks(): void
+    {
+        $moduleContents = (string) file_get_contents(self::STANDARD_PAYMENT_MODULE_FILE);
+
+        self::assertStringContainsString('new FrontendTemplate(self::STORED_SEPA_MANDATE_TEMPLATE)', $moduleContents);
+        self::assertStringContainsString(
+            "STORED_SEPA_MANDATE_TEMPLATE = 'template_einvoicingStoredSepaMandate_default'",
+            $moduleContents
+        );
+        self::assertStringContainsString('private function translate(string $key): string', $moduleContents);
+        self::assertStringNotContainsString('lsShopStoredSepaMandate', $moduleContents);
+        self::assertStringNotContainsString('<div', $moduleContents);
+        self::assertStringNotContainsString('<p', $moduleContents);
+        self::assertStringNotContainsString('<span', $moduleContents);
+        self::assertStringNotContainsString('specialchars', $moduleContents);
+        self::assertStringNotContainsString('$fallback', $moduleContents);
+        self::assertStringNotContainsString('Hinterlegtes SEPA-Mandat', $moduleContents);
+        self::assertStringNotContainsString('nicht hinterlegt', $moduleContents);
+        self::assertStringNotContainsString('Mandatsreferenz', $moduleContents);
+        self::assertStringNotContainsString('Kontoinhaber', $moduleContents);
     }
 }

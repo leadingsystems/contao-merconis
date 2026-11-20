@@ -3,8 +3,9 @@ declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\EInvoicing\Service;
 
+use LeadingSystems\MerconisBundle\EInvoicing\Exception\EInvoicingGenerationException;
+use LeadingSystems\MerconisBundle\EInvoicing\Failure\EInvoicingErrorCode;
 use LeadingSystems\MerconisBundle\EInvoicing\Model\GeneratedZugferdDocument;
-use RuntimeException;
 
 final class EInvoicingDocumentWriter
 {
@@ -50,7 +51,10 @@ final class EInvoicingDocumentWriter
         $absoluteDirectory = $this->resolveAbsolutePath($targetDirectory);
 
         if (!is_dir($absoluteDirectory) && !mkdir($absoluteDirectory, 0775, true) && !is_dir($absoluteDirectory)) {
-            throw new RuntimeException(sprintf('Unable to create export directory "%s".', $absoluteDirectory));
+            throw EInvoicingGenerationException::forReason(
+                EInvoicingErrorCode::OUTPUT_DIRECTORY_NOT_CREATABLE,
+                ['directory' => $absoluteDirectory]
+            );
         }
 
         $absolutePath = $absoluteDirectory . '/' . ltrim($fileName, '/');
@@ -60,7 +64,10 @@ final class EInvoicingDocumentWriter
         }
 
         if (file_put_contents($absolutePath, $content) === false) {
-            throw new RuntimeException(sprintf('Unable to write export file "%s".', $absolutePath));
+            throw EInvoicingGenerationException::forReason(
+                EInvoicingErrorCode::OUTPUT_FILE_NOT_WRITABLE,
+                ['file' => $absolutePath]
+            );
         }
 
         return $this->toRelativePath($absolutePath);
@@ -71,7 +78,7 @@ final class EInvoicingDocumentWriter
         $normalizedPath = trim($path);
 
         if ($normalizedPath === '') {
-            throw new RuntimeException('Target directory must not be empty.');
+            throw EInvoicingGenerationException::forReason(EInvoicingErrorCode::OUTPUT_DIRECTORY_MISSING);
         }
 
         if ($normalizedPath[0] === '/') {
