@@ -8,9 +8,9 @@
  */
 ?>
 <div class="merconis-legal-guarantee-button merconis-legal-guarantee-button--<?= \Contao\StringUtil::specialchars($this->type) ?>">
-    <button type="button" class="merconis-legal-guarantee-button__trigger" popovertarget="<?= \Contao\StringUtil::specialchars($this->popoverId) ?>"<?php if ('' !== $this->triggerLabel) { ?> aria-label="<?= \Contao\StringUtil::specialchars($this->triggerLabel) ?>"<?php } ?>><?php if ('' !== $this->nestedSvgMarkup) { ?><span class="merconis-legal-guarantee-button__nested"><?= $this->nestedSvgMarkup ?></span><?php } else { ?><?= \Contao\StringUtil::specialchars($this->triggerText) ?><?php } ?></button>
+    <button type="button" class="merconis-legal-guarantee-button__trigger<?php if ('garan' === $this->type) { ?> no-button<?php } ?>" popovertarget="<?= \Contao\StringUtil::specialchars($this->popoverId) ?>"<?php if ('' !== $this->triggerLabel) { ?> aria-label="<?= \Contao\StringUtil::specialchars($this->triggerLabel) ?>"<?php } ?>><?php if ('' !== $this->nestedSvgMarkup) { ?><span class="merconis-legal-guarantee-button__nested"><?= $this->nestedSvgMarkup ?></span><?php } else { ?><?= \Contao\StringUtil::specialchars($this->triggerText) ?><?php } ?></button>
     <div id="<?= \Contao\StringUtil::specialchars($this->popoverId) ?>" popover class="merconis-legal-guarantee-button__popover">
-        <button type="button" class="merconis-legal-guarantee-button__close" popovertarget="<?= \Contao\StringUtil::specialchars($this->popoverId) ?>" popovertargetaction="hide" aria-label="<?= \Contao\StringUtil::specialchars($this->closeLabel) ?>">×</button>
+        <button type="button" class="merconis-legal-guarantee-button__close no-button" popovertarget="<?= \Contao\StringUtil::specialchars($this->popoverId) ?>" popovertargetaction="hide" aria-label="<?= \Contao\StringUtil::specialchars($this->closeLabel) ?>">×</button>
         <?= $this->unitMarkup ?>
     </div>
 </div>
