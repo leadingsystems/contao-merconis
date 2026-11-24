@@ -142,6 +142,8 @@ final class LegalGuaranteeTemplateRenderingTest extends TestCase
         self::assertSame('button', $trigger->tagName);
         self::assertSame('button', $trigger->getAttribute('type'));
         self::assertSame('Ihre gesetzlichen Gewährleistungsrechte', $trigger->textContent);
+        self::assertNotContains('no-button', $this->getClassNames($trigger));
+        self::assertContains('no-button', $this->getClassNames($close));
         self::assertFalse($trigger->hasAttribute('aria-label'));
         self::assertSame('merconis-legal-guarantee-popover-lgn-' . self::PRODUCT_ID, $trigger->getAttribute('popovertarget'));
         self::assertSame($trigger->getAttribute('popovertarget'), $popover->getAttribute('id'));
@@ -176,10 +178,13 @@ final class LegalGuaranteeTemplateRenderingTest extends TestCase
         $nested = $this->findSingleByClass($xpath, 'merconis-legal-guarantee-button__nested', $trigger);
         $nestedSvg = $this->findSingleElement($xpath, './svg', $nested);
         $popover = $this->findSingleByClass($xpath, 'merconis-legal-guarantee-button__popover');
+        $close = $this->findSingleByClass($xpath, 'merconis-legal-guarantee-button__close', $popover);
         $unit = $this->findSingleByClass($xpath, 'merconis-legal-guarantee-unit', $popover);
         $fullSvg = $this->findSingleElement($xpath, './/svg', $unit);
 
         self::assertSame('merconis-legal-guarantee-button merconis-legal-guarantee-button--garan', $button->getAttribute('class'));
+        self::assertContains('no-button', $this->getClassNames($trigger));
+        self::assertContains('no-button', $this->getClassNames($close));
         self::assertSame('span', $nested->tagName);
         self::assertSame('Herstellergarantie 2,5 Jahre', $trigger->getAttribute('aria-label'));
         self::assertSame('merconis-legal-guarantee-popover-garan-' . self::PRODUCT_ID, $trigger->getAttribute('popovertarget'));
@@ -501,6 +506,14 @@ final class LegalGuaranteeTemplateRenderingTest extends TestCase
         self::assertInstanceOf(DOMElement::class, $element);
 
         return $element;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getClassNames(DOMElement $element): array
+    {
+        return preg_split('/\s+/', trim($element->getAttribute('class')), -1, PREG_SPLIT_NO_EMPTY) ?: [];
     }
 
     /**
