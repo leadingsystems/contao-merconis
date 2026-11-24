@@ -71,6 +71,7 @@
 
   &__popover:popover-open {
     margin: auto;
+    width: fit-content;
     max-height: 90vh;
     overflow: auto;
     padding: 1.6rem;
@@ -81,14 +82,28 @@
     &::backdrop {
       background: rgba($ls-color-black, 0.5);
     }
-  }
 
-  &--lgn &__popover:popover-open {
-    width: min(600px, 90vw);
-  }
+    // `120px`: fester Anteil der Ansicht (Innenabstand, "×", EU-Link) plus Reserve;
+    // `3.2rem`: doppelter Innenabstand der Ansicht.
+    .merconis-legal-guarantee-unit {
+      clear: both;
+      max-width: none;
+    }
 
-  &--garan &__popover:popover-open {
-    width: min(400px, 90vw);
+    .merconis-legal-guarantee-unit__link {
+      max-width: calc(90vw - 3.2rem);
+    }
+
+    .merconis-legal-guarantee-unit--lgn img {
+      width: auto;
+      max-width: calc(90vw - 3.2rem);
+      max-height: calc(90vh - 120px);
+    }
+
+    .merconis-legal-guarantee-unit--garan svg {
+      // 0.95: Seitenverhältnis der `viewBox` 269.29 × 283.46
+      width: min(calc((90vh - 120px) * 0.95), calc(90vw - 3.2rem));
+    }
   }
 
   &__close {
