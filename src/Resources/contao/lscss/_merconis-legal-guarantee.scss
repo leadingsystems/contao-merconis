@@ -119,11 +119,16 @@
     margin: 1.6rem 0 0;
     padding: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 400px));
+    // `320px` mit `gap: 2.4rem`: drei Spalten ab 1008 px Rasterbreite, eine vierte erst ab
+    // 1352 px, also nie bei der Inhaltsbreite von höchstens 1200 px; `min(..., 100%)`
+    // verhindert Überlauf in schmaleren Rastern. Die Spaltenzahl darf nicht an der
+    // Höchstbreite der Kästen hängen, deshalb steht diese am `__item`.
+    grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
     gap: 2.4rem;
   }
 
   &__item {
+    max-width: 400px;
     border: 1px solid $ls-color-grey;
     padding: 1.6rem;
   }
