@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace LeadingSystems\MerconisBundle\Tests\Unit;
+namespace LeadingSystems\MerconisBundle\Tests\Functional;
 
 use Contao\CoreBundle\Routing\ScopeMatcher;
 use Contao\DataContainer;

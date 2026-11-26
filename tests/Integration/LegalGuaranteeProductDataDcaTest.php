@@ -71,8 +71,8 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         self::assertSame('natural', $tableConfig['fields']['guaranteeDurationMonths']['eval']['rgxp']);
         self::assertTrue($tableConfig['fields']['guaranteeBrand']['eval']['mandatory']);
         self::assertTrue($tableConfig['fields']['guaranteeModelIdentifier']['eval']['mandatory']);
-        self::assertArrayNotHasKey('maxlength', $tableConfig['fields']['guaranteeBrand']['eval']);
-        self::assertArrayNotHasKey('maxlength', $tableConfig['fields']['guaranteeModelIdentifier']['eval']);
+        self::assertSame(255, $tableConfig['fields']['guaranteeBrand']['eval']['maxlength']);
+        self::assertSame(255, $tableConfig['fields']['guaranteeModelIdentifier']['eval']['maxlength']);
         self::assertSame("varchar(255) NOT NULL default ''", $tableConfig['fields']['guaranteeBrand']['sql']);
         self::assertSame("varchar(255) NOT NULL default ''", $tableConfig['fields']['guaranteeModelIdentifier']['sql']);
         self::assertStringContainsString(
@@ -98,8 +98,6 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
             $tableConfig['fields']['guaranteeBrand']['load_callback']
         );
         self::assertArrayNotHasKey('save_callback', $tableConfig['fields']['guaranteeModelIdentifier']);
-        self::assertArrayNotHasKey('maxlength', $tableConfig['fields']['guaranteeBrand']['eval']);
-        self::assertArrayNotHasKey('maxlength', $tableConfig['fields']['guaranteeModelIdentifier']['eval']);
         self::assertSame("varchar(255) NOT NULL default ''", $tableConfig['fields']['guaranteeBrand']['sql']);
         self::assertSame("varchar(255) NOT NULL default ''", $tableConfig['fields']['guaranteeModelIdentifier']['sql']);
         self::assertSame(self::BACKEND_CALLBACKS_CLASS, $tableConfig['config']['onsubmit_callback'][0][0]);
@@ -227,6 +225,10 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         self::assertTrue($tableConfig['fields']['guaranteeDurationMonths']['eval']['mandatory']);
         self::assertTrue($tableConfig['fields']['guaranteeBrand']['eval']['mandatory']);
         self::assertTrue($tableConfig['fields']['guaranteeModelIdentifier']['eval']['mandatory']);
+        self::assertSame(255, $tableConfig['fields']['guaranteeBrand']['eval']['maxlength']);
+        self::assertSame(255, $tableConfig['fields']['guaranteeModelIdentifier']['eval']['maxlength']);
+        self::assertSame("varchar(255) NOT NULL default ''", $tableConfig['fields']['guaranteeBrand']['sql']);
+        self::assertSame("varchar(255) NOT NULL default ''", $tableConfig['fields']['guaranteeModelIdentifier']['sql']);
         self::assertSame(
             [[self::BACKEND_CALLBACKS_CLASS, 'validateVariantGaranMode']],
             $tableConfig['fields']['garanMode']['save_callback']
@@ -280,9 +282,9 @@ final class LegalGuaranteeProductDataDcaTest extends TestCase
         self::assertStringContainsString('garan_invalid_mode', $variantLanguageDe);
         self::assertStringContainsString('garan_disabled_invalid_duration', $variantLanguageEn);
 
-        // Import und Product Management API lesen ihre Meldungen aus `default` (`legalGuaranteeImport`).
+        // Import und Product Management API lesen ihre Meldungen aus `default` (`importErrors`, `productManagementApiErrors`).
         foreach ([$productLanguageDe, $productLanguageEn, $variantLanguageDe, $variantLanguageEn] as $languageFileContents) {
-            foreach (['garan_disabled_lgn_required', 'garan_disabled_missing_brand', 'garan_disabled_missing_model', 'garan_disabled_missing_duration'] as $importMessageCode) {
+            foreach (['garan_disabled_lgn_required', 'garan_disabled_missing_brand', 'garan_disabled_missing_model', 'garan_disabled_missing_duration', 'legalGuaranteeImport', 'productManagementApiErrors'] as $importMessageCode) {
                 self::assertStringNotContainsString($importMessageCode, $languageFileContents);
             }
         }

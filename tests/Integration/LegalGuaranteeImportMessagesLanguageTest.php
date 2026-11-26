@@ -4,63 +4,148 @@ declare(strict_types=1);
 
 namespace LeadingSystems\MerconisBundle\Tests\Integration;
 
-use LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\ProductGuaranteeConfigurationApplier;
-use LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\ProductGuaranteeConfigurationValidator;
-use Merconis\Core\ls_shop_importController;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-require_once __DIR__ . '/../../src/Resources/contao/classes/ls_shop_importController.php';
-
 /**
- * Meldungen zu Spec 27, Abschnitt 4, im Import-Log und in der Product Management API: in
- * `de` und `en` vorhanden, ohne die Kürzel "LGN" und "GARAN" und ohne Feldnamen. Die
- * CSV-Werte dürfen genannt werden (Spec 27, Abschnitte 3.1 und 3.3).
+ * Meldungen der Dateivalidierung des Imports unter `importErrors` und Meldungen der
+ * Vorprüfung der Product Management API unter `productManagementApiErrors` (Spec 27,
+ * Abschnitte "Terminologie" und 10.5; Implementierungsentscheidung 0034): in `de` und `en`
+ * vorhanden, ohne die Kürzel "LGN", "GARAN" und "GLL". Die früheren Schlüssel unter
+ * `legalGuaranteeImport` gibt es nicht mehr.
  */
 final class LegalGuaranteeImportMessagesLanguageTest extends TestCase
 {
     private const LANGUAGE_BASE_PATH = __DIR__ . '/../../src/Resources/contao/languages/';
 
     /**
-     * Code => Anzahl der Platzhalter `%s`.
+     * Fehlerarten der Dateivalidierung zu Spec 27, Abschnitte 10.2 bis 10.4.
      */
-    private const MESSAGE_PLACEHOLDER_COUNTS = [
-        ProductGuaranteeConfigurationValidator::MESSAGE_LGN_INVALID_MODE => 1,
-        ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_INVALID_MODE => 1,
-        ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_BRAND => 0,
-        ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_MODEL => 0,
-        ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_DURATION => 0,
-        ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_INVALID_DURATION => 1,
-        ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_LGN_REQUIRED => 0,
-        ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_LGN_REQUIRED_ALWAYS => 0,
-        ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_LGN_VARIANT_OVERRIDE => 1,
-        ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_OVERRIDE_LGN_REQUIRED => 0,
+    private const IMPORT_ERROR_KEYS = [
+        'productValueInvalid_lgnMode',
+        'variantValueInvalid_garanMode',
+        'valueInvalid_guaranteeDurationMonths',
+        'valueInvalid_guaranteeBrand',
+        'valueInvalid_guaranteeModelIdentifier',
+        'productGuaranteeDataIncomplete',
+        'productGuaranteeWithLgnModeNever',
+        'variantGuaranteeDataIncomplete',
+        'variantGuaranteeOverrideWithParentLgnModeNever',
     ];
 
-    private const FORBIDDEN_FRAGMENTS = [
-        'LGN',
-        'GARAN',
+    /**
+     * Meldungen der Vorprüfung zu Spec 27, Abschnitte 10.2 bis 10.5, je Feld.
+     */
+    private const API_ERROR_KEYS = [
+        'lgnModeInvalid',
+        'garanModeInvalid',
+        'guaranteeDurationMonthsInvalid',
+        'guaranteeBrandInvalid',
+        'guaranteeModelIdentifierInvalid',
+        'productGuaranteeDurationMonthsMissing',
+        'productGuaranteeBrandMissing',
+        'productGuaranteeModelIdentifierMissing',
+        'variantGuaranteeDurationMonthsMissing',
+        'variantGuaranteeBrandMissing',
+        'variantGuaranteeModelIdentifierMissing',
+        'productGuaranteeWithLgnModeNever',
+        'variantGuaranteeOverrideWithParentLgnModeNever',
+    ];
+
+    /**
+     * Spaltennamen und interne Werte, so wie sie in der Importdatei beziehungsweise im Request
+     * stehen; nur sie dürfen in den Meldungen in Anführungszeichen stehen (Spec 27, Abschnitt
+     * "Terminologie").
+     */
+    private const IMPORT_FILE_AND_REQUEST_TOKENS = [
         'lgnMode',
-        'garanMode',
         'enableGaran',
-        'enableGll',
-        'lsShopLgnMode',
-        'ls_shop_standardGroup',
+        'garanMode',
         'guaranteeDurationMonths',
         'guaranteeBrand',
         'guaranteeModelIdentifier',
+        'inherit',
+        'always',
+        'never',
+        'disabled',
+        'override',
+    ];
+
+    /**
+     * Meldungen zu einem unzulässigen Wert nennen die zulässigen Werte (Spec 27, Abschnitt 10.5).
+     */
+    private const IMPORT_ERROR_ALLOWED_VALUES = [
+        'de' => [
+            'productValueInvalid_lgnMode' => ['"inherit", "always", "never" oder ein leeres Feld'],
+            'variantValueInvalid_garanMode' => ['"inherit", "disabled", "override" oder ein leeres Feld'],
+            'valueInvalid_guaranteeDurationMonths' => ['ganze Monate von 30 bis 360 in Schritten von 6', 'ohne führende Null', 'leeres Feld'],
+            'valueInvalid_guaranteeBrand' => ['höchstens 255 Zeichen'],
+            'valueInvalid_guaranteeModelIdentifier' => ['höchstens 255 Zeichen'],
+        ],
+        'en' => [
+            'productValueInvalid_lgnMode' => ['"inherit", "always", "never" or an empty field'],
+            'variantValueInvalid_garanMode' => ['"inherit", "disabled", "override" or an empty field'],
+            'valueInvalid_guaranteeDurationMonths' => ['whole months from 30 to 360 in steps of 6', 'without leading zero', 'empty field'],
+            'valueInvalid_guaranteeBrand' => ['not be longer than 255 characters'],
+            'valueInvalid_guaranteeModelIdentifier' => ['not be longer than 255 characters'],
+        ],
+    ];
+
+    /**
+     * Wie beim Import, zusätzlich die im Request zulässigen Typen (Abschnitt 10.5, "Werte ohne
+     * Zeichenkette").
+     */
+    private const API_ERROR_ALLOWED_VALUES = [
+        'de' => [
+            'lgnModeInvalid' => ['"inherit", "always", "never" oder ein leerer Wert'],
+            'garanModeInvalid' => ['"inherit", "disabled", "override" oder ein leerer Wert'],
+            'guaranteeDurationMonthsInvalid' => ['ganze Monate von 30 bis 360 in Schritten von 6', 'als Ganzzahl oder als Zeichenkette', 'ohne führende Null', 'leerer Wert'],
+            'guaranteeBrandInvalid' => ['Zeichenkette oder Ganzzahl', 'höchstens 255 Zeichen', 'leerer Wert'],
+            'guaranteeModelIdentifierInvalid' => ['Zeichenkette oder Ganzzahl', 'höchstens 255 Zeichen', 'leerer Wert'],
+        ],
+        'en' => [
+            'lgnModeInvalid' => ['"inherit", "always", "never" or an empty value'],
+            'garanModeInvalid' => ['"inherit", "disabled", "override" or an empty value'],
+            'guaranteeDurationMonthsInvalid' => ['whole months from 30 to 360 in steps of 6', 'as an integer or as a string', 'without leading zero', 'empty value'],
+            'guaranteeBrandInvalid' => ['string or integer', 'up to 255 characters', 'empty value'],
+            'guaranteeModelIdentifierInvalid' => ['string or integer', 'up to 255 characters', 'empty value'],
+        ],
+    ];
+
+    private const IMPORT_ERROR_ROW_NUMBER_SUFFIX = [
+        'de' => ': Zeile(n) Nr. %s',
+        'en' => ': Line(s) no. %s',
+    ];
+
+    private const FORBIDDEN_TERMS = [
+        'LGN',
+        'GARAN',
+        'GLL',
+        'Haltbarkeitsgarantie',
+        'durability guarantee',
+        'Standard-Mitgliedergruppe',
+        'standard member group',
+        'enableGll',
         '`',
     ];
 
+    private const MERCHANT_TERMS = [
+        'de' => ['legalGuarantee' => 'gesetzliche Gewährleistung', 'manufacturerGuarantee' => 'Herstellergarantie'],
+        'en' => ['legalGuarantee' => 'legal guarantee notice', 'manufacturerGuarantee' => 'manufacturer guarantee'],
+    ];
+
+    /**
+     * Meldungen nur zu `lgnMode`, ohne Bezug auf die Herstellergarantie.
+     */
+    private const LEGAL_GUARANTEE_ONLY_KEYS = ['productValueInvalid_lgnMode', 'lgnModeInvalid'];
+
     private mixed $originalTlLang;
-    private mixed $originalSession;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->originalTlLang = $GLOBALS['TL_LANG'] ?? null;
-        $this->originalSession = $_SESSION ?? null;
     }
 
     protected function tearDown(): void
@@ -69,12 +154,6 @@ final class LegalGuaranteeImportMessagesLanguageTest extends TestCase
             unset($GLOBALS['TL_LANG']);
         } else {
             $GLOBALS['TL_LANG'] = $this->originalTlLang;
-        }
-
-        if ($this->originalSession === null) {
-            unset($_SESSION);
-        } else {
-            $_SESSION = $this->originalSession;
         }
 
         parent::tearDown();
@@ -89,124 +168,147 @@ final class LegalGuaranteeImportMessagesLanguageTest extends TestCase
         yield 'en' => ['en'];
     }
 
+    /**
+     * Je Fehlerart ein Schlüssel mit genau einem Platzhalter für die Zeilennummern am Ende, wie
+     * die bestehenden Meldungen der Dateivalidierung (Implementierungsentscheidung 0034).
+     */
     #[DataProvider('languageProvider')]
-    public function testEveryValidatorMessageHasMerchantTextWithoutAbbreviationsAndFieldNames(string $language): void
+    public function testEveryImportErrorHasTextWithRowNumberPlaceholder(string $language): void
     {
-        $importLanguage = $this->loadDefaultLanguageFile($language);
+        $importErrors = $this->loadShopMiscLanguage($language)['importErrors'];
 
-        self::assertSame(
-            array_keys(self::MESSAGE_PLACEHOLDER_COUNTS),
-            array_keys($importLanguage['messages'])
-        );
-
-        foreach ($importLanguage['messages'] as $messageCode => $messageText) {
-            self::assertIsString($messageText, $messageCode);
-            self::assertNotSame('', trim($messageText), $messageCode);
-            self::assertSame(self::MESSAGE_PLACEHOLDER_COUNTS[$messageCode], substr_count($messageText, '%s'), $messageCode);
-            self::assertSame(0, substr_count(str_replace('%s', '', $messageText), '%'), $messageCode);
-
-            foreach (self::FORBIDDEN_FRAGMENTS as $forbiddenFragment) {
-                self::assertStringNotContainsString($forbiddenFragment, $messageText, $messageCode);
-            }
-
-            foreach (["\u{2018}", "\u{2019}", "\u{201C}", "\u{201D}", "\u{201E}"] as $typographicQuote) {
-                self::assertStringNotContainsString($typographicQuote, $messageText, $messageCode);
-            }
+        foreach (self::IMPORT_ERROR_KEYS as $errorKey) {
+            self::assertArrayHasKey($errorKey, $importErrors);
+            self::assertIsString($importErrors[$errorKey], $errorKey);
+            self::assertSame(1, substr_count($importErrors[$errorKey], '%s'), $errorKey);
+            self::assertSame(0, substr_count(str_replace('%s', '', $importErrors[$errorKey]), '%'), $errorKey);
+            self::assertStringEndsWith(self::IMPORT_ERROR_ROW_NUMBER_SUFFIX[$language], $importErrors[$errorKey], $errorKey);
         }
+    }
 
-        self::assertSame(1, substr_count($importLanguage['importLogEntry'], '%d'));
-        self::assertSame(2, substr_count($importLanguage['importLogEntry'], '%s'));
-        self::assertSame(2, substr_count($importLanguage['apiMessage'], '%s'));
+    /**
+     * Die Vorprüfung ordnet jede Meldung einem Datensatz und einem Feld zu; der Text selbst hat
+     * keinen Platzhalter.
+     */
+    #[DataProvider('languageProvider')]
+    public function testEveryApiErrorHasTextWithoutPlaceholder(string $language): void
+    {
+        $apiErrors = $this->loadShopMiscLanguage($language)['productManagementApiErrors'];
+
+        self::assertSame(self::API_ERROR_KEYS, array_keys($apiErrors));
+
+        foreach ($apiErrors as $errorKey => $messageText) {
+            self::assertIsString($messageText, $errorKey);
+            self::assertNotSame('', trim($messageText), $errorKey);
+            self::assertStringNotContainsString('%', $messageText, $errorKey);
+        }
     }
 
     #[DataProvider('languageProvider')]
-    public function testMessagesNameTheWay(string $language): void
+    public function testImportErrorsFollowTerminology(string $language): void
     {
-        $messages = $this->loadDefaultLanguageFile($language)['messages'];
-        $texts = [
-            'de' => [
-                'lgn_required' => ['"inherit" oder "always" angeben', 'Herstellergarantie ausschalten', 'gesetzliche Gewährleistung'],
-                'lgn_required_always' => ['"always" angeben', 'Herstellergarantie ausschalten', 'Standard-Benutzergruppe'],
-                'variant_override' => ['"override"', 'erneut übertragen'],
-                'override_lgn_required' => ['am Produkt ändern'],
-                'lgn_invalid_mode' => ['"inherit", "always" und "never"'],
-                'garan_invalid_mode' => ['"inherit", "disabled" und "override"'],
-            ],
-            'en' => [
-                'lgn_required' => ['"inherit" or "always"', 'disable the manufacturer guarantee', 'legal guarantee notice'],
-                'lgn_required_always' => ['specify "always"', 'disable the manufacturer guarantee', 'standard user group'],
-                'variant_override' => ['"override"', 'transfer the row again'],
-                'override_lgn_required' => ['setting of the product first'],
-                'lgn_invalid_mode' => ['"inherit", "always" and "never"'],
-                'garan_invalid_mode' => ['"inherit", "disabled" and "override"'],
-            ],
-        ][$language];
-        $messageCodes = [
-            'lgn_required' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_LGN_REQUIRED,
-            'lgn_required_always' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_LGN_REQUIRED_ALWAYS,
-            'variant_override' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_LGN_VARIANT_OVERRIDE,
-            'override_lgn_required' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_OVERRIDE_LGN_REQUIRED,
-            'lgn_invalid_mode' => ProductGuaranteeConfigurationValidator::MESSAGE_LGN_INVALID_MODE,
-            'garan_invalid_mode' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_INVALID_MODE,
-        ];
+        $importErrors = $this->loadShopMiscLanguage($language)['importErrors'];
 
-        foreach ($texts as $messageLabel => $expectedFragments) {
+        foreach (self::IMPORT_ERROR_KEYS as $errorKey) {
+            $this->assertMessageFollowsTerminology($language, $errorKey, $importErrors[$errorKey]);
+        }
+    }
+
+    #[DataProvider('languageProvider')]
+    public function testApiErrorsFollowTerminology(string $language): void
+    {
+        $apiErrors = $this->loadShopMiscLanguage($language)['productManagementApiErrors'];
+
+        foreach (self::API_ERROR_KEYS as $errorKey) {
+            $this->assertMessageFollowsTerminology($language, $errorKey, $apiErrors[$errorKey]);
+        }
+    }
+
+    #[DataProvider('languageProvider')]
+    public function testImportErrorsForInvalidValuesNameAllowedValues(string $language): void
+    {
+        $importErrors = $this->loadShopMiscLanguage($language)['importErrors'];
+
+        foreach (self::IMPORT_ERROR_ALLOWED_VALUES[$language] as $errorKey => $expectedFragments) {
             foreach ($expectedFragments as $expectedFragment) {
-                self::assertStringContainsString($expectedFragment, $messages[$messageCodes[$messageLabel]], $messageLabel);
+                self::assertStringContainsString($expectedFragment, $importErrors[$errorKey], $errorKey);
             }
         }
     }
 
-    public function testImportLogEntryUsesRowFieldAndLanguageText(): void
+    #[DataProvider('languageProvider')]
+    public function testApiErrorsForInvalidValuesNameAllowedValues(string $language): void
     {
-        $this->loadDefaultLanguageFile('de');
-        $_SESSION['lsShop']['importFileInfo']['intCurrentlyReadImportFileRow'] = 9;
-        $reflectionClass = new \ReflectionClass(ls_shop_importController::class);
-        $controller = $reflectionClass->newInstanceWithoutConstructor();
-        $reflectionClass->getProperty('bln_importFileHasRowForVersionAndSpecialChars')->setValue($controller, true);
+        $apiErrors = $this->loadShopMiscLanguage($language)['productManagementApiErrors'];
 
-        $logEntry = $reflectionClass->getMethod('formatLegalGuaranteeImportWarning')->invoke($controller, [
-            'code' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_LGN_VARIANT_OVERRIDE,
-            'field' => 'lgnMode',
-            'parameters' => ['VAR-1, VAR-2'],
-        ]);
+        foreach (self::API_ERROR_ALLOWED_VALUES[$language] as $errorKey => $expectedFragments) {
+            foreach ($expectedFragments as $expectedFragment) {
+                self::assertStringContainsString($expectedFragment, $apiErrors[$errorKey], $errorKey);
+            }
+        }
+    }
 
-        self::assertSame(
-            'Zeile 7, Feld "lgnMode": Die Zeile wurde nicht übernommen, weil die Mitteilung über die gesetzliche Gewährleistung damit in der Standard-Benutzergruppe nicht angezeigt würde und folgende Varianten bei der Herstellergarantie "override" verwenden: VAR-1, VAR-2. Bitte zuerst diese Varianten auf einen anderen Wert als "override" stellen und die Zeile danach erneut übertragen oder für die gesetzliche Gewährleistung einen Wert angeben, mit dem die Mitteilung angezeigt wird.',
-            $logEntry
+    #[DataProvider('languageProvider')]
+    public function testFormerLegalGuaranteeImportKeysAreRemoved(string $language): void
+    {
+        $this->loadShopMiscLanguage($language);
+
+        self::assertArrayNotHasKey('legalGuaranteeImport', $GLOBALS['TL_LANG']['MSC']['ls_shop']);
+        self::assertStringNotContainsString(
+            'legalGuaranteeImport',
+            (string) file_get_contents(self::LANGUAGE_BASE_PATH . $language . '/default.php')
         );
     }
 
-    public function testApiMessageUsesFieldAndLanguageText(): void
+    /**
+     * Spec 27, Abschnitt "Terminologie": keine Kürzel, keine Rechts- oder früheren Begriffe;
+     * Spaltennamen und interne Werte nur so, wie sie in der Importdatei beziehungsweise im
+     * Request stehen; die Bezeichnungen des amtlichen Labels im Deutschen nur als Klammerzusatz.
+     */
+    private function assertMessageFollowsTerminology(string $language, string $errorKey, string $messageText): void
     {
-        $this->loadDefaultLanguageFile('en');
+        foreach (self::FORBIDDEN_TERMS as $forbiddenTerm) {
+            self::assertStringNotContainsString($forbiddenTerm, $messageText, $errorKey);
+        }
 
-        self::assertSame(
-            'field "lgnMode": The row was not applied because "sometimes" is not a valid value for the legal guarantee notice setting. Allowed values are "inherit", "always" and "never".; field "guaranteeBrand": The row was not applied because the Brand/Trademark for the manufacturer guarantee is missing.',
-            (new ProductGuaranteeConfigurationApplier())->formatWriteErrorMessage([
-                [
-                    'code' => ProductGuaranteeConfigurationValidator::MESSAGE_LGN_INVALID_MODE,
-                    'field' => 'lgnMode',
-                    'parameters' => ['sometimes'],
-                ],
-                [
-                    'code' => ProductGuaranteeConfigurationValidator::MESSAGE_GARAN_DISABLED_MISSING_BRAND,
-                    'field' => 'guaranteeBrand',
-                    'parameters' => [],
-                ],
-            ])
-        );
+        foreach (["\u{2018}", "\u{2019}", "\u{201C}", "\u{201D}", "\u{201E}"] as $typographicQuote) {
+            self::assertStringNotContainsString($typographicQuote, $messageText, $errorKey);
+        }
+
+        preg_match_all('/"([^"]*)"/', $messageText, $quotedTokens);
+
+        foreach ($quotedTokens[1] as $quotedToken) {
+            self::assertContains($quotedToken, self::IMPORT_FILE_AND_REQUEST_TOKENS, $errorKey);
+        }
+
+        if (!in_array($errorKey, self::LEGAL_GUARANTEE_ONLY_KEYS, true)) {
+            self::assertStringContainsString(self::MERCHANT_TERMS[$language]['manufacturerGuarantee'], $messageText, $errorKey);
+        }
+
+        if (str_contains($messageText, '"lgnMode"')) {
+            self::assertStringContainsString(self::MERCHANT_TERMS[$language]['legalGuarantee'], $messageText, $errorKey);
+        }
+
+        foreach (['Brand/Trademark', 'Model identifier'] as $labelFieldDesignation) {
+            $suffixCount = substr_count($messageText, '(' . $labelFieldDesignation . ')');
+
+            if ($language === 'de') {
+                self::assertSame(substr_count($messageText, $labelFieldDesignation), $suffixCount, $errorKey);
+            } else {
+                self::assertSame(0, $suffixCount, $errorKey);
+            }
+        }
     }
 
     /**
      * @return array<string, mixed>
      */
-    private function loadDefaultLanguageFile(string $language): array
+    private function loadShopMiscLanguage(string $language): array
     {
         $GLOBALS['TL_LANG'] = [];
 
         require self::LANGUAGE_BASE_PATH . $language . '/default.php';
 
-        return $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuaranteeImport'];
+        return $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc'];
     }
 }

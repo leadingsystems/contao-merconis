@@ -266,21 +266,6 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['lgnButtonText'] = 'Ihre
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['garanButtonLabel'] = 'Herstellergarantie %s Jahre';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['popoverCloseLabel'] = 'Schließen';
 
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuaranteeImport']['importLogEntry'] = 'Zeile %d, Feld "%s": %s';
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuaranteeImport']['apiMessage'] = 'Feld "%s": %s';
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuaranteeImport']['messages'] = [
-	'lgn_invalid_mode' => 'Die Zeile wurde nicht übernommen, weil "%s" kein zulässiger Wert für die Einstellung zur gesetzlichen Gewährleistung ist. Zulässig sind "inherit", "always" und "never".',
-	'garan_invalid_mode' => 'Die Zeile wurde nicht übernommen, weil "%s" kein zulässiger Wert für die Herstellergarantie der Variante ist. Zulässig sind "inherit", "disabled" und "override".',
-	'garan_disabled_missing_brand' => 'Die Zeile wurde nicht übernommen, weil für die Herstellergarantie die Marke (Brand/Trademark) fehlt.',
-	'garan_disabled_missing_model' => 'Die Zeile wurde nicht übernommen, weil für die Herstellergarantie das Modell (Model identifier) fehlt.',
-	'garan_disabled_missing_duration' => 'Die Zeile wurde nicht übernommen, weil für die Herstellergarantie die Garantiedauer fehlt.',
-	'garan_disabled_invalid_duration' => 'Die Zeile wurde nicht übernommen, weil "%s" keine zulässige Garantiedauer ist. Zulässig sind ganze Monate von 30 bis 360 in Schritten von 6.',
-	'garan_disabled_lgn_required' => 'Die Zeile wurde nicht übernommen, weil die Herstellergarantie eingeschaltet ist und die Mitteilung über die gesetzliche Gewährleistung mit "never" in der Standard-Benutzergruppe nicht angezeigt würde. Bitte für die gesetzliche Gewährleistung "inherit" oder "always" angeben oder die Herstellergarantie ausschalten.',
-	'garan_disabled_lgn_required_always' => 'Die Zeile wurde nicht übernommen, weil die Herstellergarantie eingeschaltet ist und die Mitteilung über die gesetzliche Gewährleistung in der Standard-Benutzergruppe nicht angezeigt würde; die Standard-Benutzergruppe zeigt sie nur für Produkte mit "always". Bitte für die gesetzliche Gewährleistung "always" angeben oder die Herstellergarantie ausschalten.',
-	'garan_disabled_lgn_variant_override' => 'Die Zeile wurde nicht übernommen, weil die Mitteilung über die gesetzliche Gewährleistung damit in der Standard-Benutzergruppe nicht angezeigt würde und folgende Varianten bei der Herstellergarantie "override" verwenden: %s. Bitte zuerst diese Varianten auf einen anderen Wert als "override" stellen und die Zeile danach erneut übertragen oder für die gesetzliche Gewährleistung einen Wert angeben, mit dem die Mitteilung angezeigt wird.',
-	'garan_override_lgn_required' => 'Die Variante wurde nicht übernommen: "override" bei der Herstellergarantie setzt voraus, dass die Mitteilung über die gesetzliche Gewährleistung für das Produkt in der Standard-Benutzergruppe angezeigt wird. Bitte zuerst die Einstellung zur gesetzlichen Gewährleistung am Produkt ändern und die Zeile danach erneut übertragen.',
-];
-
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['label'] = 'Kommentar zur Position';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['placeholder'] = 'Optionaler Kommentar';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['orderComment']['label'] = 'Kommentar';
@@ -1102,8 +1087,34 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importErrors'] = array(
 	'variantValueInvalid_productcode' => 'Feldwert für "productcode" ist ungültig (max. 255 Zeichen sind erlaubt): Zeile(n) Nr. %s',
 	'valueInvalid_scalePriceType' => 'Feldwert für "scalePriceType" ist ungültig: Zeile(n) Nr. %s',
 	'valueInvalid_scalePriceQuantityDetectionMethod' => 'Feldwert für "scalePriceQuantityDetectionMethod" ist ungültig: Zeile(n) Nr. %s',
-	'valueInvalid_scalePriceKeyword' => 'Feldwert für "scalePriceKeyword" ist ungültig: Zeile(n) Nr. %s'
+	'valueInvalid_scalePriceKeyword' => 'Feldwert für "scalePriceKeyword" ist ungültig: Zeile(n) Nr. %s',
+
+	'productValueInvalid_lgnMode' => 'Feldwert für "lgnMode" (gesetzliche Gewährleistung) ist ungültig. Zulässig sind "inherit", "always", "never" oder ein leeres Feld: Zeile(n) Nr. %s',
+	'variantValueInvalid_garanMode' => 'Feldwert für "garanMode" (Herstellergarantie der Variante) ist ungültig. Zulässig sind "inherit", "disabled", "override" oder ein leeres Feld: Zeile(n) Nr. %s',
+	'valueInvalid_guaranteeDurationMonths' => 'Feldwert für "guaranteeDurationMonths" (Garantiedauer der Herstellergarantie) ist ungültig. Zulässig sind ganze Monate von 30 bis 360 in Schritten von 6, nur aus Ziffern ohne führende Null, oder ein leeres Feld: Zeile(n) Nr. %s',
+	'valueInvalid_guaranteeBrand' => 'Feldwert für "guaranteeBrand" ist ungültig. Die Marke (Brand/Trademark) der Herstellergarantie darf höchstens 255 Zeichen lang sein: Zeile(n) Nr. %s',
+	'valueInvalid_guaranteeModelIdentifier' => 'Feldwert für "guaranteeModelIdentifier" ist ungültig. Das Modell (Model identifier) der Herstellergarantie darf höchstens 255 Zeichen lang sein: Zeile(n) Nr. %s',
+	'productGuaranteeDataIncomplete' => 'Die Herstellergarantie ist eingeschaltet ("enableGaran"), aber Garantiedauer ("guaranteeDurationMonths"), Marke ("guaranteeBrand") oder Modell ("guaranteeModelIdentifier") fehlt: Zeile(n) Nr. %s',
+	'productGuaranteeWithLgnModeNever' => 'Die Herstellergarantie ist eingeschaltet ("enableGaran"), aber die gesetzliche Gewährleistung steht auf "never" ("lgnMode"). Ohne die Mitteilung über die gesetzliche Gewährleistung wird keine Herstellergarantie angezeigt: Zeile(n) Nr. %s',
+	'variantGuaranteeDataIncomplete' => 'Die Variante führt eigene Angaben zur Herstellergarantie ("override" in "garanMode"), aber Garantiedauer ("guaranteeDurationMonths"), Marke ("guaranteeBrand") oder Modell ("guaranteeModelIdentifier") fehlt: Zeile(n) Nr. %s',
+	'variantGuaranteeOverrideWithParentLgnModeNever' => 'Die Variante führt eigene Angaben zur Herstellergarantie ("override" in "garanMode"), aber ihr Produkt steht in der Importdatei bei der gesetzlichen Gewährleistung auf "never" ("lgnMode"). Ohne die Mitteilung über die gesetzliche Gewährleistung wird keine Herstellergarantie angezeigt: Zeile(n) Nr. %s'
 );
+
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['productManagementApiErrors'] = [
+	'lgnModeInvalid' => 'Der Wert für "lgnMode" (gesetzliche Gewährleistung) ist ungültig. Zulässig sind "inherit", "always", "never" oder ein leerer Wert.',
+	'garanModeInvalid' => 'Der Wert für "garanMode" (Herstellergarantie der Variante) ist ungültig. Zulässig sind "inherit", "disabled", "override" oder ein leerer Wert.',
+	'guaranteeDurationMonthsInvalid' => 'Der Wert für "guaranteeDurationMonths" (Garantiedauer der Herstellergarantie) ist ungültig. Zulässig sind ganze Monate von 30 bis 360 in Schritten von 6, als Ganzzahl oder als Zeichenkette nur aus Ziffern ohne führende Null, oder ein leerer Wert.',
+	'guaranteeBrandInvalid' => 'Der Wert für "guaranteeBrand" ist ungültig. Zulässig ist für die Marke (Brand/Trademark) der Herstellergarantie eine Zeichenkette oder Ganzzahl mit höchstens 255 Zeichen oder ein leerer Wert.',
+	'guaranteeModelIdentifierInvalid' => 'Der Wert für "guaranteeModelIdentifier" ist ungültig. Zulässig ist für das Modell (Model identifier) der Herstellergarantie eine Zeichenkette oder Ganzzahl mit höchstens 255 Zeichen oder ein leerer Wert.',
+	'productGuaranteeDurationMonthsMissing' => 'Die Herstellergarantie ist eingeschaltet ("enableGaran"), aber die Garantiedauer ("guaranteeDurationMonths") fehlt.',
+	'productGuaranteeBrandMissing' => 'Die Herstellergarantie ist eingeschaltet ("enableGaran"), aber die Marke ("guaranteeBrand") fehlt.',
+	'productGuaranteeModelIdentifierMissing' => 'Die Herstellergarantie ist eingeschaltet ("enableGaran"), aber das Modell ("guaranteeModelIdentifier") fehlt.',
+	'variantGuaranteeDurationMonthsMissing' => 'Die Variante führt eigene Angaben zur Herstellergarantie ("override" in "garanMode"), aber die Garantiedauer ("guaranteeDurationMonths") fehlt.',
+	'variantGuaranteeBrandMissing' => 'Die Variante führt eigene Angaben zur Herstellergarantie ("override" in "garanMode"), aber die Marke ("guaranteeBrand") fehlt.',
+	'variantGuaranteeModelIdentifierMissing' => 'Die Variante führt eigene Angaben zur Herstellergarantie ("override" in "garanMode"), aber das Modell ("guaranteeModelIdentifier") fehlt.',
+	'productGuaranteeWithLgnModeNever' => 'Die Herstellergarantie ist eingeschaltet ("enableGaran"), aber die gesetzliche Gewährleistung steht auf "never" ("lgnMode"). Ohne die Mitteilung über die gesetzliche Gewährleistung wird keine Herstellergarantie angezeigt.',
+	'variantGuaranteeOverrideWithParentLgnModeNever' => 'Die Variante führt eigene Angaben zur Herstellergarantie ("override" in "garanMode"), aber ihr Produkt steht in diesem Aufruf bei der gesetzlichen Gewährleistung auf "never" ("lgnMode"). Ohne die Mitteilung über die gesetzliche Gewährleistung wird keine Herstellergarantie angezeigt.',
+];
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['msg001'] = '<div style="font-weight: bold; border: 5px solid #FF0000; padding: 20px; background-color: #FFFFFF;">Bitte beachten Sie, dass Sie mit der unlizensierten Demo-Version von MERCONIS maximal 10 Produkte anbieten können.</div>';
 

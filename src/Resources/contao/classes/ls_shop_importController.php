@@ -8,7 +8,6 @@ use Contao\File;
 use Contao\FilesModel;
 use Contao\Folder;
 use Contao\System;
-use LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\ProductGuaranteeConfigurationApplier;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
 class ls_shop_importController
@@ -283,6 +282,13 @@ class ls_shop_importController
 			
 			if ($row['type'] == 'product') {
 				$_SESSION['lsShop']['importFileInfo']['arrAnalyzingInfo']['product_productcodes'][] = $row['productcode'];
+				/*
+				 * Bei mehreren Produktzeilen mit derselben Artikelnummer bleibt die letzte stehen (Spec 27, Abschnitt 10.4)
+				 */
+				$_SESSION['lsShop']['importFileInfo']['arrAnalyzingInfo']['product_lgnModeAndDeletion'][$row['productcode']] = array(
+					'lgnMode' => $row['lgnMode'] ?? '',
+					'delete' => (bool) $row['delete']
+				);
 				$_SESSION['lsShop']['importFileInfo']['numRecords']['products']++;
 			} else if ($row['type'] == 'variant') {
 				$_SESSION['lsShop']['importFileInfo']['arrAnalyzingInfo']['variant_productcodes'][] = $row['productcode'];
@@ -338,6 +344,16 @@ class ls_shop_importController
 			'valueInvalid_scalePriceType' => false,
 			'valueInvalid_scalePriceQuantityDetectionMethod' => false,
 			'valueInvalid_scalePriceKeyword' => false,
+
+			'productValueInvalid_lgnMode' => false,
+			'variantValueInvalid_garanMode' => false,
+			'valueInvalid_guaranteeDurationMonths' => false,
+			'valueInvalid_guaranteeBrand' => false,
+			'valueInvalid_guaranteeModelIdentifier' => false,
+			'productGuaranteeDataIncomplete' => false,
+			'productGuaranteeWithLgnModeNever' => false,
+			'variantGuaranteeDataIncomplete' => false,
+			'variantGuaranteeOverrideWithParentLgnModeNever' => false,
 						
 			'valueInvalid_productcode' => false
 		);
@@ -519,10 +535,6 @@ class ls_shop_importController
 	 * oder das Aktualisieren eines Eintrags in der Datenbank bedeuten kann.
 	 */
 	protected function processProductData($row) {
-		$str_rawGuaranteeDurationInput = array_key_exists('guaranteeDurationMonths', $row)
-			? $row['guaranteeDurationMonths']
-			: null;
-
 		if (isset($GLOBALS['MERCONIS_HOOKS']['import_beforeProcessingProductData']) && is_array($GLOBALS['MERCONIS_HOOKS']['import_beforeProcessingProductData'])) {
 			foreach ($GLOBALS['MERCONIS_HOOKS']['import_beforeProcessingProductData'] as $mccb) {
 				$objMccb = System::importStatic($mccb[0]);
@@ -651,12 +663,6 @@ class ls_shop_importController
 			}
 		}
 
-		$row = $this->applyLegalGuaranteeConfigurationToProductRow($row, (int) $alreadyExistsAsID, $str_rawGuaranteeDurationInput);
-
-		if ($row === null) {
-			return false;
-		}
-
 		/* ######################################################################################################################
 		 * Update, falls Datensatz vorhanden
 		 * 
@@ -744,11 +750,11 @@ class ls_shop_importController
 				$row['settingsForStockAndDeliveryTime'] ? $row['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
 				$row['settingsForStockAndDeliveryTimeInPreorderPhase'] ? $row['settingsForStockAndDeliveryTimeInPreorderPhase'] : 0, // int, empty = 0
 				$row['producer'], // String, maxlength 255
-				$row['lgnMode'], // inherit, always or never
-				$row['enableGaran'], // 1 or ''
-				$row['guaranteeDurationMonths'], // decimal, empty = null
-				$row['guaranteeBrand'], // String
-				$row['guaranteeModelIdentifier'], // String
+				($row['lgnMode'] ?? '') !== '' ? $row['lgnMode'] : 'inherit', // inherit, always or never, empty = inherit
+				($row['enableGaran'] ?? '') ? '1' : '', // 1 or ''
+				($row['guaranteeDurationMonths'] ?? '') !== '' ? $row['guaranteeDurationMonths'] : null, // int, empty = null
+				$row['guaranteeBrand'] ?? '', // String, maxlength 255
+				$row['guaranteeModelIdentifier'] ?? '', // String, maxlength 255
 				$row['configurator'] ? $row['configurator'] : 0, // int, empty = 0
 				$row['customizer'] ?: null, // binary file reference, empty = null
 				$row['flex_contents'], // blob, translated, check unclear
@@ -913,11 +919,11 @@ class ls_shop_importController
 				$row['settingsForStockAndDeliveryTime'] ? $row['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
 				$row['settingsForStockAndDeliveryTimeInPreorderPhase'] ? $row['settingsForStockAndDeliveryTimeInPreorderPhase'] : 0, // int, empty = 0
 				$row['producer'], // String, maxlength 255
-				$row['lgnMode'], // inherit, always or never
-				$row['enableGaran'], // 1 or ''
-				$row['guaranteeDurationMonths'], // decimal, empty = null
-				$row['guaranteeBrand'], // String
-				$row['guaranteeModelIdentifier'], // String
+				($row['lgnMode'] ?? '') !== '' ? $row['lgnMode'] : 'inherit', // inherit, always or never, empty = inherit
+				($row['enableGaran'] ?? '') ? '1' : '', // 1 or ''
+				($row['guaranteeDurationMonths'] ?? '') !== '' ? $row['guaranteeDurationMonths'] : null, // int, empty = null
+				$row['guaranteeBrand'] ?? '', // String, maxlength 255
+				$row['guaranteeModelIdentifier'] ?? '', // String, maxlength 255
 				$row['configurator'] ? $row['configurator'] : 0, // int, empty = 0
                 $row['customizer'] ?: null, // binary file reference, empty = null
                 $row['flex_contents'], // blob, translated, check unclear
@@ -998,9 +1004,6 @@ class ls_shop_importController
 	}
 
 	protected function processVariantData($row) {
-		$str_rawGuaranteeDurationInput = array_key_exists('guaranteeDurationMonths', $row)
-			? $row['guaranteeDurationMonths']
-			: null;
 
         if (empty($row['weight'])) {
             $row['weightType'] = 'adjustmentPercentaged';
@@ -1153,20 +1156,6 @@ class ls_shop_importController
 				$row = $objMccb->{$mccb[1]}($row, $alreadyExistsAsID, $parentProductID);
 			}
 		}
-
-		$objGuaranteeApplier = new ProductGuaranteeConfigurationApplier();
-		$arrParentProductGuaranteeData = ls_shop_productManagementApiHelper::getLegalGuaranteeProductDataById($parentProductID);
-		$arrGuaranteeResult = $objGuaranteeApplier->applyToVariantRow(
-			$row,
-			$arrParentProductGuaranteeData,
-			$str_rawGuaranteeDurationInput
-		);
-		$row = $arrGuaranteeResult['row'];
-		$this->logLegalGuaranteeImportWarnings($arrGuaranteeResult['messages']);
-
-		if ($objGuaranteeApplier->hasBlockingWriteMessages($arrGuaranteeResult['messages'])) {
-			return false;
-		}
 		
 		/* ######################################################################################################################
 		 * Update, falls Datensatz vorhanden
@@ -1247,10 +1236,10 @@ class ls_shop_importController
 				$row['settingsForStockAndDeliveryTimeInPreorderPhase'] ? $row['settingsForStockAndDeliveryTimeInPreorderPhase'] : 0, // int, empty = 0
 				$row['configurator'] ? $row['configurator'] : 0, // int, empty = 0
                 $row['customizer'] ?: null, // binary file reference, empty = null
-				$row['garanMode'], // inherit, disabled or override
-				$row['guaranteeDurationMonths'], // decimal, empty = null
-				$row['guaranteeBrand'], // String
-				$row['guaranteeModelIdentifier'], // String
+				($row['garanMode'] ?? '') !== '' ? $row['garanMode'] : 'inherit', // inherit, disabled or override, empty = inherit
+				($row['guaranteeDurationMonths'] ?? '') !== '' ? $row['guaranteeDurationMonths'] : null, // int, empty = null
+				$row['guaranteeBrand'] ?? '', // String, maxlength 255
+				$row['guaranteeModelIdentifier'] ?? '', // String, maxlength 255
 				$row['flex_contents'], // blob, translated, check unclear
 				$row['flex_contentsLanguageIndependent'], // blob, translated, check unclear
 				$row['useScalePrice'] ? '1' : '', // 1 or ''
@@ -1384,10 +1373,10 @@ class ls_shop_importController
 				$row['settingsForStockAndDeliveryTimeInPreorderPhase'] ? $row['settingsForStockAndDeliveryTimeInPreorderPhase'] : 0, // int, empty = 0
 				$row['configurator'] ? $row['configurator'] : 0, // int, empty = 0
                 $row['customizer'] ?: null, // binary file reference, empty = null
-				$row['garanMode'], // inherit, disabled or override
-				$row['guaranteeDurationMonths'], // decimal, empty = null
-				$row['guaranteeBrand'], // String
-				$row['guaranteeModelIdentifier'], // String
+				($row['garanMode'] ?? '') !== '' ? $row['garanMode'] : 'inherit', // inherit, disabled or override, empty = inherit
+				($row['guaranteeDurationMonths'] ?? '') !== '' ? $row['guaranteeDurationMonths'] : null, // int, empty = null
+				$row['guaranteeBrand'] ?? '', // String, maxlength 255
+				$row['guaranteeModelIdentifier'] ?? '', // String, maxlength 255
 				$row['flex_contents'], // blob, translated, check unclear
 				$row['flex_contentsLanguageIndependent'], // blob, translated, check unclear
 				$row['useScalePrice'] ? '1' : '', // 1 or ''
@@ -2137,6 +2126,94 @@ class ls_shop_importController
 				
 				return false;
 				break;
+
+			case 'productValueInvalid_lgnMode':
+				if ($row['delete'] || $row['type'] != 'product') {
+					break;
+				}
+
+				return ($row['lgnMode'] ?? '') !== '' && !in_array($row['lgnMode'], array('inherit', 'always', 'never'), true);
+				break;
+
+			case 'variantValueInvalid_garanMode':
+				if ($row['delete'] || $row['type'] != 'variant') {
+					break;
+				}
+
+				return ($row['garanMode'] ?? '') !== '' && !in_array($row['garanMode'], array('inherit', 'disabled', 'override'), true);
+				break;
+
+			case 'valueInvalid_guaranteeDurationMonths':
+				if ($row['delete'] || ($row['type'] != 'product' && $row['type'] != 'variant')) {
+					break;
+				}
+
+				if (($row['guaranteeDurationMonths'] ?? '') === '') {
+					return false;
+				}
+
+				/*
+				 * Nur Ziffern ohne führende Null ("D": kein abschließender Zeilenumbruch), 30 bis 360 Monate in Schritten von 6
+				 */
+				return !preg_match('/^[1-9][0-9]*$/D', $row['guaranteeDurationMonths'])
+					|| (int) $row['guaranteeDurationMonths'] < 30
+					|| (int) $row['guaranteeDurationMonths'] > 360
+					|| (int) $row['guaranteeDurationMonths'] % 6 !== 0;
+				break;
+
+			case 'valueInvalid_guaranteeBrand':
+				if ($row['delete'] || ($row['type'] != 'product' && $row['type'] != 'variant')) {
+					break;
+				}
+
+				return mb_strlen($row['guaranteeBrand'] ?? '', 'UTF-8') > 255;
+				break;
+
+			case 'valueInvalid_guaranteeModelIdentifier':
+				if ($row['delete'] || ($row['type'] != 'product' && $row['type'] != 'variant')) {
+					break;
+				}
+
+				return mb_strlen($row['guaranteeModelIdentifier'] ?? '', 'UTF-8') > 255;
+				break;
+
+			case 'productGuaranteeDataIncomplete':
+				if ($row['delete'] || $row['type'] != 'product' || !($row['enableGaran'] ?? '')) {
+					break;
+				}
+
+				return trim($row['guaranteeDurationMonths'] ?? '') === ''
+					|| trim($row['guaranteeBrand'] ?? '') === ''
+					|| trim($row['guaranteeModelIdentifier'] ?? '') === '';
+				break;
+
+			case 'productGuaranteeWithLgnModeNever':
+				if ($row['delete'] || $row['type'] != 'product' || !($row['enableGaran'] ?? '')) {
+					break;
+				}
+
+				return ($row['lgnMode'] ?? '') === 'never';
+				break;
+
+			case 'variantGuaranteeDataIncomplete':
+				if ($row['delete'] || $row['type'] != 'variant' || ($row['garanMode'] ?? '') !== 'override') {
+					break;
+				}
+
+				return trim($row['guaranteeDurationMonths'] ?? '') === ''
+					|| trim($row['guaranteeBrand'] ?? '') === ''
+					|| trim($row['guaranteeModelIdentifier'] ?? '') === '';
+				break;
+
+			case 'variantGuaranteeOverrideWithParentLgnModeNever':
+				if ($row['delete'] || $row['type'] != 'variant' || ($row['garanMode'] ?? '') !== 'override') {
+					break;
+				}
+
+				$arr_parentProductInfo = $_SESSION['lsShop']['importFileInfo']['arrAnalyzingInfo']['product_lgnModeAndDeletion'][$row['parentProductcode']] ?? null;
+
+				return $arr_parentProductInfo !== null && !$arr_parentProductInfo['delete'] && $arr_parentProductInfo['lgnMode'] === 'never';
+				break;
 		}
 		
 		return false;
@@ -2231,59 +2308,4 @@ class ls_shop_importController
         return false;
 
     }
-
-	/*
-	 * Prüft die Produktzeile nach Spec 27, Abschnitt 4, gegen den gespeicherten Stand der Varianten und übernimmt
-	 * lgnMode und die GARAN-Felder. Liefert null, wenn die Zeile nicht geschrieben werden darf; die Meldungen
-	 * stehen dann im Import-Log.
-	 */
-	private function applyLegalGuaranteeConfigurationToProductRow(array $row, int $int_existingProductId, $str_rawGuaranteeDurationInput): ?array {
-		$objGuaranteeApplier = new ProductGuaranteeConfigurationApplier();
-		$arrGuaranteeResult = $objGuaranteeApplier->applyToProductRow(
-			$row,
-			true,
-			'producer',
-			ls_shop_productManagementApiHelper::getLegalGuaranteeVariantDataByProductId($int_existingProductId),
-			$str_rawGuaranteeDurationInput
-		);
-		$this->logLegalGuaranteeImportWarnings($arrGuaranteeResult['messages']);
-
-		if ($objGuaranteeApplier->hasBlockingWriteMessages($arrGuaranteeResult['messages'])) {
-			return null;
-		}
-
-		return $arrGuaranteeResult['row'];
-	}
-
-	private function logLegalGuaranteeImportWarnings(array $arr_messages): void {
-		if (empty($arr_messages)) {
-			return;
-		}
-
-		foreach ($arr_messages as $arr_message) {
-			System::getContainer()->get('monolog.logger.contao')->info(
-				'MERCONIS IMPORTER: '.$this->formatLegalGuaranteeImportWarning($arr_message),
-				['contao' => new ContaoContext('MERCONIS IMPORTER', TL_MERCONIS_IMPORTER)]
-			);
-		}
-	}
-
-	/*
-	 * Die Texte stehen in $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuaranteeImport'] (Sprachdatei "default")
-	 */
-	private function formatLegalGuaranteeImportWarning(array $arr_message): string {
-		return sprintf(
-			$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuaranteeImport']['importLogEntry'],
-			$this->getCurrentImportDataRowNumber(),
-			$arr_message['field'],
-			(new ProductGuaranteeConfigurationApplier())->formatMessageText($arr_message)
-		);
-	}
-
-	private function getCurrentImportDataRowNumber(): int {
-		$int_currentRow = (int) ($_SESSION['lsShop']['importFileInfo']['intCurrentlyReadImportFileRow'] ?? 0);
-		$int_headerOffset = $this->bln_importFileHasRowForVersionAndSpecialChars ? 2 : 1;
-
-		return max(1, $int_currentRow - $int_headerOffset);
-	}
 }

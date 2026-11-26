@@ -28,57 +28,6 @@ final class ProductGuaranteeConfigurationValidator
     }
 
     /**
-     * Prüft eine Produktzeile aus Import oder Product Management API im Zustand nach dem
-     * Schreiben (Spec 27, Abschnitte 4 und 10). Bezug für "LGN aus" ist der gespeicherte
-     * Wert der Standard-Benutzergruppe; `$relatedVariants` ist der gespeicherte Stand der
-     * Varianten. Der Validator ändert keine Werte; eine leere oder fehlende Angabe für
-     * `lgnMode` ergibt `inherit`.
-     *
-     * @param array<string, mixed> $productData
-     * @param list<array<string, mixed>> $relatedVariants
-     */
-    public function validateProduct(
-        array $productData,
-        array $relatedVariants = array(),
-        mixed $rawDurationInput = null
-    ): GuaranteeValidationResult
-    {
-        $normalizedData = $this->normalizeSharedFields($productData);
-        $normalizedData['lgnMode'] = $this->normalizeProductLgnModeValue($productData['lgnMode'] ?? null);
-        $durationResult = $this->validationHelper->normalizeDurationInput(
-            $rawDurationInput ?? ($productData['guaranteeDurationMonths'] ?? null)
-        );
-        $normalizedData['guaranteeDurationMonths'] = $durationResult['storedValue'];
-        $effectiveData = [
-            'enableGaran' => $normalizedData['enableGaran'],
-            'guaranteeDurationMonths' => $durationResult['effectiveValue'],
-            'guaranteeBrand' => $normalizedData['guaranteeBrand'],
-            'guaranteeModelIdentifier' => $normalizedData['guaranteeModelIdentifier'],
-        ];
-        $messages = $durationResult['messages'];
-
-        $lgnModeMessages = $this->validateProductLgnMode($productData['lgnMode'] ?? null);
-        $lgnMessages = [] === $lgnModeMessages
-            ? $this->validateProductLgnDependency($normalizedData, $relatedVariants)
-            : $lgnModeMessages;
-
-        if ($lgnMessages !== array()) {
-            $messages = array_merge($messages, $lgnMessages);
-        } elseif ($this->isTruthy($normalizedData['enableGaran'] ?? null)) {
-            $messages = array_merge(
-                $messages,
-                $this->validateGaranRequirements($effectiveData, $durationResult['messages'])
-            );
-        }
-
-        return new GuaranteeValidationResult(
-            $normalizedData,
-            $effectiveData,
-            $messages,
-        );
-    }
-
-    /**
      * R3: `override` wird abgelehnt, wenn für `lgnMode` des Elternprodukts "LGN aus" gilt.
      * Fehlt `lgnMode` in `$productData`, gilt `inherit`.
      *
@@ -133,11 +82,6 @@ final class ProductGuaranteeConfigurationValidator
         $productProducer = $this->normalizeTextValue($productProducer);
 
         return $productProducer;
-    }
-
-    public function getFieldNameForMessageCode(string $messageCode): ?string
-    {
-        return $this->validationHelper->getFieldNameForMessageCode($messageCode);
     }
 
     /**
@@ -275,71 +219,6 @@ final class ProductGuaranteeConfigurationValidator
     private function normalizeStoredDurationValue(mixed $rawValue): string
     {
         return trim((string) $rawValue);
-    }
-
-    /**
-     * @param array<string, mixed> $productData
-     * @param list<array<string, mixed>> $relatedVariants
-     *
-     * @return list<array{code: string, parameters: array<int, string>}>
-     */
-    private function validateProductLgnDependency(array $productData, array $relatedVariants): array
-    {
-        $standardMemberGroupLgnMode = $this->standardMemberGroupLgnMode->getStoredLgnMode();
-
-        if (!$this->standardMemberGroupLgnMode->isLgnOff($standardMemberGroupLgnMode, $productData['lgnMode'])) {
-            return array();
-        }
-
-        $messages = [];
-        $affectedVariantIdentifiers = $this->getOverrideVariantIdentifiers($relatedVariants);
-
-        if ($affectedVariantIdentifiers !== array()) {
-            $messages[] = [
-                'code' => self::MESSAGE_GARAN_DISABLED_LGN_VARIANT_OVERRIDE,
-                'parameters' => [implode(', ', $affectedVariantIdentifiers)],
-            ];
-        }
-
-        if ($this->isTruthy($productData['enableGaran'] ?? null)) {
-            $messages[] = [
-                'code' => 'always' === $this->standardMemberGroupLgnMode->getLgnModeForEnabledGaran($standardMemberGroupLgnMode)
-                    ? self::MESSAGE_GARAN_DISABLED_LGN_REQUIRED_ALWAYS
-                    : self::MESSAGE_GARAN_DISABLED_LGN_REQUIRED,
-                'parameters' => [],
-            ];
-        }
-
-        return $messages;
-    }
-
-    /**
-     * @return list<array{code: string, parameters: array<int, string>}>
-     */
-    private function validateProductLgnMode(mixed $rawMode): array
-    {
-        $rawMode = trim((string) $rawMode);
-
-        if ('' === $rawMode || in_array($rawMode, self::PRODUCT_LGN_MODES, true)) {
-            return [];
-        }
-
-        return [[
-            'code' => self::MESSAGE_LGN_INVALID_MODE,
-            'parameters' => [$rawMode],
-        ]];
-    }
-
-    /**
-     * Ein ungültiger Wert wird abgelehnt (`validateProductLgnMode()`) und nie geschrieben.
-     */
-    private function normalizeProductLgnModeValue(mixed $value): string
-    {
-        $mode = trim((string) $value);
-
-        return in_array($mode, self::PRODUCT_LGN_MODES, true)
-            ? $mode
-            : 'inherit';
     }
 
     /**

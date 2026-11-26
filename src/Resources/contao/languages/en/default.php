@@ -266,21 +266,6 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['lgnButtonText'] = 'Your
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['garanButtonLabel'] = 'Manufacturer guarantee %s years';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['popoverCloseLabel'] = 'Close';
 
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuaranteeImport']['importLogEntry'] = 'line %d, field "%s": %s';
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuaranteeImport']['apiMessage'] = 'field "%s": %s';
-$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuaranteeImport']['messages'] = [
-	'lgn_invalid_mode' => 'The row was not applied because "%s" is not a valid value for the legal guarantee notice setting. Allowed values are "inherit", "always" and "never".',
-	'garan_invalid_mode' => 'The row was not applied because "%s" is not a valid value for the manufacturer guarantee of the variant. Allowed values are "inherit", "disabled" and "override".',
-	'garan_disabled_missing_brand' => 'The row was not applied because the Brand/Trademark for the manufacturer guarantee is missing.',
-	'garan_disabled_missing_model' => 'The row was not applied because the Model identifier for the manufacturer guarantee is missing.',
-	'garan_disabled_missing_duration' => 'The row was not applied because the guarantee duration for the manufacturer guarantee is missing.',
-	'garan_disabled_invalid_duration' => 'The row was not applied because "%s" is not an allowed guarantee duration. Use whole months from 30 to 360 in steps of 6.',
-	'garan_disabled_lgn_required' => 'The row was not applied because the manufacturer guarantee is enabled and, with "never", the legal guarantee notice would not be shown for the standard user group. Please specify "inherit" or "always" for the legal guarantee notice or disable the manufacturer guarantee.',
-	'garan_disabled_lgn_required_always' => 'The row was not applied because the manufacturer guarantee is enabled and the legal guarantee notice would not be shown for the standard user group, which only shows it for products set to "always". Please specify "always" for the legal guarantee notice or disable the manufacturer guarantee.',
-	'garan_disabled_lgn_variant_override' => 'The row was not applied because the legal guarantee notice would then not be shown for the standard user group and the following variants use "override" for the manufacturer guarantee: %s. Please first set these variants to a value other than "override" and then transfer the row again, or specify a legal guarantee notice setting that shows the notice.',
-	'garan_override_lgn_required' => 'The variant was not applied: "override" for the manufacturer guarantee requires the legal guarantee notice of the product to be shown for the standard user group. Please change the legal guarantee notice setting of the product first and then transfer the row again.',
-];
-
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['label'] = 'Comment for this item';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['placeholder'] = 'Optional comment';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['orderComment']['label'] = 'Comment';
@@ -1103,7 +1088,33 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importErrors'] = array(
 	'valueInvalid_scalePriceType' => 'Field value for "scalePriceType" is invalid: Line(s) no. %s',
 	'valueInvalid_scalePriceQuantityDetectionMethod' => 'Field value for "scalePriceQuantityDetectionMethod" is invalid: Line(s) no. %s',
 	'valueInvalid_scalePriceKeyword' => 'Field value for "scalePriceKeyword" is invalid: Line(s) no. %s',
+
+	'productValueInvalid_lgnMode' => 'Field value for "lgnMode" (legal guarantee notice) is invalid. Allowed are "inherit", "always", "never" or an empty field: Line(s) no. %s',
+	'variantValueInvalid_garanMode' => 'Field value for "garanMode" (manufacturer guarantee of the variant) is invalid. Allowed are "inherit", "disabled", "override" or an empty field: Line(s) no. %s',
+	'valueInvalid_guaranteeDurationMonths' => 'Field value for "guaranteeDurationMonths" (duration of the manufacturer guarantee) is invalid. Allowed are whole months from 30 to 360 in steps of 6, digits only without leading zero, or an empty field: Line(s) no. %s',
+	'valueInvalid_guaranteeBrand' => 'Field value for "guaranteeBrand" is invalid. The Brand/Trademark of the manufacturer guarantee must not be longer than 255 characters: Line(s) no. %s',
+	'valueInvalid_guaranteeModelIdentifier' => 'Field value for "guaranteeModelIdentifier" is invalid. The Model identifier of the manufacturer guarantee must not be longer than 255 characters: Line(s) no. %s',
+	'productGuaranteeDataIncomplete' => 'The manufacturer guarantee is enabled ("enableGaran"), but the duration ("guaranteeDurationMonths"), Brand/Trademark ("guaranteeBrand") or Model identifier ("guaranteeModelIdentifier") is missing: Line(s) no. %s',
+	'productGuaranteeWithLgnModeNever' => 'The manufacturer guarantee is enabled ("enableGaran"), but the legal guarantee notice is set to "never" ("lgnMode"). Without the legal guarantee notice, no manufacturer guarantee is shown: Line(s) no. %s',
+	'variantGuaranteeDataIncomplete' => 'The variant has its own manufacturer guarantee details ("override" in "garanMode"), but the duration ("guaranteeDurationMonths"), Brand/Trademark ("guaranteeBrand") or Model identifier ("guaranteeModelIdentifier") is missing: Line(s) no. %s',
+	'variantGuaranteeOverrideWithParentLgnModeNever' => 'The variant has its own manufacturer guarantee details ("override" in "garanMode"), but its product is set to "never" for the legal guarantee notice ("lgnMode") in the import file. Without the legal guarantee notice, no manufacturer guarantee is shown: Line(s) no. %s',
 );
+
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['productManagementApiErrors'] = [
+	'lgnModeInvalid' => 'The value for "lgnMode" (legal guarantee notice) is invalid. Allowed are "inherit", "always", "never" or an empty value.',
+	'garanModeInvalid' => 'The value for "garanMode" (manufacturer guarantee of the variant) is invalid. Allowed are "inherit", "disabled", "override" or an empty value.',
+	'guaranteeDurationMonthsInvalid' => 'The value for "guaranteeDurationMonths" (duration of the manufacturer guarantee) is invalid. Allowed are whole months from 30 to 360 in steps of 6, as an integer or as a string of digits only without leading zero, or an empty value.',
+	'guaranteeBrandInvalid' => 'The value for "guaranteeBrand" is invalid. Allowed for the Brand/Trademark of the manufacturer guarantee is a string or integer with up to 255 characters or an empty value.',
+	'guaranteeModelIdentifierInvalid' => 'The value for "guaranteeModelIdentifier" is invalid. Allowed for the Model identifier of the manufacturer guarantee is a string or integer with up to 255 characters or an empty value.',
+	'productGuaranteeDurationMonthsMissing' => 'The manufacturer guarantee is enabled ("enableGaran"), but the duration ("guaranteeDurationMonths") is missing.',
+	'productGuaranteeBrandMissing' => 'The manufacturer guarantee is enabled ("enableGaran"), but the Brand/Trademark ("guaranteeBrand") is missing.',
+	'productGuaranteeModelIdentifierMissing' => 'The manufacturer guarantee is enabled ("enableGaran"), but the Model identifier ("guaranteeModelIdentifier") is missing.',
+	'variantGuaranteeDurationMonthsMissing' => 'The variant has its own manufacturer guarantee details ("override" in "garanMode"), but the duration ("guaranteeDurationMonths") is missing.',
+	'variantGuaranteeBrandMissing' => 'The variant has its own manufacturer guarantee details ("override" in "garanMode"), but the Brand/Trademark ("guaranteeBrand") is missing.',
+	'variantGuaranteeModelIdentifierMissing' => 'The variant has its own manufacturer guarantee details ("override" in "garanMode"), but the Model identifier ("guaranteeModelIdentifier") is missing.',
+	'productGuaranteeWithLgnModeNever' => 'The manufacturer guarantee is enabled ("enableGaran"), but the legal guarantee notice is set to "never" ("lgnMode"). Without the legal guarantee notice, no manufacturer guarantee is shown.',
+	'variantGuaranteeOverrideWithParentLgnModeNever' => 'The variant has its own manufacturer guarantee details ("override" in "garanMode"), but its product is set to "never" for the legal guarantee notice ("lgnMode") in this request. Without the legal guarantee notice, no manufacturer guarantee is shown.',
+];
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['msg001'] = '<div style="font-weight: bold; border: 5px solid #FF0000; padding: 20px; background-color: #FFFFFF;">Please note that you can only offer 10 products in the unlicensed demo version of MERCONIS.</div>';
 
