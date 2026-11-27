@@ -5,6 +5,7 @@ namespace Merconis\Core;
 use Contao\BackendTemplate;
 use Contao\ContentElement;
 use Contao\System;
+use LeadingSystems\MerconisBundle\Cache\MerconisCacheHandler;
 
 class ls_shop_cross_sellerCTE extends ContentElement {
 
@@ -27,7 +28,20 @@ class ls_shop_cross_sellerCTE extends ContentElement {
 	 * Generate module
 	 */
 	protected function compile() {
-		$objCrossSeller = new ls_shop_cross_seller($this->lsShopCrossSeller);
-		$this->Template->output = $objCrossSeller->parseCrossSeller();
+		// PerfGuard (optional, avoid static reference for linters)
+		$__pg = null;
+		if (class_exists('\\LeadingSystems\\Helpers\\PerfGuard')) {
+			$__pgClass = '\\LeadingSystems\\Helpers\\PerfGuard';
+			$__pg = new $__pgClass(__METHOD__);
+		}
+        /** @var MerconisCacheHandler $cacheHandler */
+        $cacheHandler = System::getContainer()->get(MerconisCacheHandler::class);
+        $cache = $cacheHandler->createForRecipe('cross_seller', array('id' => (string) $this->lsShopCrossSeller), 600);
+		list($hit, $value) = $cache->getValueOrStart();
+		if (!$hit) {
+			$value = (new ls_shop_cross_seller($this->lsShopCrossSeller))->parseCrossSeller();
+			$cache->storeValue($value);
+		}
+		$this->Template->output = $value;
 	}
 }
