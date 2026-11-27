@@ -282,6 +282,13 @@ class ls_shop_importController
 			
 			if ($row['type'] == 'product') {
 				$_SESSION['lsShop']['importFileInfo']['arrAnalyzingInfo']['product_productcodes'][] = $row['productcode'];
+				/*
+				 * Bei mehreren Produktzeilen mit derselben Artikelnummer bleibt die letzte stehen (Spec 27, Abschnitt 10.4)
+				 */
+				$_SESSION['lsShop']['importFileInfo']['arrAnalyzingInfo']['product_lgnModeAndDeletion'][$row['productcode']] = array(
+					'lgnMode' => $row['lgnMode'] ?? '',
+					'delete' => (bool) $row['delete']
+				);
 				$_SESSION['lsShop']['importFileInfo']['numRecords']['products']++;
 			} else if ($row['type'] == 'variant') {
 				$_SESSION['lsShop']['importFileInfo']['arrAnalyzingInfo']['variant_productcodes'][] = $row['productcode'];
@@ -337,6 +344,16 @@ class ls_shop_importController
 			'valueInvalid_scalePriceType' => false,
 			'valueInvalid_scalePriceQuantityDetectionMethod' => false,
 			'valueInvalid_scalePriceKeyword' => false,
+
+			'productValueInvalid_lgnMode' => false,
+			'variantValueInvalid_garanMode' => false,
+			'valueInvalid_guaranteeDurationMonths' => false,
+			'valueInvalid_guaranteeBrand' => false,
+			'valueInvalid_guaranteeModelIdentifier' => false,
+			'productGuaranteeDataIncomplete' => false,
+			'productGuaranteeWithLgnModeNever' => false,
+			'variantGuaranteeDataIncomplete' => false,
+			'variantGuaranteeOverrideWithParentLgnModeNever' => false,
 						
 			'valueInvalid_productcode' => false
 		);
@@ -683,6 +700,11 @@ class ls_shop_importController
 							`lsShopProductDeliveryInfoSet` = ?,
 							`deliveryInfoSetToUseInPreorderPhase` = ?,
 							`lsShopProductProducer` = ?,
+							`lgnMode` = ?,
+							`enableGaran` = ?,
+							`guaranteeDurationMonths` = ?,
+							`guaranteeBrand` = ?,
+							`guaranteeModelIdentifier` = ?,
 							`configurator` = ?,
 							`customizerLogicFile` = ?,
 							`flex_contents` = ?,
@@ -728,6 +750,11 @@ class ls_shop_importController
 				$row['settingsForStockAndDeliveryTime'] ? $row['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
 				$row['settingsForStockAndDeliveryTimeInPreorderPhase'] ? $row['settingsForStockAndDeliveryTimeInPreorderPhase'] : 0, // int, empty = 0
 				$row['producer'], // String, maxlength 255
+				($row['lgnMode'] ?? '') !== '' ? $row['lgnMode'] : 'inherit', // inherit, always or never, empty = inherit
+				($row['enableGaran'] ?? '') ? '1' : '', // 1 or ''
+				($row['guaranteeDurationMonths'] ?? '') !== '' ? $row['guaranteeDurationMonths'] : null, // int, empty = null
+				$row['guaranteeBrand'] ?? '', // String, maxlength 255
+				$row['guaranteeModelIdentifier'] ?? '', // String, maxlength 255
 				$row['configurator'] ? $row['configurator'] : 0, // int, empty = 0
 				$row['customizer'] ?: null, // binary file reference, empty = null
 				$row['flex_contents'], // blob, translated, check unclear
@@ -842,6 +869,11 @@ class ls_shop_importController
 							`lsShopProductDeliveryInfoSet` = ?,
 							`deliveryInfoSetToUseInPreorderPhase` = ?,
 							`lsShopProductProducer` = ?,
+							`lgnMode` = ?,
+							`enableGaran` = ?,
+							`guaranteeDurationMonths` = ?,
+							`guaranteeBrand` = ?,
+							`guaranteeModelIdentifier` = ?,
 							`configurator` = ?,
 							`customizerLogicFile` = ?,
 							`flex_contents` = ?,
@@ -887,6 +919,11 @@ class ls_shop_importController
 				$row['settingsForStockAndDeliveryTime'] ? $row['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
 				$row['settingsForStockAndDeliveryTimeInPreorderPhase'] ? $row['settingsForStockAndDeliveryTimeInPreorderPhase'] : 0, // int, empty = 0
 				$row['producer'], // String, maxlength 255
+				($row['lgnMode'] ?? '') !== '' ? $row['lgnMode'] : 'inherit', // inherit, always or never, empty = inherit
+				($row['enableGaran'] ?? '') ? '1' : '', // 1 or ''
+				($row['guaranteeDurationMonths'] ?? '') !== '' ? $row['guaranteeDurationMonths'] : null, // int, empty = null
+				$row['guaranteeBrand'] ?? '', // String, maxlength 255
+				$row['guaranteeModelIdentifier'] ?? '', // String, maxlength 255
 				$row['configurator'] ? $row['configurator'] : 0, // int, empty = 0
                 $row['customizer'] ?: null, // binary file reference, empty = null
                 $row['flex_contents'], // blob, translated, check unclear
@@ -1155,6 +1192,10 @@ class ls_shop_importController
 							`deliveryInfoSetToUseInPreorderPhase` = ?,
 							`configurator` = ?,
 							`customizerLogicFile` = ?,
+							`garanMode` = ?,
+							`guaranteeDurationMonths` = ?,
+							`guaranteeBrand` = ?,
+							`guaranteeModelIdentifier` = ?,
 							`flex_contents` = ?,
 							`flex_contentsLanguageIndependent` = ?,
 							`useScalePrice` = ?,
@@ -1195,6 +1236,10 @@ class ls_shop_importController
 				$row['settingsForStockAndDeliveryTimeInPreorderPhase'] ? $row['settingsForStockAndDeliveryTimeInPreorderPhase'] : 0, // int, empty = 0
 				$row['configurator'] ? $row['configurator'] : 0, // int, empty = 0
                 $row['customizer'] ?: null, // binary file reference, empty = null
+				($row['garanMode'] ?? '') !== '' ? $row['garanMode'] : 'inherit', // inherit, disabled or override, empty = inherit
+				($row['guaranteeDurationMonths'] ?? '') !== '' ? $row['guaranteeDurationMonths'] : null, // int, empty = null
+				$row['guaranteeBrand'] ?? '', // String, maxlength 255
+				$row['guaranteeModelIdentifier'] ?? '', // String, maxlength 255
 				$row['flex_contents'], // blob, translated, check unclear
 				$row['flex_contentsLanguageIndependent'], // blob, translated, check unclear
 				$row['useScalePrice'] ? '1' : '', // 1 or ''
@@ -1283,6 +1328,10 @@ class ls_shop_importController
 							`deliveryInfoSetToUseInPreorderPhase` = ?,
 							`configurator` = ?,
 							`customizerLogicFile` = ?,
+							`garanMode` = ?,
+							`guaranteeDurationMonths` = ?,
+							`guaranteeBrand` = ?,
+							`guaranteeModelIdentifier` = ?,
 							`flex_contents` = ?,
 							`flex_contentsLanguageIndependent` = ?,
 							`useScalePrice` = ?,
@@ -1324,6 +1373,10 @@ class ls_shop_importController
 				$row['settingsForStockAndDeliveryTimeInPreorderPhase'] ? $row['settingsForStockAndDeliveryTimeInPreorderPhase'] : 0, // int, empty = 0
 				$row['configurator'] ? $row['configurator'] : 0, // int, empty = 0
                 $row['customizer'] ?: null, // binary file reference, empty = null
+				($row['garanMode'] ?? '') !== '' ? $row['garanMode'] : 'inherit', // inherit, disabled or override, empty = inherit
+				($row['guaranteeDurationMonths'] ?? '') !== '' ? $row['guaranteeDurationMonths'] : null, // int, empty = null
+				$row['guaranteeBrand'] ?? '', // String, maxlength 255
+				$row['guaranteeModelIdentifier'] ?? '', // String, maxlength 255
 				$row['flex_contents'], // blob, translated, check unclear
 				$row['flex_contentsLanguageIndependent'], // blob, translated, check unclear
 				$row['useScalePrice'] ? '1' : '', // 1 or ''
@@ -2072,6 +2125,94 @@ class ls_shop_importController
 				}
 				
 				return false;
+				break;
+
+			case 'productValueInvalid_lgnMode':
+				if ($row['delete'] || $row['type'] != 'product') {
+					break;
+				}
+
+				return ($row['lgnMode'] ?? '') !== '' && !in_array($row['lgnMode'], array('inherit', 'always', 'never'), true);
+				break;
+
+			case 'variantValueInvalid_garanMode':
+				if ($row['delete'] || $row['type'] != 'variant') {
+					break;
+				}
+
+				return ($row['garanMode'] ?? '') !== '' && !in_array($row['garanMode'], array('inherit', 'disabled', 'override'), true);
+				break;
+
+			case 'valueInvalid_guaranteeDurationMonths':
+				if ($row['delete'] || ($row['type'] != 'product' && $row['type'] != 'variant')) {
+					break;
+				}
+
+				if (($row['guaranteeDurationMonths'] ?? '') === '') {
+					return false;
+				}
+
+				/*
+				 * Nur Ziffern ohne führende Null ("D": kein abschließender Zeilenumbruch), 30 bis 360 Monate in Schritten von 6
+				 */
+				return !preg_match('/^[1-9][0-9]*$/D', $row['guaranteeDurationMonths'])
+					|| (int) $row['guaranteeDurationMonths'] < 30
+					|| (int) $row['guaranteeDurationMonths'] > 360
+					|| (int) $row['guaranteeDurationMonths'] % 6 !== 0;
+				break;
+
+			case 'valueInvalid_guaranteeBrand':
+				if ($row['delete'] || ($row['type'] != 'product' && $row['type'] != 'variant')) {
+					break;
+				}
+
+				return mb_strlen($row['guaranteeBrand'] ?? '', 'UTF-8') > 255;
+				break;
+
+			case 'valueInvalid_guaranteeModelIdentifier':
+				if ($row['delete'] || ($row['type'] != 'product' && $row['type'] != 'variant')) {
+					break;
+				}
+
+				return mb_strlen($row['guaranteeModelIdentifier'] ?? '', 'UTF-8') > 255;
+				break;
+
+			case 'productGuaranteeDataIncomplete':
+				if ($row['delete'] || $row['type'] != 'product' || !($row['enableGaran'] ?? '')) {
+					break;
+				}
+
+				return trim($row['guaranteeDurationMonths'] ?? '') === ''
+					|| trim($row['guaranteeBrand'] ?? '') === ''
+					|| trim($row['guaranteeModelIdentifier'] ?? '') === '';
+				break;
+
+			case 'productGuaranteeWithLgnModeNever':
+				if ($row['delete'] || $row['type'] != 'product' || !($row['enableGaran'] ?? '')) {
+					break;
+				}
+
+				return ($row['lgnMode'] ?? '') === 'never';
+				break;
+
+			case 'variantGuaranteeDataIncomplete':
+				if ($row['delete'] || $row['type'] != 'variant' || ($row['garanMode'] ?? '') !== 'override') {
+					break;
+				}
+
+				return trim($row['guaranteeDurationMonths'] ?? '') === ''
+					|| trim($row['guaranteeBrand'] ?? '') === ''
+					|| trim($row['guaranteeModelIdentifier'] ?? '') === '';
+				break;
+
+			case 'variantGuaranteeOverrideWithParentLgnModeNever':
+				if ($row['delete'] || $row['type'] != 'variant' || ($row['garanMode'] ?? '') !== 'override') {
+					break;
+				}
+
+				$arr_parentProductInfo = $_SESSION['lsShop']['importFileInfo']['arrAnalyzingInfo']['product_lgnModeAndDeletion'][$row['parentProductcode']] ?? null;
+
+				return $arr_parentProductInfo !== null && !$arr_parentProductInfo['delete'] && $arr_parentProductInfo['lgnMode'] === 'never';
 				break;
 		}
 		

@@ -820,6 +820,11 @@ class ls_shop_productManagementApiHelper {
 							`lsShopProductRecommendedProducts` = ?,
 							`lsShopProductDeliveryInfoSet` = ?,
 							`lsShopProductProducer` = ?,
+							`lgnMode` = ?,
+							`enableGaran` = ?,
+							`guaranteeDurationMonths` = ?,
+							`guaranteeBrand` = ?,
+							`guaranteeModelIdentifier` = ?,
 							`configurator` = ?,
 							`flex_contents` = ?,
 							`flex_contentsLanguageIndependent` = ?,
@@ -861,6 +866,11 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['recommendedProducts'], // blob, translated, check unclear
 				$arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] ? $arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
 				$arr_preprocessedDataRow['producer'], // String, maxlength 255
+				$arr_preprocessedDataRow['lgnMode'], // inherit, always or never
+				$arr_preprocessedDataRow['enableGaran'], // 1 or ''
+				$arr_preprocessedDataRow['guaranteeDurationMonths'] !== '' ? $arr_preprocessedDataRow['guaranteeDurationMonths'] : null, // int, empty = null
+				$arr_preprocessedDataRow['guaranteeBrand'], // String, maxlength 255
+				$arr_preprocessedDataRow['guaranteeModelIdentifier'], // String, maxlength 255
 				$arr_preprocessedDataRow['configurator'] ? $arr_preprocessedDataRow['configurator'] : 0, // int, empty = 0
 				$arr_preprocessedDataRow['flex_contents'], // blob, translated, check unclear
 				$arr_preprocessedDataRow['flex_contentsLanguageIndependent'], // blob, translated, check unclear
@@ -972,6 +982,11 @@ class ls_shop_productManagementApiHelper {
 							`lsShopProductRecommendedProducts` = ?,
 							`lsShopProductDeliveryInfoSet` = ?,
 							`lsShopProductProducer` = ?,
+							`lgnMode` = ?,
+							`enableGaran` = ?,
+							`guaranteeDurationMonths` = ?,
+							`guaranteeBrand` = ?,
+							`guaranteeModelIdentifier` = ?,
 							`configurator` = ?,
 							`flex_contents` = ?,
 							`flex_contentsLanguageIndependent` = ?,
@@ -1013,6 +1028,11 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['recommendedProducts'], // blob, translated, check unclear
 				$arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] ? $arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
 				$arr_preprocessedDataRow['producer'], // String, maxlength 255
+				$arr_preprocessedDataRow['lgnMode'], // inherit, always or never
+				$arr_preprocessedDataRow['enableGaran'], // 1 or ''
+				$arr_preprocessedDataRow['guaranteeDurationMonths'] !== '' ? $arr_preprocessedDataRow['guaranteeDurationMonths'] : null, // int, empty = null
+				$arr_preprocessedDataRow['guaranteeBrand'], // String, maxlength 255
+				$arr_preprocessedDataRow['guaranteeModelIdentifier'], // String, maxlength 255
 				$arr_preprocessedDataRow['configurator'] ? $arr_preprocessedDataRow['configurator'] : 0, // int, empty = 0
 				$arr_preprocessedDataRow['flex_contents'], // blob, translated, check unclear
 				$arr_preprocessedDataRow['flex_contentsLanguageIndependent'], // blob, translated, check unclear
@@ -1135,6 +1155,10 @@ class ls_shop_productManagementApiHelper {
 								`lsShopProductVariantMoreImages` = ?,
 								`lsShopVariantDeliveryInfoSet` = ?,
 								`configurator` = ?,
+								`garanMode` = ?,
+								`guaranteeDurationMonths` = ?,
+								`guaranteeBrand` = ?,
+								`guaranteeModelIdentifier` = ?,
 								`flex_contents` = ?,
 								`flex_contentsLanguageIndependent` = ?,
 								`useScalePrice` = ?,
@@ -1170,6 +1194,10 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['moreImages'], // blob, translated, check unclear
 				$arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] ? $arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
 				$arr_preprocessedDataRow['configurator'] ? $arr_preprocessedDataRow['configurator'] : 0, // int, empty = 0
+				$arr_preprocessedDataRow['garanMode'], // inherit, disabled or override
+				$arr_preprocessedDataRow['guaranteeDurationMonths'] !== '' ? $arr_preprocessedDataRow['guaranteeDurationMonths'] : null, // int, empty = null
+				$arr_preprocessedDataRow['guaranteeBrand'], // String, maxlength 255
+				$arr_preprocessedDataRow['guaranteeModelIdentifier'], // String, maxlength 255
 				$arr_preprocessedDataRow['flex_contents'], // blob, translated, check unclear
 				$arr_preprocessedDataRow['flex_contentsLanguageIndependent'], // blob, translated, check unclear
 				$arr_preprocessedDataRow['useScalePrice'] ? '1' : '', // 1 or ''
@@ -1277,6 +1305,10 @@ class ls_shop_productManagementApiHelper {
 							`lsShopProductVariantMoreImages` = ?,
 							`lsShopVariantDeliveryInfoSet` = ?,
 							`configurator` = ?,
+							`garanMode` = ?,
+							`guaranteeDurationMonths` = ?,
+							`guaranteeBrand` = ?,
+							`guaranteeModelIdentifier` = ?,
 							`flex_contents` = ?,
 							`flex_contentsLanguageIndependent` = ?,
 							`useScalePrice` = ?,
@@ -1313,6 +1345,10 @@ class ls_shop_productManagementApiHelper {
 				$arr_preprocessedDataRow['moreImages'], // blob, translated, check unclear
 				$arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] ? $arr_preprocessedDataRow['settingsForStockAndDeliveryTime'] : 0, // int, empty = 0
 				$arr_preprocessedDataRow['configurator'] ? $arr_preprocessedDataRow['configurator'] : 0, // int, empty = 0
+				$arr_preprocessedDataRow['garanMode'], // inherit, disabled or override
+				$arr_preprocessedDataRow['guaranteeDurationMonths'] !== '' ? $arr_preprocessedDataRow['guaranteeDurationMonths'] : null, // int, empty = null
+				$arr_preprocessedDataRow['guaranteeBrand'], // String, maxlength 255
+				$arr_preprocessedDataRow['guaranteeModelIdentifier'], // String, maxlength 255
 				$arr_preprocessedDataRow['flex_contents'], // blob, translated, check unclear
 				$arr_preprocessedDataRow['flex_contentsLanguageIndependent'], // blob, translated, check unclear
 				$arr_preprocessedDataRow['useScalePrice'] ? '1' : '', // 1 or ''

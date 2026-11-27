@@ -1,0 +1,153 @@
+.merconis-legal-guarantee-unit {
+  &--lgn {
+    max-width: 600px;
+  }
+
+  &--garan {
+    max-width: 400px;
+  }
+
+  svg,
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  svg {
+    overflow: visible;
+
+    text {
+      text-transform: none;
+    }
+  }
+
+  &__link {
+    margin-top: $ls-margin-bottom-standard;
+
+    a {
+      text-decoration: underline;
+    }
+  }
+}
+
+.merconis-legal-guarantee-button {
+  margin: 1.6rem 0;
+
+  &__trigger,
+  &__close {
+    all: unset;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 2px solid $ls-color-black;
+      outline-offset: 2px;
+    }
+  }
+
+  &--lgn &__trigger {
+    text-decoration: underline;
+  }
+
+  &--garan &__trigger {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+  }
+
+  &__nested {
+    display: block;
+    box-sizing: content-box;
+    width: 368.5px;
+    max-width: calc(100% - 2px);
+    border: 1px solid $ls-color-black;
+
+    svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+  }
+
+  &__popover:popover-open {
+    margin: auto;
+    width: fit-content;
+    max-height: 90vh;
+    overflow: auto;
+    padding: 1.6rem;
+    border: none;
+    background: $ls-color-white;
+    box-shadow: $ls-shadow-l;
+
+    &::backdrop {
+      background: rgba($ls-color-black, 0.5);
+    }
+
+    // `120px`: fester Anteil der Ansicht (Innenabstand, "×", EU-Link) plus Reserve;
+    // `3.2rem`: doppelter Innenabstand der Ansicht.
+    .merconis-legal-guarantee-unit {
+      clear: both;
+      max-width: none;
+    }
+
+    .merconis-legal-guarantee-unit__link {
+      max-width: calc(90vw - 3.2rem);
+    }
+
+    .merconis-legal-guarantee-unit--lgn img {
+      width: auto;
+      max-width: calc(90vw - 3.2rem);
+      max-height: calc(90vh - 120px);
+    }
+
+    .merconis-legal-guarantee-unit--garan svg {
+      // 0.95: Seitenverhältnis der `viewBox` 269.29 × 283.46
+      width: min(calc((90vh - 120px) * 0.95), calc(90vw - 3.2rem));
+    }
+  }
+
+  &__close {
+    float: right;
+    margin-bottom: $ls-margin-bottom-standard;
+    font-size: $ls-font-size-h4;
+  }
+}
+
+.merconis-legal-guarantee-assignment {
+  &__items {
+    list-style: none;
+    margin: 1.6rem 0 0;
+    padding: 0;
+    display: grid;
+    // `320px` mit `gap: 2.4rem`: drei Spalten ab 1008 px Rasterbreite, eine vierte erst ab
+    // 1352 px, also nie bei der Inhaltsbreite von höchstens 1200 px; `min(..., 100%)`
+    // verhindert Überlauf in schmaleren Rastern. Die Spaltenzahl darf nicht an der
+    // Höchstbreite der Kästen hängen, deshalb steht diese am `__item`.
+    grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
+    gap: 2.4rem;
+  }
+
+  &__item {
+    max-width: 400px;
+    border: 1px solid $ls-color-grey;
+    padding: 1.6rem;
+  }
+
+  &__positions {
+    list-style: none;
+    margin: 0 0 1.2rem;
+    padding: 0;
+  }
+
+  &__position {
+    font-weight: $ls-font-weight-bold;
+  }
+}
+
+.merconis-legal-guarantee-checkout {
+  margin: 3.2rem 0;
+
+  .merconis-legal-guarantee-button--lgn {
+    margin-top: 2.4rem;
+  }
+}

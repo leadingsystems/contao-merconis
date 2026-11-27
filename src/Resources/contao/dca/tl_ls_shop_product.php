@@ -26,7 +26,23 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
 		),
 		'onsubmit_callback' => array(
+			array(
+				'LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\LegalGuaranteeBackendCallbacks',
+				'addProductSubmitInfoMessages'
+			),
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
+		),
+		'onload_callback' => array(
+			array(
+				'LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\LegalGuaranteeBackendCallbacks',
+				'addProductEditInfoMessage'
+			)
+		),
+		'onbeforesubmit_callback' => array(
+			array(
+				'LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\LegalGuaranteeBackendCallbacks',
+				'handleProductBeforeSubmit'
+			)
 		),
 		'onrestore_version_callback' => array(
 			array('Merconis\Core\ls_shop_generalHelper', 'saveLastBackendDataChangeTimestamp')
@@ -70,7 +86,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 		)
 	),
 	'palettes' => array(
-		'__selector__' => array('useGroupRestrictions', 'useGroupPrices_1', 'useGroupPrices_2', 'useGroupPrices_3', 'useGroupPrices_4', 'useGroupPrices_5', 'useScalePrice', 'useScalePrice_1', 'useScalePrice_2', 'useScalePrice_3', 'useScalePrice_4', 'useScalePrice_5'),
+		'__selector__' => array('useGroupRestrictions', 'enableGaran', 'useGroupPrices_1', 'useGroupPrices_2', 'useGroupPrices_3', 'useGroupPrices_4', 'useGroupPrices_5', 'useScalePrice', 'useScalePrice_1', 'useScalePrice_2', 'useScalePrice_3', 'useScalePrice_4', 'useScalePrice_5'),
 		'default' => '
 			{lsShopTitleAndDescriptions_legend},
 			title,
@@ -107,6 +123,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 
 			{lsShopProducer_legend},
 			lsShopProductProducer;
+
+			{lsShopGuaranteeLabels_legend},
+			lgnMode,
+			enableGaran;
 			
 			{lsShopImages_legend},
 			lsShopProductMainImage,
@@ -204,6 +224,12 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			useScalePrice_5,
 			lsShopProductPriceOld_5,
 			useOldPrice_5
+		',
+
+		'enableGaran' => '
+			guaranteeDurationMonths,
+			guaranteeBrand,
+			guaranteeModelIdentifier
 		',
 
 		'useScalePrice' => 'scalePriceType,scalePriceQuantityDetectionMethod,scalePriceQuantityDetectionAlwaysSeparateConfigurations,scalePriceKeyword,scalePrice',
@@ -494,6 +520,71 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 			'wizard' => array (
 				array('Merconis\Core\ls_shop_generalHelper', 'beValuePickerWizard')
 			),
+            'sql'                     => "varchar(255) NOT NULL default ''"
+		),
+
+		'lgnMode' => [
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['lgnMode'],
+			'exclude' => true,
+			'default'                 => 'inherit',
+			'inputType'               => 'select',
+			'options'                 => ['inherit', 'always', 'never'],
+			'reference'               => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['lgnModeOptions'],
+			'save_callback' => [
+				[
+					'LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\LegalGuaranteeBackendCallbacks',
+					'handleProductLgnModeSave'
+				]
+			],
+			'eval'                    => ['helpwizard' => true, 'tl_class'=>'clr w50'],
+			'filter'		=> true,
+            'sql'                     => "varchar(16) NOT NULL default 'inherit'"
+		],
+
+		'enableGaran' => array(
+			'label'                   => &$GLOBALS['TL_LANG']['tl_ls_shop_product']['enableGaran'],
+			'exclude' => true,
+			'inputType'               => 'checkbox',
+			'eval'                    => array('tl_class'=>'w50 m12', 'submitOnChange' => true),
+			'filter'		=> true,
+            'sql'                     => "char(1) NOT NULL default ''"
+		),
+
+		'guaranteeDurationMonths' => array(
+			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeDurationMonths'],
+			'exclude' => true,
+			'inputType'		=>	'text',
+			'save_callback' => array(
+				array(
+					'LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\LegalGuaranteeBackendCallbacks',
+					'validateProductGuaranteeDurationMonths'
+				)
+			),
+			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'rgxp' => 'natural', 'mandatory' => true),
+            'sql'                     => "int(10) unsigned NULL"
+		),
+
+		'guaranteeBrand' => array(
+			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeBrand'],
+			'exclude' => true,
+			'inputType'		=>	'text',
+			'load_callback' => array(
+				array(
+					'LeadingSystems\MerconisBundle\LegalGuarantee\ProductData\LegalGuaranteeBackendCallbacks',
+					'loadProductGuaranteeBrand'
+				)
+			),
+			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'mandatory' => true, 'alwaysSave' => true, 'maxlength' => 255),
+			'search'		=> true,
+            'sql'                     => "varchar(255) NOT NULL default ''"
+		),
+
+		'guaranteeModelIdentifier' => array(
+			'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeModelIdentifier'],
+			'exclude' => true,
+			'inputType'		=>	'text',
+			'eval'			=> array('tl_class' => 'w50', 'decodeEntities' => true, 'mandatory' => true, 'maxlength' => 255),
+			'search'		=> true,
             'sql'                     => "varchar(255) NOT NULL default ''"
 		),
 
@@ -1317,6 +1408,7 @@ $GLOBALS['TL_DCA']['tl_ls_shop_product'] = array(
 );
 
 
+if (!class_exists(tl_ls_shop_product_controller::class, false)) {
 class tl_ls_shop_product_controller extends Backend {
 
 	public function __construct() {
@@ -1458,4 +1550,5 @@ class tl_ls_shop_product_controller extends Backend {
 
 		return $value;
 	}
-}	
+}
+}

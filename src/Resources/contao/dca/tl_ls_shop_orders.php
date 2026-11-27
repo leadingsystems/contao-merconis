@@ -416,6 +416,14 @@ $GLOBALS['TL_DCA']['tl_ls_shop_orders'] = array(
             'sql'                     => "varchar(32) NOT NULL default ''"
         ),
 
+        'lgnVersion' => array (
+            'sql'                     => "varchar(16) NOT NULL default ''"
+        ),
+
+        'lgnLanguage' => array (
+            'sql'                     => "varchar(8) NOT NULL default ''"
+        ),
+
         'personalDataReview' => array (
             'sql'                     => "blob NULL"
         ),

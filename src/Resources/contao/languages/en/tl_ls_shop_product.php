@@ -52,6 +52,24 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductRecommendedProducts']				=	array('Recommended products', 'Select products here that can be displayed in a corresponding CrossSeller.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['associatedProducts']								=	array('Associated products', 'Select products here that you want to associate with this product with regard to implementing individual functions.');
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProductProducer']							= 	array('Manufacturer');
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lgnMode']										=	['Legal guarantee notice', 'Controls the legal guarantee notice for this product.'];
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['lgnModeOptions']									=	[
+		'inherit' => ['As member group', 'Uses the setting of the customer\'s member group. Right for physical goods and goods with digital elements.'],
+		'always' => ['Always show', 'Also shows the notice in groups that only include products set to \'Always show\', not in groups without consumers. For goods in shops selling mostly services or digital content.'],
+		'never' => ['Never show', 'For purely digital content, SaaS and services. Without the notice, no manufacturer guarantee is shown either.']
+	];
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['enableGaran']									=	['Show manufacturer guarantee (GARAN label)', 'Shows the manufacturer guarantee label if duration, brand and model are filled in and the legal guarantee notice is shown.'];
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeDurationMonths']							=	array('Guarantee duration in months', 'Enter whole months, from 30 to 360, in steps of 6. Output shows years with comma as decimal separator: 30 months become 2,5 years, 36 months become 3 years.');
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeBrand']									=	['Brand/Trademark', 'The full value is stored. If too long, the brand name is truncated with \'...\' in the label display.'];
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeModelIdentifier']						=	['Model identifier', 'The full value is stored. If too long, the model identifier is truncated with \'...\' in the label display.'];
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['legalGuaranteeMessages']							=	[
+		'lgnModeChangedForManufacturerGuarantee' => 'The legal guarantee notice setting was changed to "%s" because the manufacturer guarantee is enabled and requires the legal guarantee notice.',
+		'manufacturerGuaranteeDisabledByLgnMode' => 'The manufacturer guarantee was disabled because, with the selected setting, the legal guarantee notice is not shown for the standard user group. Duration, brand and model remain saved.',
+		'lgnModeRejectedByOwnVariantDetails' => 'Blocked by variants with "Own details": %s. Please change these variants first.',
+		'openHintProductNeverShown' => 'The manufacturer guarantee of this product is not shown because the legal guarantee notice is set to "Never show". Please change the legal guarantee notice setting of the product.',
+		'openHintStandardGroupOnlyAlwaysShow' => 'The manufacturer guarantee of this product is not shown because the standard user group is set to "Only products set to \'Always show\'" for the legal guarantee notice and the product is set to "As member group". Please set the product to "Always show"; saving the product already does this.',
+		'openHintVariantsWithOwnDetails' => 'The manufacturer guarantee of the following variants with "Own details" is not shown because the legal guarantee notice of this product is not shown for the standard user group: %s. Please change the legal guarantee notice setting of the product.'
+	];
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['keywords']										= 	array('Keywords');
     $GLOBALS['TL_LANG']['tl_ls_shop_product']['pageTitle']										=	array('Page title', 'Enter the page title to be used on the product detail page. You can use it to improve the importance of the product detail page for search engines. If you do not enter anything, the product name will precede the regular Contao page title.');
     $GLOBALS['TL_LANG']['tl_ls_shop_product']['pageDescription']								=	array('Meta page description', 'Enter here the page description to be used on the product detail page in the search engine relevant meta element "description". Up to 255 characters are possible, a maximum of 160 is recommended. If you enter something here, this text will be used under all circumstances. If you leave the field empty, either the page description, which Contao regularly creates, or the normal product description can be used, depending on the basic settings.');
@@ -74,6 +92,7 @@
 	 $GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopPages_legend']							= 'Page/category assignment';
      $GLOBALS['TL_LANG']['tl_ls_shop_product']['groupRestrictions_legend']					    = 'Group Restrictions';
 	 $GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopProducer_legend']							= 'Manufacturer';
+	 $GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopGuaranteeLabels_legend']					= 'Legal guarantee and manufacturer guarantee (GARAN label)';
 	 $GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopImages_legend']							= 'Images';
 	 $GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopAttributesAndValues_legend']				= 'Attributes and values';
 	 $GLOBALS['TL_LANG']['tl_ls_shop_product']['lsShopPrice_legend']							= 'Price and weight indications';
@@ -127,6 +146,9 @@
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['flex_contents_label02'] = 'Product information';
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['flex_contentsLanguageIndependent_label01'] = 'Keyword';
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['flex_contentsLanguageIndependent_label02'] = 'Product information';
+	$GLOBALS['TL_LANG']['tl_ls_shop_product']['guaranteeValidationMessages'] = [
+		'garan_disabled_invalid_duration' => 'The manufacturer guarantee was not saved because "%s" is not an allowed guarantee duration. Use whole months from 30 to 360 in steps of 6.'
+	];
 
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['attributesValues_label01'] = 'Attribute';
 	$GLOBALS['TL_LANG']['tl_ls_shop_product']['attributesValues_label02'] = 'Value';

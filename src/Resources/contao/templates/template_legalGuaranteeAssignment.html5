@@ -1,0 +1,28 @@
+<?php
+/*
+ * Zuordnungsblock der letzten Bestellseite: je Label die zugeordneten Positionen und die
+ * Einheit `--garan`.
+ *
+ * Daten: `headline`, `items` (je `positions` mit `productName`, `variantName` und
+ * `articleNumber` sowie `unitMarkup`).
+ *
+ * Der Textinhalt einer Position folgt dem Muster "<Produktname> (<Variante>) -
+ * <Artikelnummer>"; fehlende Teile entfallen samt Trennzeichen. Deshalb steht der Inhalt
+ * eines `__position` ohne zusätzlichen Leerraum in einer Zeile.
+ */
+?>
+<div class="merconis-legal-guarantee-assignment">
+    <h3 class="merconis-legal-guarantee-assignment__headline"><?= \Contao\StringUtil::specialchars($this->headline) ?></h3>
+    <ul class="merconis-legal-guarantee-assignment__items">
+        <?php foreach ($this->items as $item) { ?>
+            <li class="merconis-legal-guarantee-assignment__item">
+                <ul class="merconis-legal-guarantee-assignment__positions">
+                    <?php foreach ($item['positions'] as $position) { ?>
+                        <li class="merconis-legal-guarantee-assignment__position"><span class="merconis-legal-guarantee-assignment__position-name"><?= \Contao\StringUtil::specialchars($position['productName']) ?></span><?php if ('' !== $position['variantName']) { ?> <span class="merconis-legal-guarantee-assignment__position-variant">(<?= \Contao\StringUtil::specialchars($position['variantName']) ?>)</span><?php } ?><?php if ('' !== $position['articleNumber']) { ?> <span class="merconis-legal-guarantee-assignment__position-separator">-</span> <span class="merconis-legal-guarantee-assignment__position-article-number"><?= \Contao\StringUtil::specialchars($position['articleNumber']) ?></span><?php } ?></li>
+                    <?php } ?>
+                </ul>
+                <div class="merconis-legal-guarantee-assignment__label"><?= $item['unitMarkup'] ?></div>
+            </li>
+        <?php } ?>
+    </ul>
+</div>
