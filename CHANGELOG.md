@@ -1,6 +1,10 @@
 Leading Systems Contao Merconis bundle changelog
 ===========================================
 
+### 5.1.19 (draft)
+ * MPM: build/export runner using an isolated Excel instance, automatic cleanup of machine-dependent
+   form noise on export (requires vba-edit 0.5.1 and pywin32)
+
 ### 5.1.18 (2026-11-27)
  * MPM: VBA source code as plain text (mpm/src) with build/export tooling (mpm/build), MPM 1.66
  * MPM: new columns for sales units and minimum order quantity (not yet processed by the importer)
