@@ -22,7 +22,8 @@ PaletteManipulator::create()
             'lsShopEmailText02',
             'lsShopAttachments',
             'lsShopStandardPaymentMethod',
-            'lsShopStandardShippingMethod'
+            'lsShopStandardShippingMethod',
+            'lsShopLgnMode'
         ],'lsShop_legend:hide', PaletteManipulator::POSITION_APPEND
     )
     ->applyToPalette('default', 'tl_member_group')
@@ -97,3 +98,23 @@ $GLOBALS['TL_DCA']['tl_member_group']['fields']['lsShopPriceAdjustment'] = array
     'eval' => array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50', 'mandatory' => true),
     'sql'                     => "decimal(10,2) NOT NULL default '0.00'"
 );
+
+/*
+ * Bewusst ohne DCA-Key `default`: Neue und bestehende Gruppen bleiben leer, bis der
+ * Shopbetreiber die Einstellung trifft.
+ */
+$GLOBALS['TL_DCA']['tl_member_group']['fields']['lsShopLgnMode'] = [
+    'exclude' => true,
+    'label' => &$GLOBALS['TL_LANG']['tl_member_group']['lsShopLgnMode'],
+    'inputType' => 'select',
+    'options' => ['on', 'off', 'blocked'],
+    'reference' => &$GLOBALS['TL_LANG']['tl_member_group']['lsShopLgnModeOptions'],
+    'eval' => [
+        'includeBlankOption' => true,
+        'blankOptionLabel' => &$GLOBALS['TL_LANG']['tl_member_group']['lsShopLgnModeBlankOption'],
+        'mandatory' => true,
+        'helpwizard' => true,
+        'tl_class' => 'clr w50',
+    ],
+    'sql' => "varchar(16) NOT NULL default ''",
+];

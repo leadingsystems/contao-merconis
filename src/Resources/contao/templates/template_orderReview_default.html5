@@ -46,6 +46,15 @@ echo $this->strTemplate ?>">
         include(__DIR__.'/template_cart--big_include_cart.html5');
         include(__DIR__.'/template_cart--big_include_calculation.html5');
 
+        if ($this->checkoutGaranBlock || $this->checkoutLgnNoticeButton) {
+            ?>
+            <div class="merconis-legal-guarantee-checkout">
+                <?php echo $this->checkoutGaranBlock; ?>
+                <?php echo $this->checkoutLgnNoticeButton; ?>
+            </div>
+            <?php
+        }
+
         if (\Merconis\Core\ls_shop_generalHelper::check_finishingOrderIsAllowed()) {
             ?>
 

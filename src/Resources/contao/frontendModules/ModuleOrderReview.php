@@ -8,6 +8,7 @@ use Contao\FrontendTemplate;
 use Contao\Module;
 use Contao\StringUtil;
 use Contao\System;
+use LeadingSystems\MerconisBundle\LegalGuarantee\Frontend\LegalGuaranteeMarkupProvider;
 
 class ModuleOrderReview extends Module {
 	public function generate() {
@@ -34,6 +35,11 @@ class ModuleOrderReview extends Module {
 		$formConfirmOrder = $obj_paymentModule->modifyConfirmOrderForm($formConfirmOrder);
 		// ###################################################
 		$this->Template->formConfirmOrder = $formConfirmOrder;
+		$objLegalGuaranteeMarkupProvider = System::getContainer()->get(LegalGuaranteeMarkupProvider::class);
+
+		foreach ($objLegalGuaranteeMarkupProvider->createCheckoutTemplateVariables() as $strVariableName => $closureOutput) {
+			$this->Template->{$strVariableName} = $closureOutput;
+		}
 
 		$this->Template->noVATBecauseOfEnteredIDs = ls_shop_generalHelper::checkVATID();
 

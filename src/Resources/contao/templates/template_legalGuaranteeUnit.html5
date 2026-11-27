@@ -1,0 +1,12 @@
+<?php
+/*
+ * Einheit aus Grafik und EU-Textlink (LGN oder GARAN).
+ *
+ * Daten: `type` (`lgn` oder `garan`), `svgMarkup` (aufbereitetes Inline-SVG) oder `image`
+ * (`src`, `alt`, `width`, `height`), `euUrl`, `euLinkText`.
+ */
+?>
+<div class="merconis-legal-guarantee-unit merconis-legal-guarantee-unit--<?= \Contao\StringUtil::specialchars($this->type) ?>">
+    <div class="merconis-legal-guarantee-unit__label"><?php if ($this->image) { ?><img src="<?= \Contao\StringUtil::specialchars($this->image['src']) ?>" alt="<?= \Contao\StringUtil::specialchars($this->image['alt']) ?>" width="<?= (int) $this->image['width'] ?>" height="<?= (int) $this->image['height'] ?>" loading="lazy" decoding="async"><?php } else { ?><?= $this->svgMarkup ?><?php } ?></div>
+    <p class="merconis-legal-guarantee-unit__link"><a href="<?= \Contao\StringUtil::specialchars($this->euUrl) ?>" target="_blank" rel="noreferrer noopener"><?= \Contao\StringUtil::specialchars($this->euLinkText) ?></a></p>
+</div>

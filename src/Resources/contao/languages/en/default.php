@@ -254,6 +254,17 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['invalidServiceNumberMessage'] = '
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['cartPreview']['continueShopping'] = 'Continue shopping';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['cartPreview']['openCart'] = 'open cart';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['dashboard']['lgnAnnouncement'] = 'Version 5.1.18 introduced the notice on the legal guarantee and the label of the manufacturer guarantee. Specify for each member group whether they are shown. Until then, the shop does not show them.';
+
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['lgnTitle'] = 'Legal guarantee, at least two years';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['lgnEuLinkText'] = 'EU information about the legal guarantee';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['garanBlockHeadline'] = 'Manufacturer\'s commercial guarantee for the following items:';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['garanEuLinkText'] = 'EU information about the manufacturer\'s commercial guarantee';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['garanLabelUnavailableNotice'] = 'The manufacturer\'s guarantee label for these items could not be generated for technical reasons. Please contact the retailer.';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['garanTitlePattern'] = 'Manufacturer\'s commercial guarantee by %s for %s with %s years';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['lgnButtonText'] = 'Your legal guarantee rights';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['garanButtonLabel'] = 'Manufacturer guarantee %s years';
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['legalGuarantee']['popoverCloseLabel'] = 'Close';
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['label'] = 'Comment for this item';
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['cartComment']['placeholder'] = 'Optional comment';
@@ -1077,7 +1088,33 @@ $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['importErrors'] = array(
 	'valueInvalid_scalePriceType' => 'Field value for "scalePriceType" is invalid: Line(s) no. %s',
 	'valueInvalid_scalePriceQuantityDetectionMethod' => 'Field value for "scalePriceQuantityDetectionMethod" is invalid: Line(s) no. %s',
 	'valueInvalid_scalePriceKeyword' => 'Field value for "scalePriceKeyword" is invalid: Line(s) no. %s',
+
+	'productValueInvalid_lgnMode' => 'Field value for "lgnMode" (legal guarantee notice) is invalid. Allowed are "inherit", "always", "never" or an empty field: Line(s) no. %s',
+	'variantValueInvalid_garanMode' => 'Field value for "garanMode" (manufacturer guarantee of the variant) is invalid. Allowed are "inherit", "disabled", "override" or an empty field: Line(s) no. %s',
+	'valueInvalid_guaranteeDurationMonths' => 'Field value for "guaranteeDurationMonths" (duration of the manufacturer guarantee) is invalid. Allowed are whole months from 30 to 360 in steps of 6, digits only without leading zero, or an empty field: Line(s) no. %s',
+	'valueInvalid_guaranteeBrand' => 'Field value for "guaranteeBrand" is invalid. The Brand/Trademark of the manufacturer guarantee must not be longer than 255 characters: Line(s) no. %s',
+	'valueInvalid_guaranteeModelIdentifier' => 'Field value for "guaranteeModelIdentifier" is invalid. The Model identifier of the manufacturer guarantee must not be longer than 255 characters: Line(s) no. %s',
+	'productGuaranteeDataIncomplete' => 'The manufacturer guarantee is enabled ("enableGaran"), but the duration ("guaranteeDurationMonths"), Brand/Trademark ("guaranteeBrand") or Model identifier ("guaranteeModelIdentifier") is missing: Line(s) no. %s',
+	'productGuaranteeWithLgnModeNever' => 'The manufacturer guarantee is enabled ("enableGaran"), but the legal guarantee notice is set to "never" ("lgnMode"). Without the legal guarantee notice, no manufacturer guarantee is shown: Line(s) no. %s',
+	'variantGuaranteeDataIncomplete' => 'The variant has its own manufacturer guarantee details ("override" in "garanMode"), but the duration ("guaranteeDurationMonths"), Brand/Trademark ("guaranteeBrand") or Model identifier ("guaranteeModelIdentifier") is missing: Line(s) no. %s',
+	'variantGuaranteeOverrideWithParentLgnModeNever' => 'The variant has its own manufacturer guarantee details ("override" in "garanMode"), but its product is set to "never" for the legal guarantee notice ("lgnMode") in the import file. Without the legal guarantee notice, no manufacturer guarantee is shown: Line(s) no. %s',
 );
+
+$GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['productManagementApiErrors'] = [
+	'lgnModeInvalid' => 'The value for "lgnMode" (legal guarantee notice) is invalid. Allowed are "inherit", "always", "never" or an empty value.',
+	'garanModeInvalid' => 'The value for "garanMode" (manufacturer guarantee of the variant) is invalid. Allowed are "inherit", "disabled", "override" or an empty value.',
+	'guaranteeDurationMonthsInvalid' => 'The value for "guaranteeDurationMonths" (duration of the manufacturer guarantee) is invalid. Allowed are whole months from 30 to 360 in steps of 6, as an integer or as a string of digits only without leading zero, or an empty value.',
+	'guaranteeBrandInvalid' => 'The value for "guaranteeBrand" is invalid. Allowed for the Brand/Trademark of the manufacturer guarantee is a string or integer with up to 255 characters or an empty value.',
+	'guaranteeModelIdentifierInvalid' => 'The value for "guaranteeModelIdentifier" is invalid. Allowed for the Model identifier of the manufacturer guarantee is a string or integer with up to 255 characters or an empty value.',
+	'productGuaranteeDurationMonthsMissing' => 'The manufacturer guarantee is enabled ("enableGaran"), but the duration ("guaranteeDurationMonths") is missing.',
+	'productGuaranteeBrandMissing' => 'The manufacturer guarantee is enabled ("enableGaran"), but the Brand/Trademark ("guaranteeBrand") is missing.',
+	'productGuaranteeModelIdentifierMissing' => 'The manufacturer guarantee is enabled ("enableGaran"), but the Model identifier ("guaranteeModelIdentifier") is missing.',
+	'variantGuaranteeDurationMonthsMissing' => 'The variant has its own manufacturer guarantee details ("override" in "garanMode"), but the duration ("guaranteeDurationMonths") is missing.',
+	'variantGuaranteeBrandMissing' => 'The variant has its own manufacturer guarantee details ("override" in "garanMode"), but the Brand/Trademark ("guaranteeBrand") is missing.',
+	'variantGuaranteeModelIdentifierMissing' => 'The variant has its own manufacturer guarantee details ("override" in "garanMode"), but the Model identifier ("guaranteeModelIdentifier") is missing.',
+	'productGuaranteeWithLgnModeNever' => 'The manufacturer guarantee is enabled ("enableGaran"), but the legal guarantee notice is set to "never" ("lgnMode"). Without the legal guarantee notice, no manufacturer guarantee is shown.',
+	'variantGuaranteeOverrideWithParentLgnModeNever' => 'The variant has its own manufacturer guarantee details ("override" in "garanMode"), but its product is set to "never" for the legal guarantee notice ("lgnMode") in this request. Without the legal guarantee notice, no manufacturer guarantee is shown.',
+];
 
 $GLOBALS['TL_LANG']['MSC']['ls_shop']['systemMessages']['msg001'] = '<div style="font-weight: bold; border: 5px solid #FF0000; padding: 20px; background-color: #FFFFFF;">Please note that you can only offer 10 products in the unlicensed demo version of MERCONIS.</div>';
 

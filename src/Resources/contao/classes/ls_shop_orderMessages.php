@@ -344,7 +344,7 @@ class ls_shop_orderMessages
 				'dynamicAttachmentPaths' => StringUtil::deserialize($arrMessageModel['multilanguage']['dynamicAttachments']),
 				'attachmentPaths' => StringUtil::deserialize($arrMessageModel['multilanguage']['attachments'])
 			);
-				
+
 			$objEmail = new Email();
 			$objEmail->embedImages = !$arrMessageModel['externalImages'];
 			$objEmail->from = $arrMessageToSendAndSave['senderAddress'];
@@ -353,6 +353,7 @@ class ls_shop_orderMessages
 			
 			// Dynamic attachments
 			$arrTmpGeneratedDynamicAttachmentFiles = array();
+			$strWebDir = (string) System::getContainer()->getParameter('contao.web_dir');
 			if (is_array($arrMessageToSendAndSave['dynamicAttachmentPaths']) && count($arrMessageToSendAndSave['dynamicAttachmentPaths']) > 0) {
 
 				foreach ($arrMessageToSendAndSave['dynamicAttachmentPaths'] as $strDynamicAttachmentFile) {
@@ -374,10 +375,16 @@ class ls_shop_orderMessages
 						 */
 						$objDynamicAttachment = new $dynamicAttachmentClassName($this->arrOrder, $this->counterNr, createMultidimensionalArray(\LeadingSystems\Helpers\createOneDimensionalArrayFromTwoDimensionalArray(json_decode($arrMessageModel['flex_parameters'])), 2, 1));
 						$dynamicAttachmentSavedFilename = $objDynamicAttachment->parse();
-						
-						if ($dynamicAttachmentSavedFilename && file_exists($str_projectDir.'/'.$dynamicAttachmentSavedFilename)) {
-							$objEmail->attachFile($str_projectDir.'/'.$dynamicAttachmentSavedFilename);
-							$arrTmpGeneratedDynamicAttachmentFiles[] = $dynamicAttachmentSavedFilename;
+
+						$arrResolvedDynamicAttachmentPaths = $this->resolveExistingDynamicAttachmentPaths(
+							$dynamicAttachmentSavedFilename,
+							$str_projectDir,
+							$strWebDir
+						);
+
+						foreach ($arrResolvedDynamicAttachmentPaths as $dynamicAttachmentSavedSingleFilename => $strAbsoluteAttachmentPath) {
+							$objEmail->attachFile($strAbsoluteAttachmentPath);
+							$arrTmpGeneratedDynamicAttachmentFiles[] = $dynamicAttachmentSavedSingleFilename;
 						}
 					}
 				}
@@ -389,8 +396,9 @@ class ls_shop_orderMessages
 			if (is_array($arrMessageToSendAndSave['attachmentPaths']) && count($arrMessageToSendAndSave['attachmentPaths']) > 0) {
 				foreach ($arrMessageToSendAndSave['attachmentPaths'] as $strAttachment) {
 					$strAttachment = ls_getFilePathFromVariableSources($strAttachment);
-					if ($strAttachment && file_exists($str_projectDir.'/'.$strAttachment)) {
-						$objEmail->attachFile($str_projectDir . '/' . $strAttachment);
+					$strAbsoluteAttachmentPath = $this->resolveAttachmentAbsolutePath($strAttachment, $str_projectDir, $strWebDir);
+					if ($strAbsoluteAttachmentPath && file_exists($strAbsoluteAttachmentPath)) {
+						$objEmail->attachFile($strAbsoluteAttachmentPath);
 					}
 				}
 			}
@@ -814,6 +822,51 @@ class ls_shop_orderMessages
 		}
 
 		return 'n/a';
+	}
+
+	protected function resolveAttachmentAbsolutePath($strAttachmentPath, $strProjectDir, $strWebDir = 'public') {
+		if (!$strAttachmentPath || !is_string($strAttachmentPath)) {
+			return null;
+		}
+
+		if (str_starts_with($strAttachmentPath, '/')) {
+			return null;
+		}
+
+		if (str_starts_with($strAttachmentPath, 'bundles/')) {
+			$strNormalizedWebDir = rtrim((string) $strWebDir, '/');
+			if ($strNormalizedWebDir === '') {
+				$strNormalizedWebDir = 'public';
+			}
+
+			if (!str_starts_with($strNormalizedWebDir, $strProjectDir . '/')) {
+				$strNormalizedWebDir = str_starts_with($strNormalizedWebDir, '/')
+					? $strProjectDir . $strNormalizedWebDir
+					: $strProjectDir . '/' . ltrim($strNormalizedWebDir, '/');
+			}
+
+			return $strNormalizedWebDir . '/' . $strAttachmentPath;
+		}
+
+		return $strProjectDir . '/' . $strAttachmentPath;
+	}
+
+	protected function resolveExistingDynamicAttachmentPaths($dynamicAttachmentSavedFilename, string $strProjectDir, string $strWebDir = 'public'): array
+	{
+		$arrDynamicAttachmentSavedFilenames = is_array($dynamicAttachmentSavedFilename)
+			? $dynamicAttachmentSavedFilename
+			: ($dynamicAttachmentSavedFilename ? array($dynamicAttachmentSavedFilename) : array());
+		$arrResolvedDynamicAttachmentPaths = [];
+
+		foreach ($arrDynamicAttachmentSavedFilenames as $dynamicAttachmentSavedSingleFilename) {
+			$strAbsoluteAttachmentPath = $this->resolveAttachmentAbsolutePath($dynamicAttachmentSavedSingleFilename, $strProjectDir, $strWebDir);
+
+			if ($strAbsoluteAttachmentPath && file_exists($strAbsoluteAttachmentPath)) {
+				$arrResolvedDynamicAttachmentPaths[$dynamicAttachmentSavedSingleFilename] = $strAbsoluteAttachmentPath;
+			}
+		}
+
+		return $arrResolvedDynamicAttachmentPaths;
 	}
 }
 

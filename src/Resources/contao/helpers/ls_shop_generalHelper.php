@@ -33,6 +33,7 @@ use Contao\Validator;
 use Contao\Widget;
 use LeadingSystems\Helpers\FlexWidget;
 use LeadingSystems\MerconisBundle\EventListener\Post;
+use LeadingSystems\MerconisBundle\LegalGuarantee\MemberGroup\MemberGroupLgnModeInspector;
 
 use LeadingSystems\MerconisBundle\License\LicenseKeyValidator;
 use Symfony\Component\Finder\Finder;
@@ -5480,8 +5481,10 @@ class ls_shop_generalHelper
         return $arr_modules;
     }
 
-    public static function getMerconisSystemMessages()
+    public static function getMerconisSystemMessages(?MemberGroupLgnModeInspector $memberGroupLgnModeInspector = null)
     {
+        $memberGroupLgnModeInspector ??= System::getContainer()->get(MemberGroupLgnModeInspector::class);
+
         ob_start();
 
         if (isset($GLOBALS['TL_CONFIG']['merconis_snInvalid']) && $GLOBALS['TL_CONFIG']['merconis_snInvalid']) {
@@ -5502,6 +5505,16 @@ class ls_shop_generalHelper
                     <?php
                 }
             }
+        }
+
+        if ($memberGroupLgnModeInspector->countMemberGroupsWithoutLgnMode() > 0) {
+            ?>
+            <div class="ls_shop_systemMessage">
+                <div class="ls_shop_announcement">
+                    <?= $GLOBALS['TL_LANG']['MSC']['ls_shop']['dashboard']['lgnAnnouncement']; ?>
+                </div>
+            </div>
+            <?php
         }
 
         return ob_get_clean();

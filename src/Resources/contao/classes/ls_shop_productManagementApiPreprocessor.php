@@ -1,6 +1,7 @@
 <?php
 namespace Merconis\Core;
 use Contao\FilesModel;
+use Contao\System;
 use function LeadingSystems\Helpers\ls_getFilePathFromVariableSources;
 
 class ls_shop_productManagementApiPreprocessor
@@ -86,6 +87,36 @@ class ls_shop_productManagementApiPreprocessor
 					'description' => '',
 					'fieldType' => 'input_output'
 				),
+				'lgnMode' => [
+					'preprocessor' => 'preprocess_lgnMode',
+					'description' => '',
+					'fieldType' => 'input_output'
+				],
+				'enableGaran' => [
+					'preprocessor' => 'preprocess_enableGaran',
+					'description' => '',
+					'fieldType' => 'input_output'
+				],
+				'garanMode' => [
+					'preprocessor' => 'preprocess_garanMode',
+					'description' => '',
+					'fieldType' => 'input_output'
+				],
+				'guaranteeDurationMonths' => [
+					'preprocessor' => 'preprocess_guaranteeDurationMonths',
+					'description' => '',
+					'fieldType' => 'input_output'
+				],
+				'guaranteeBrand' => [
+					'preprocessor' => 'preprocess_guaranteeBrand',
+					'description' => '',
+					'fieldType' => 'input_output'
+				],
+				'guaranteeModelIdentifier' => [
+					'preprocessor' => 'preprocess_guaranteeModelIdentifier',
+					'description' => '',
+					'fieldType' => 'input_output'
+				],
                 'pageTitle' => array(
                     'preprocessor' => 'preprocess_string_maxlength_255',
                     'description' => '',
@@ -569,6 +600,31 @@ class ls_shop_productManagementApiPreprocessor
 			}
 		}
 
+		/*
+		 * Variante mit "override", deren Elternprodukt im selben Aufruf auf "never" steht. Bei mehreren Produktzeilen
+		 * mit derselben Artikelnummer ist die letzte maßgeblich (Spec 27, Abschnitt 10.4).
+		 */
+		if ($str_context === 'apiResource_writeProductData') {
+			$arr_lgnModeByProductcode = [];
+
+			foreach ($arr_preprocessingResult['arr_preprocessedDataRows'] as $arr_preprocessedDataRow) {
+				if (($arr_preprocessedDataRow['type'] ?? null) === 'product' && isset($arr_preprocessedDataRow['productcode'])) {
+					$arr_lgnModeByProductcode[$arr_preprocessedDataRow['productcode']] = $arr_preprocessedDataRow['lgnMode'] ?? null;
+				}
+			}
+
+			foreach ($arr_preprocessingResult['arr_preprocessedDataRows'] as $int_rowNumber => $arr_preprocessedDataRow) {
+				if (
+					($arr_preprocessedDataRow['type'] ?? null) === 'variant'
+					&&	($arr_preprocessedDataRow['garanMode'] ?? null) === 'override'
+					&&	($arr_lgnModeByProductcode[$arr_preprocessedDataRow['parentProductcode'] ?? ''] ?? null) === 'never'
+				) {
+					$arr_preprocessingResult['bln_hasError'] = true;
+					$arr_preprocessingResult['arr_messages'][$int_rowNumber + 1]['garanMode'] = self::getLegalGuaranteeMessage('variantGuaranteeOverrideWithParentLgnModeNever');
+				}
+			}
+		}
+
 		if (
 			!isset(self::getResourceAndFieldDefinition()[$str_context]['bln_expectsMultipleDataRows'])
 			||	!self::getResourceAndFieldDefinition()[$str_context]['bln_expectsMultipleDataRows']
@@ -934,6 +990,197 @@ class ls_shop_productManagementApiPreprocessor
 		}
 
 		return $str_output;
+	}
+
+	/**
+	 * Expected input: 'inherit', 'always', 'never' or an empty string. Only relevant for row type 'product'
+	 * Accepted input: as expected, null counts as empty; no surrounding whitespace, no other spelling
+	 * Normalization: an empty or missing value becomes 'inherit'
+	 */
+	protected static function preprocess_lgnMode($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+		if ($arr_row['type'] !== 'product') {
+			return '';
+		}
+
+		$str_output = self::getLegalGuaranteeStringValue($var_input);
+
+		if ($str_output === '') {
+			return 'inherit';
+		}
+
+		if ($str_output === null || !in_array($str_output, ['inherit', 'always', 'never'], true)) {
+			throw new \Exception(self::getLegalGuaranteeMessage('lgnModeInvalid'));
+		}
+
+		return $str_output;
+	}
+
+	/**
+	 * Expected input: '1' (representing true) or the empty string (representing false). Only relevant for row type 'product'. If true, 'lgnMode' must not be 'never'
+	 * Accepted input: anything; empty, '0', false and a missing value mean false, everything else means true
+	 * Normalization: cast as boolean and return 1 for true and the empty string for false
+	 */
+	protected static function preprocess_enableGaran($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+		if ($arr_row['type'] !== 'product') {
+			return '';
+		}
+
+		$str_output = $var_input ? '1' : '';
+
+		if ($str_output === '1' && ($arr_row['lgnMode'] ?? null) === 'never') {
+			throw new \Exception(self::getLegalGuaranteeMessage('productGuaranteeWithLgnModeNever'));
+		}
+
+		return $str_output;
+	}
+
+	/**
+	 * Expected input: 'inherit', 'disabled', 'override' or an empty string. Only relevant for row type 'variant'. 'override' is not allowed if the parent product is set to 'never' for 'lgnMode' in the same request
+	 * Accepted input: as expected, null counts as empty; no surrounding whitespace, no other spelling
+	 * Normalization: an empty or missing value becomes 'inherit'
+	 */
+	protected static function preprocess_garanMode($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+		if ($arr_row['type'] !== 'variant') {
+			return '';
+		}
+
+		$str_output = self::getLegalGuaranteeStringValue($var_input);
+
+		if ($str_output === '') {
+			return 'inherit';
+		}
+
+		if ($str_output === null || !in_array($str_output, ['inherit', 'disabled', 'override'], true)) {
+			throw new \Exception(self::getLegalGuaranteeMessage('garanModeInvalid'));
+		}
+
+		return $str_output;
+	}
+
+	/**
+	 * Expected input: whole months from 30 to 360 in steps of 6, as a string of digits without leading zero or as an integer, or an empty string. Mandatory for row type 'product' if 'enableGaran' is true and for row type 'variant' if 'garanMode' is 'override'
+	 * Accepted input: as expected, null counts as empty; no whitespace, no decimal point
+	 * Normalization: an integer becomes its decimal string
+	 */
+	protected static function preprocess_guaranteeDurationMonths($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+		if (!in_array($arr_row['type'], ['product', 'variant'], true)) {
+			return '';
+		}
+
+		$str_output = self::getLegalGuaranteeStringValue($var_input);
+
+		if (
+			$str_output === null
+			||	(
+				$str_output !== ''
+				&&	(
+					!preg_match('/^[1-9][0-9]*$/D', $str_output)
+					||	(int) $str_output < 30
+					||	(int) $str_output > 360
+					||	(int) $str_output % 6 !== 0
+				)
+			)
+		) {
+			throw new \Exception(self::getLegalGuaranteeMessage('guaranteeDurationMonthsInvalid'));
+		}
+
+		self::throwIfRequiredGuaranteeValueIsEmpty($str_output, $arr_row, 'productGuaranteeDurationMonthsMissing', 'variantGuaranteeDurationMonthsMissing');
+
+		return $str_output;
+	}
+
+	/**
+	 * Expected input: a string or an integer with up to 255 characters or an empty string. Mandatory for row type 'product' if 'enableGaran' is true and for row type 'variant' if 'garanMode' is 'override'
+	 * Accepted input: as expected, null counts as empty
+	 * Normalization: an integer becomes its decimal string; a string is not trimmed
+	 */
+	protected static function preprocess_guaranteeBrand($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+		if (!in_array($arr_row['type'], ['product', 'variant'], true)) {
+			return '';
+		}
+
+		$str_output = self::getLegalGuaranteeStringValue($var_input);
+
+		if ($str_output === null || mb_strlen($str_output, 'UTF-8') > 255) {
+			throw new \Exception(self::getLegalGuaranteeMessage('guaranteeBrandInvalid'));
+		}
+
+		self::throwIfRequiredGuaranteeValueIsEmpty($str_output, $arr_row, 'productGuaranteeBrandMissing', 'variantGuaranteeBrandMissing');
+
+		return $str_output;
+	}
+
+	/**
+	 * Expected input: a string or an integer with up to 255 characters or an empty string. Mandatory for row type 'product' if 'enableGaran' is true and for row type 'variant' if 'garanMode' is 'override'
+	 * Accepted input: as expected, null counts as empty
+	 * Normalization: an integer becomes its decimal string; a string is not trimmed
+	 */
+	protected static function preprocess_guaranteeModelIdentifier($var_input, $arr_row, $str_fieldName, $str_context, $arr_normalizedRow) {
+		if (!in_array($arr_row['type'], ['product', 'variant'], true)) {
+			return '';
+		}
+
+		$str_output = self::getLegalGuaranteeStringValue($var_input);
+
+		if ($str_output === null || mb_strlen($str_output, 'UTF-8') > 255) {
+			throw new \Exception(self::getLegalGuaranteeMessage('guaranteeModelIdentifierInvalid'));
+		}
+
+		self::throwIfRequiredGuaranteeValueIsEmpty($str_output, $arr_row, 'productGuaranteeModelIdentifierMissing', 'variantGuaranteeModelIdentifierMissing');
+
+		return $str_output;
+	}
+
+	/*
+	 * Wert eines LGN- oder GARAN-Felds als Zeichenkette (Spec 27, Abschnitt 10.5): `null` gilt als fehlend und wird
+	 * leer, eine Ganzzahl ergibt ihre Dezimaldarstellung. Gleitkommazahl, Wahrheitswert und Liste sind ein Verstoß
+	 * und ergeben `null`.
+	 */
+	private static function getLegalGuaranteeStringValue(mixed $var_input): ?string {
+		if ($var_input === null) {
+			return '';
+		}
+
+		if (is_string($var_input)) {
+			return $var_input;
+		}
+
+		if (is_int($var_input)) {
+			return (string) $var_input;
+		}
+
+		return null;
+	}
+
+	/*
+	 * Dauer, Marke und Modell sind Pflicht, wenn in der Produktzeile die Herstellergarantie eingeschaltet ist
+	 * beziehungsweise die Variantenzeile auf "override" steht; ein Wert nur aus Leerzeichen gilt als leer
+	 * (Spec 27, Abschnitt 10.4).
+	 *
+	 * @throws \Exception
+	 */
+	private static function throwIfRequiredGuaranteeValueIsEmpty(string $str_value, array $arr_row, string $str_productMessageKey, string $str_variantMessageKey): void {
+		if (trim($str_value) !== '') {
+			return;
+		}
+
+		if ($arr_row['type'] === 'product' && ($arr_row['enableGaran'] ?? null)) {
+			throw new \Exception(self::getLegalGuaranteeMessage($str_productMessageKey));
+		}
+
+		if ($arr_row['type'] === 'variant' && ($arr_row['garanMode'] ?? null) === 'override') {
+			throw new \Exception(self::getLegalGuaranteeMessage($str_variantMessageKey));
+		}
+	}
+
+	/*
+	 * Meldung in der Sprache des Requests ($GLOBALS['TL_LANGUAGE']); ist die Sprachdatei "default" in dieser Sprache
+	 * noch nicht geladen, lädt Contao sie hier.
+	 */
+	private static function getLegalGuaranteeMessage(string $str_messageKey): string {
+		System::loadLanguageFile('default');
+
+		return $GLOBALS['TL_LANG']['MSC']['ls_shop']['misc']['productManagementApiErrors'][$str_messageKey];
 	}
 
 	/**

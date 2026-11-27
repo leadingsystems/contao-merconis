@@ -262,6 +262,12 @@ $ls-product-list-field-space: 2%;
   }
 }
 
+.merconis-legal-guarantee-checkout {
+  :not(.my-orders) > & {
+    @include ls_mediumContentWrapper;
+  }
+}
+
 #checkoutStepOrderLoginType {
   @include ls_mediumContentWrapper;
 
