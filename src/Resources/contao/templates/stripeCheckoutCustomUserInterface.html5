@@ -1,0 +1,1 @@
+<p><?= $GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['paymentSelected'] ; ?></p>

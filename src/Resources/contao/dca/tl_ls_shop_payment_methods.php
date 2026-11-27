@@ -8,6 +8,7 @@ use Contao\Database;
 use Contao\DataContainer;
 use Contao\DC_Table;
 use Contao\Image;
+use Contao\Input;
 use Contao\StringUtil;
 
 $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
@@ -278,6 +279,66 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
             'eval'                    => array('maxlength' => 250),
             'sql'                     => "tinytext NULL"
         ),
+
+        'stripe_privateKey' => array (
+            'sql'                     => "text NULL"
+        ),
+
+        'stripe_publicKey' => array (
+            'sql'                     => "text NULL"
+        ),
+
+        'stripe_paymentMethods' => array (
+            'sql'                     => "text NULL"
+        ),
+        'stripe_merchantName' => array (
+            'eval'                    => array('maxlength' => 250),
+            'sql'                     => "tinytext NULL"
+        ),
+        'stripe_shipToFieldNameFirstname' => array (
+            'eval'                    => array('maxlength' => 250),
+            'sql'                     => "tinytext NULL"
+        ),
+        'stripe_shipToFieldNameLastname' => array (
+            'eval'                    => array('maxlength' => 250),
+            'sql'                     => "tinytext NULL"
+        ),
+        'stripe_shipToFieldNameStreet' => array (
+            'eval'                    => array('maxlength' => 250),
+            'sql'                     => "tinytext NULL"
+        ),
+        'stripe_shipToFieldNameCity' => array (
+            'eval'                    => array('maxlength' => 250),
+            'sql'                     => "tinytext NULL"
+        ),
+        'stripe_shipToFieldNamePostal' => array (
+            'eval'                    => array('maxlength' => 250),
+            'sql'                     => "tinytext NULL"
+        ),
+        'stripe_shipToFieldNameState' => array (
+            'eval'                    => array('maxlength' => 250),
+            'sql'                     => "tinytext NULL"
+        ),
+        'stripe_shipToFieldNamePhone' => array (
+            'eval'                    => array('maxlength' => 250),
+            'sql'                     => "tinytext NULL"
+        ),
+        'stripe_shipToFieldNameEMail' => array (
+            'eval'                    => array('maxlength' => 250),
+            'sql'                     => "tinytext NULL"
+        ),
+        'stripe_shipToFieldNameAddressLine2' => array (
+            'eval'                    => array('maxlength' => 250),
+            'sql'                     => "tinytext NULL"
+        ),
+        'stripe_shipToFieldNameCountryCode' => array (
+            'eval'                    => array('maxlength' => 250),
+            'sql'                     => "tinytext NULL"
+        ),
+        'stripe_logMode' => array (
+            'sql'                     => "varchar(128) NOT NULL default 'NONE'"
+        ),
+
 
         'payPalCheckout_clientID' => array (
             'sql'                     => "text NULL"
@@ -607,7 +668,10 @@ $GLOBALS['TL_DCA']['tl_ls_shop_payment_methods'] = array(
             'exclude'		=>	true,
             'label'			=>	&$GLOBALS['TL_LANG']['tl_ls_shop_payment_methods']['priceLimitMin'],
             'inputType'		=>	'text',
-            'eval'			=>	array('rgxp' => 'numberWithDecimals', 'tl_class' => 'w50'),
+            'eval'			=>	['rgxp' => 'numberWithDecimals', 'tl_class' => 'w50'],
+            'load_callback' => [
+                ['Merconis\Core\ls_shop_payment_methods', 'applyStripeMinimumPriceLimitMinOnLoad'],
+            ],
             'sql'                     => "decimal(12,4) NOT NULL default '0.0000'"
         ),
 
@@ -887,6 +951,51 @@ class ls_shop_payment_methods extends Backend {
         $this->addBeFormFieldSubpalettes($currentPaymentType);
     }
 
+    public function applyStripeMinimumPriceLimitMinOnLoad($value, DataContainer $dc): string
+    {
+        $paymentMethodType = $this->getSelectedPaymentMethodType($dc);
+        if ($paymentMethodType === null) {
+            return (string) $value;
+        }
+
+        $minimumValueOfGoods = ls_shop_paymentModule::getInstance()
+            ->getMinimumValueOfGoodsForPaymentMethodType($paymentMethodType);
+        if ($minimumValueOfGoods <= 0.0) {
+            return (string) $value;
+        }
+
+        $floatValue = (float) str_replace(',', '.', trim((string) $value));
+        if ($floatValue >= $minimumValueOfGoods) {
+            return (string) $value;
+        }
+
+        return number_format($minimumValueOfGoods, 4, '.', '');
+    }
+
+    protected function getSelectedPaymentMethodType(DataContainer $dc): ?string
+    {
+        $postedType = Input::post('type');
+        if (is_string($postedType) && $postedType !== '') {
+            return $postedType;
+        }
+
+        if ($dc->activeRecord !== null && isset($dc->activeRecord->type)) {
+            return (string) $dc->activeRecord->type;
+        }
+
+        if ($dc->id) {
+            $objPaymentMethod = Database::getInstance()
+                ->prepare("SELECT type FROM tl_ls_shop_payment_methods WHERE id=?")
+                ->limit(1)
+                ->execute($dc->id);
+            $objPaymentMethod->first();
+
+            return (string) $objPaymentMethod->type;
+        }
+
+        return null;
+    }
+
     protected function addBeFormFields($str_paymentMethodType) {
         $obj_paymentModule = ls_shop_paymentModule::getInstance();
         if (!is_array($obj_paymentModule->types[$str_paymentMethodType]['BE_formFields'])) {
@@ -945,6 +1054,14 @@ class ls_shop_payment_methods extends Backend {
             if ($this->isDeprecatedPaymentType($paymentModuleName) && $paymentModuleName !== $lockedPaymentType) {
                 continue;
             }
+
+            if ($paymentModuleName === 'stripe' && $paymentModuleName !== $lockedPaymentType) {
+                $licenseCheck = \LeadingSystems\MerconisBundle\License\LicenseKeyValidator::featureAllowed('stripe');
+                if (!($licenseCheck['allowed'] ?? false)) {
+                    continue;
+                }
+            }
+
             $paymentModules[$paymentModuleName] = $paymentModuleInfo['title'];
         }
         return $paymentModules;

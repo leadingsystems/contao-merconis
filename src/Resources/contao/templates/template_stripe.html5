@@ -1,0 +1,278 @@
+<?php
+use Contao\PageModel;
+use Contao\System;
+use Merconis\Core\ls_shop_languageHelper;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+
+$ajaxId = (string) ls_shop_languageHelper::getLanguagePage('ls_shop_ajaxPages', false, 'id');
+
+$pageModel = PageModel::findById($ajaxId);
+$objContentUrlGenerator = System::getContainer()->get('contao.routing.content_url_generator');
+$paymentApiUrl = $objContentUrlGenerator->generate($pageModel,array('parameters' => '/resource/paymentapistripe'), UrlGeneratorInterface::ABSOLUTE_URL);
+
+$defaultRequestToken = System::getContainer()->get('contao.csrf.token_manager')->getDefaultTokenValue();
+?>
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+
+        const paymentApiUrl = <?= json_encode($paymentApiUrl) ?>;
+        const defaultRequestToken = <?= json_encode($defaultRequestToken) ?>;
+
+
+
+        const response = await fetch(`${paymentApiUrl}?function=get-payment-intend&REQUEST_TOKEN=${encodeURIComponent(defaultRequestToken)}`, {
+            method: 'GET',
+            headers: {},
+        });
+        const jsonResponse = await response.json();
+        const data = jsonResponse.data;
+        const clientSecret = data.clientSecret;
+
+        // --- Helper functions for the loading overlay ---
+        const loadingIndicatorContainer = document.querySelector('.moduleContainer.loadingIndicator');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const loadingMessage = document.getElementById('loading-message');
+        const stripeCardErrorMessage = document.getElementById('stripe-card-error-message');
+
+
+        const showLoadingOverlay = (message) => {
+            const normalizedMessage = message || '';
+
+            // Sicherstellen, dass der Haupt-Loading-Container einen halbtransparenten Hintergrund + Blur hat.
+            const mainLoadingIndicator = document.querySelector('div.main.loadingIndicator');
+            if (mainLoadingIndicator) {
+                const supportsBackdropFilter =
+                    typeof CSS !== 'undefined'
+                    && typeof CSS.supports === 'function'
+                    && (
+                        CSS.supports('backdrop-filter', 'blur(6px)')
+                        || CSS.supports('-webkit-backdrop-filter', 'blur(6px)')
+                    );
+
+                if (supportsBackdropFilter) {
+                    mainLoadingIndicator.style.backgroundColor = 'rgba(255, 255, 255, 0.6)';
+                    mainLoadingIndicator.style.backdropFilter = 'blur(6px)';
+                    mainLoadingIndicator.style.webkitBackdropFilter = 'blur(6px)';
+                } else {
+                    mainLoadingIndicator.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+                    mainLoadingIndicator.style.backdropFilter = '';
+                    mainLoadingIndicator.style.webkitBackdropFilter = '';
+                }
+            }
+
+            if (loadingIndicatorContainer) {
+                loadingIndicatorContainer.classList.add('show');
+                loadingIndicatorContainer.style.display = 'block';
+            }
+
+            if (loadingMessage) {
+                loadingMessage.textContent = normalizedMessage;
+                loadingMessage.style.display = 'block';
+            }
+
+            if (loadingOverlay) {
+                loadingOverlay.style.display = 'flex';
+            }
+        };
+        const hideLoadingOverlay = () => {
+            if (loadingIndicatorContainer) {
+                loadingIndicatorContainer.classList.remove('show');
+                loadingIndicatorContainer.style.display = 'none';
+            }
+            if (loadingMessage) {
+                loadingMessage.style.display = 'none';
+                loadingMessage.textContent = '';
+            }
+            if (loadingOverlay) {
+                loadingOverlay.style.display = 'none';
+            }
+        };
+        const updateLoadingMessage = (message) => {
+            if (loadingMessage) {
+                loadingMessage.textContent = message || '';
+            }
+        };
+        const updateStripeCardErrorMessage = (message) => {
+            if (stripeCardErrorMessage) {
+                stripeCardErrorMessage.textContent = message;
+            }
+        };
+        // Helper function to wait for a certain amount of time
+        const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+        // Initialization and data retrieval
+        let paymentMethodType;
+        let stripePublicKey;
+        let billing_details;
+        let stripeCreatePaymentOptions;
+        let stripeElementOptions;
+
+        try {
+            const response = await fetch(`${paymentApiUrl}?function=get-payment-info&REQUEST_TOKEN=${encodeURIComponent(defaultRequestToken)}`, {
+                method: 'GET',
+                headers: {},
+            });
+            const jsonResponse = await response.json();
+            const data = jsonResponse.data;
+
+            // Check if all fields exist
+            const requiredFields = ['paymentMethodType', 'stripeElementOptions', 'publicKey', 'billing_details', 'stripeCreatePaymentOptions'];
+
+            for (const field of requiredFields) {
+                if (!(field in data)) {
+                    throw new Error(`One field is missing in request`);
+                }
+            }
+
+            paymentMethodType = data.paymentMethodType;
+            stripeElementOptions = data.stripeElementOptions;
+            stripePublicKey = data.publicKey;
+            billing_details = data.billing_details;
+            stripeCreatePaymentOptions = data.stripeCreatePaymentOptions;
+        } catch (error) {
+            console.error('Fehler bei der Initialisierung der Zahlung:', error);
+            if (stripeCardErrorMessage) {
+                stripeCardErrorMessage.textContent = '<?=$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['errorCreatingPaymentIntent']?>';
+            }
+            return;
+        }
+
+        console.log('paymentMethodType: '+paymentMethodType)
+        console.log('stripeCreatePaymentOptions: '+JSON.stringify(stripeCreatePaymentOptions))
+        console.log('stripeElementOptions: '+JSON.stringify(stripeElementOptions))
+
+        const stripe = Stripe(stripePublicKey);
+
+        let elements = null;
+
+        const paymentButton = document.getElementById('ctrl_27');
+        const form = paymentButton.closest('form');
+        const termsCheckbox = document.querySelector('#ctrl_54 input[type="checkbox"]');
+
+        let paymentMessage = document.getElementById('stripe-payment-message');
+        if (!paymentMessage) {
+            paymentMessage = document.createElement('div');
+            paymentMessage.id = 'stripe-payment-message';
+            paymentMessage.setAttribute('role', 'alert');
+            paymentMessage.style.marginTop = '15px';
+            paymentButton.parentElement.appendChild(paymentMessage);
+        }
+
+        if (!form || !paymentButton || !termsCheckbox) {
+            console.error('Stripe integration: One of the required form elements was not found.');
+            return;
+        }
+
+        paymentButton.disabled = !termsCheckbox.checked;
+        termsCheckbox.addEventListener('change', () => {
+            paymentButton.disabled = !termsCheckbox.checked;
+        });
+
+
+        const objStripeElementOptions = Object.assign({}, { clientSecret: clientSecret }, stripeElementOptions);
+        console.log(objStripeElementOptions)
+
+
+        elements = stripe.elements(objStripeElementOptions);
+
+
+        // Check und Umwandlung
+        if (Array.isArray(stripeCreatePaymentOptions)) {
+            stripeCreatePaymentOptions = Object.assign({}, ...stripeCreatePaymentOptions);
+        }
+
+        console.log(stripeCreatePaymentOptions)
+
+        const paymentElement = elements.create('payment', stripeCreatePaymentOptions);
+        paymentElement.mount('#payment-element');
+
+
+        // --- Logic for payment processing when submitting the form ---
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            paymentButton.disabled = true;
+
+
+            try {
+
+                const { error: submitError } = await elements.submit();
+
+                if (submitError) {
+                    console.error('Validierungsfehler:', submitError.message);
+                    errorElement.textContent = submitError.message;
+                    return;
+                }
+
+                showLoadingOverlay('<?=$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['prepareOrder']?>');
+                await wait(2000);
+
+                const response = await fetch(`${paymentApiUrl}?function=finish-order&clientSecret=${encodeURIComponent(clientSecret)}&REQUEST_TOKEN=${encodeURIComponent(defaultRequestToken)}`, {
+                    method: 'GET',
+                    headers: {},
+                });
+
+                let result;
+                result = await response.json();
+
+                if (result.status === "success" && result.data.afterCheckoutUrl) {
+                    // This message is only displayed at the beginning
+                    updateLoadingMessage('<?=$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['preparePayment']?>');
+                    await wait(2000);
+
+                    const afterCheckoutUrl = result.data.afterCheckoutUrl;
+                    const fullUrlAfterCheckoutUrl = new URL(afterCheckoutUrl, window.location.origin).href;
+
+                    const maxTries = 3;
+                    let error;
+
+                    for (let attempt = 1; attempt <= maxTries; attempt++) {
+                        // On repetitions (from the 2nd attempt onward), update the message
+                        if (attempt > 1) {
+                            updateLoadingMessage('<?=$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['tryToPayAgain']?>');
+                            await wait(1500); // Short pause before the next attempt
+                        }
+
+                        const { error: confirmError } = await stripe.confirmPayment({
+                            elements,
+                            confirmParams: {
+                                return_url: fullUrlAfterCheckoutUrl,
+                                payment_method_data: {
+                                    type: paymentMethodType,
+                                    billing_details
+                                }
+                            }
+                        });
+
+
+                        if (confirmError) {
+                            console.error('Fehler beim Kaufabschluss:', confirmError.message);
+                            window.location.href = fullUrlAfterCheckoutUrl;
+                            // Fehler bei der Bestätigung behandeln
+                            //errorElement.textContent = confirmError.message;
+                        }
+
+                        // Log the error of the current attempt
+                        console.warn(`Versuch ${attempt} fehlgeschlagen:`, error.message);
+                    }
+
+                    updateLoadingMessage('<?=$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['orderRedirectToFinishPage']?>');
+                    await wait(1000); // A small delay so the user can see the message
+                    hideLoadingOverlay();
+                    //window.location.href = fullUrlAfterCheckoutUrl;
+
+                } else {
+                    // This block is executed when result.status is NOT "success"
+                    hideLoadingOverlay();
+                    updateStripeCardErrorMessage('<?=$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['orderServerFailedMessage']?>')
+                    console.error("Failed in Checkout:", result);
+                }
+
+            } catch (err) {
+                // Server error
+                hideLoadingOverlay();
+                //updateStripeCardErrorMessage('<?=$GLOBALS['TL_LANG']['MOD']['ls_shop']['paymentMethods']['stripe']['orderServerErrorMessage']?>')
+                console.error("Error in Checkout:", err);
+            }
+        });
+    });
+</script>

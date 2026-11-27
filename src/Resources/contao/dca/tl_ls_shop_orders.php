@@ -325,6 +325,24 @@ $GLOBALS['TL_DCA']['tl_ls_shop_orders'] = array(
             'sql'                     => "text NULL"
         ),
 
+        'stripe_paymentIntent' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_orders']['stripe_paymentIntent'],
+            'inputType' => 'text',
+            'eval' => array('maxlength'=>255),
+            'search' => true,
+            'sql'                     => "varchar(255) NOT NULL default ''"
+        ),
+
+        'stripe_currentStatus' => array(
+            'exclude' => true,
+            'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_orders']['stripe_currentStatus'],
+            'inputType' => 'text',
+            'eval' => array('maxlength'=>255),
+            'filter' => true,
+            'sql' => "varchar(255) NOT NULL default ''"
+        ),
+
         'payPalPlus_saleId' => array(
             'exclude' => true,
             'label' => &$GLOBALS['TL_LANG']['tl_ls_shop_orders']['payPalPlus_saleId'],
